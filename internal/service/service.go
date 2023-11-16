@@ -16,7 +16,7 @@ type Services struct {
 	Event EventService
 }
 
-func NewRepositories(event EventService) *Services {
+func NewServices(event EventService) *Services {
 	return &Services{
 		Event: event,
 	}
