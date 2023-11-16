@@ -27,22 +27,22 @@ func main() {
 
 	db, err := sqlitedb.NewClient("sqlite3", "./nto2023.db")
 	if err != nil {
-		component.ShowErrorDialog(err, w)
+		component.ShowErrorDialogWidget(err, w)
 		logger.Errorf(err.Error())
 	}
 
 	err = sqlitedb.CreateTables(db)
 	if err != nil {
-		component.ShowErrorDialog(err, w)
+		component.ShowErrorDialogWidget(err, w)
 		logger.Errorf(err.Error())
 	}
 
 	timeoutContext := time.Duration(2) * time.Second
 
 	eventRepo := eventRepository.NewEventRepository(db, logger)
-	eventServ := eventService.NewEventService(eventRepo, timeoutContext, logger)
-	eventPage.NewEventPage(eventServ, ctx, logger)
+	eventServ := eventService.NewEventService(eventRepo, timeoutContext, logger, ctx)
+	event := eventPage.NewEventPage(eventServ, logger)
 
-	gui := ui.NewGUI(a, w)
+	gui := ui.NewGUI(a, w, event)
 	ui.SetupUI(gui)
 }
