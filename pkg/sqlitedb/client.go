@@ -1,6 +1,9 @@
 package sqlitedb
 
-import "database/sql"
+import (
+	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
+)
 
 func NewClient(driverName string, filePath string) (*sql.DB, error) {
 	db, err := sql.Open(driverName, filePath)
@@ -9,4 +12,8 @@ func NewClient(driverName string, filePath string) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func CreateTables(db *sql.DB) error {
+	return nil
 }

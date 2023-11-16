@@ -11,13 +11,3 @@ type EventService interface {
 	Update(ctx context.Context, eventInput model.Event) error
 	Delete(ctx context.Context, eventId int) error
 }
-
-type Services struct {
-	Event EventService
-}
-
-func NewServices(event EventService) *Services {
-	return &Services{
-		Event: event,
-	}
-}
