@@ -26,13 +26,13 @@ func (s EventRepository) Create(ctx context.Context, contact model.Event) (int, 
 
 // Get объединяем два запроса в один, выбор запроса зависит от eventArgument.
 // Он может быть либо по event_type_id или по event type, либо по category.
-func (s EventRepository) Get(ctx context.Context, eventArgument string) ([]model.EventWithCategoryAndType, error) {
-	query := "" //запрос по event_type_id или по event type
+func (s EventRepository) Get(ctx context.Context, eventCategory string, eventType string) ([]model.EventWithCategoryAndType, error) {
+	query := "" //запрос категории
 	var args []interface{}
 
-	if eventArgument != "entertainment" && eventArgument != "enlightenment" && eventArgument != "education" {
-		query = "" //запрос по категории
-		args = append(args, eventArgument)
+	if eventType != "" {
+		query = "" //запрос по категории + тип
+		args = append(args, eventCategory)
 	}
 
 	rows, err := s.db.QueryContext(ctx, query, args...)

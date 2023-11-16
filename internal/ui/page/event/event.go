@@ -6,7 +6,7 @@ import (
 	error2 "github.com/niumandzi/nto2023/internal/ui/page/error"
 )
 
-func ShowEvent(category string) fyne.CanvasObject {
+func (s EventPage) ShowEvent(category string) fyne.CanvasObject {
 	var content fyne.CanvasObject
 
 	switch category {
@@ -19,4 +19,12 @@ func ShowEvent(category string) fyne.CanvasObject {
 	}
 
 	return content
+}
+
+func (s EventPage) createEvent(category string) fyne.CanvasObject {
+	return nil
+}
+
+func (s EventPage) updateEvent(category string) fyne.CanvasObject {
+	return nil
 }

@@ -5,10 +5,16 @@ type EventType struct {
 	EventType string
 }
 
-type EventTypeWithCategory struct {
-	ID           int
-	EventTypeID  int
-	CategoryType string
+type Category struct {
+	ID          int
+	EventTypeID int
+	Category    string
+}
+
+type CategoryWithEventType struct {
+	ID        int
+	Category  string
+	EventType EventType
 }
 
 type Event struct {
@@ -20,9 +26,9 @@ type Event struct {
 }
 
 type EventWithCategoryAndType struct {
-	ID                    int
-	Date                  string
-	Name                  string
-	Description           string
-	EventTypeWithCategory EventTypeWithCategory
+	ID          int
+	Date        string
+	Name        string
+	Description string
+	Category    CategoryWithEventType
 }

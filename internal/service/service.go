@@ -1,13 +1,12 @@
 package service
 
 import (
-	"context"
 	"github.com/niumandzi/nto2023/model"
 )
 
 type EventService interface {
-	CreateEvent(ctx context.Context, contact model.Event) (int, error)
-	GetEvent(ctx context.Context, eventArgument string) ([]model.EventWithCategoryAndType, error)
-	UpdateEvent(ctx context.Context, eventInput model.Event) error
-	DeleteEvent(ctx context.Context, eventId int) error
+	CreateEvent(contact model.Event) (int, error)
+	GetEvent(eventCategory string, eventType string) ([]model.EventWithCategoryAndType, error)
+	UpdateEvent(eventInput model.Event) error
+	DeleteEvent(eventId int) error
 }
