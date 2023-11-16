@@ -45,6 +45,11 @@ func (s EventRepository) Get(ctx context.Context, eventCategory string, eventTyp
 	return nil, nil
 }
 
+func (s EventRepository) GetType(ctx context.Context, eventCategory string) ([]model.EventType, error) {
+	return nil, nil
+
+}
+
 // Update обновляет только type_id, name, date, description.
 // Обновление category у event type и изменение самой category - это отдельные методы в отдельном репо.
 func (s EventRepository) Update(ctx context.Context, eventInput model.Event) error {
