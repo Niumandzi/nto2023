@@ -6,8 +6,8 @@ import (
 )
 
 type EventService interface {
-	Create(ctx context.Context, contact model.Event) (int, error)
-	Get(ctx context.Context, eventArgument string) ([]model.EventWithCategoryAndType, error)
-	Update(ctx context.Context, eventInput model.Event) error
-	Delete(ctx context.Context, eventId int) error
+	CreateEvent(ctx context.Context, contact model.Event) (int, error)
+	GetEvent(ctx context.Context, eventArgument string) ([]model.EventWithCategoryAndType, error)
+	UpdateEvent(ctx context.Context, eventInput model.Event) error
+	DeleteEvent(ctx context.Context, eventId int) error
 }

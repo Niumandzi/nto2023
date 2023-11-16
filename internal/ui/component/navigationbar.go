@@ -3,26 +3,29 @@ package component
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"github.com/niumandzi/nto2023/internal/ui/page/entertainment"
+	error2 "github.com/niumandzi/nto2023/internal/ui/page/error"
+	"github.com/niumandzi/nto2023/internal/ui/page/event"
 )
 
 func NavigationBar(mainContent *fyne.Container, window fyne.Window) *widget.Tree {
 	treeData := map[string][]string{
-		"": {"развлечение", "просвещение", "образование"}}
+		"": {"развлечения", "просвещение", "образование"}}
 
 	navTree := widget.NewTreeWithStrings(treeData)
 	navTree.OnSelected = func(id string) {
 		var content fyne.CanvasObject
-		// Обработка выбранного элемента
+
 		switch id {
-		case "развлечение":
-			content = entertainment.ShowIntertainment()
+		case "развлечения":
+			content = event.ShowEvent("entertainment")
+		case "просвещение":
+			content = event.ShowEvent("enlightenment")
 		default:
-			content = widget.NewLabel("Выберите категорию")
+			content = error2.ShowErrorPage()
 		}
 
 		mainContent.Objects = []fyne.CanvasObject{content}
-		mainContent.Refresh() // Обновляем содержимое контейнера
+		mainContent.Refresh()
 	}
 
 	return navTree

@@ -21,14 +21,14 @@ func CreateTables(db *sql.DB) error {
 			type_name VARCHAR(255) NOT NULL
 		  );
 	
-		CREATE TABLE categories_types (
+		CREATE TABLE IF NOT EXISTS categories_types (
 			id SERIAL PRIMARY KEY,
 			type_id INT NOT NULL,
 			category TEXT CHECK (category IN ('entertainment', 'enlightenment', 'education')),
-			FOREIGN KEY (type_id) REFERENCES event_types(id),
+			FOREIGN KEY (type_id) REFERENCES event_types(id)
 		  );
 	
-		CREATE TABLE events (
+		CREATE TABLE IF NOT EXISTS events (
 		  id SERIAL PRIMARY KEY,
 		  name VARCHAR(255) NOT NULL,
 		  description TEXT,
