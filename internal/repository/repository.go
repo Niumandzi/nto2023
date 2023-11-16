@@ -5,7 +5,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-type Event interface {
+type EventRepository interface {
 	Create(ctx context.Context, contact model.Event) (int, error)
 	Get(ctx context.Context, eventArgument string) ([]model.EventWithCategoryAndType, error)
 	Update(ctx context.Context, eventInput model.Event) error
