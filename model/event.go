@@ -1,14 +1,14 @@
 package model
 
-type Category struct {
-	ID           int
-	CategoryType string
+type EventType struct {
+	ID        int
+	EventType string
 }
 
-type EventType struct {
-	ID         int
-	CategoryID int
-	EventType  string
+type EventTypeWithCategory struct {
+	ID           int
+	EventTypeID  int
+	CategoryType string
 }
 
 type Event struct {
@@ -20,9 +20,9 @@ type Event struct {
 }
 
 type EventWithCategoryAndType struct {
-	ID          int
-	EventType   EventType
-	Date        string
-	Name        string
-	Description string
+	ID                    int
+	Date                  string
+	Name                  string
+	Description           string
+	EventTypeWithCategory EventTypeWithCategory
 }
