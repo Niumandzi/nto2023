@@ -21,7 +21,7 @@ func NewEventRepository(db *sql.DB, logger logging.Logger) EventRepository {
 
 func (s EventRepository) Create(ctx context.Context, contact model.Event) (int, error) {
 
-	return 0, err
+	return 0, nil
 }
 
 // Get объединяем два запроса в один, выбор запроса зависит от eventArgument.
@@ -35,7 +35,14 @@ func (s EventRepository) Get(ctx context.Context, eventArgument string) ([]model
 		args = append(args, eventArgument)
 	}
 
-	return nil, err
+	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	return nil, nil
 }
 
 // Update обновляет только type_id, name, date, description.

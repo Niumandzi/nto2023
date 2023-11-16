@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"github.com/niumandzi/nto2023/internal/ui/component"
+	"github.com/niumandzi/nto2023/internal/ui/page/index"
 )
 
 type GUI struct {
@@ -21,19 +22,15 @@ func NewGUI(app fyne.App, window fyne.Window) GUI {
 func SetupUI(gui GUI) {
 	w := gui.Window
 
-	// Создание основного контента
-	mainContent := container.NewMax()
+	mainContent := container.NewStack()
 
-	// Создание панели навигации
-	navBar := component.NavigationBar(mainContent, w) // Предположим, что 'cases' доступны
+	mainContent.Add(index.ShowIndex())
 
-	// Размещение панели навигации и основного контента
+	navBar := component.NavigationBar(mainContent, w)
+
 	split := container.NewHSplit(navBar, mainContent)
-	split.Offset = 0.2 // Установка ширины панели навигации
+	split.Offset = 0.2
 
-	// Установка контента окна
 	w.SetContent(split)
-
-	// Отображение окна
 	w.ShowAndRun()
 }

@@ -14,11 +14,10 @@ type EventService struct {
 	ctx            context.Context
 }
 
-func NewEventService(contact repository.EventRepository, timeout time.Duration, logger logging.Logger, ctx context.Context) EventService {
+func NewEventService(event repository.EventRepository, timeout time.Duration, logger logging.Logger) EventService {
 	return EventService{
-		eventRepo:      contact,
+		eventRepo:      event,
 		contextTimeout: timeout,
 		logger:         logger,
-		ctx:            ctx,
 	}
 }

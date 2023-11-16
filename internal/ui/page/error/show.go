@@ -1,4 +1,4 @@
-package index
+package error
 
 import (
 	"fyne.io/fyne/v2"
@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func ShowIndex() fyne.CanvasObject {
-	label := widget.NewLabel("Your Text Here")
+func ShowErrorPage() fyne.CanvasObject {
+	label := widget.NewLabel("Этот раздел будет реализован позднее")
 	return container.New(layout.NewCenterLayout(), label)
 }
