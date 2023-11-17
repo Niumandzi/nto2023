@@ -1,4 +1,4 @@
-package category_type
+package details
 
 import (
 	"context"
@@ -54,11 +54,13 @@ func (s DetailsRepository) Create(ctx context.Context, categoryName string, type
 func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]model.Details, error) {
 	var details []model.Details
 
-	rows, err := s.db.QueryContext(ctx, `SELECT (details.id, details.type_name, details.category) WHERE details.category = $1`, categoryName)
+	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category FROM details WHERE details.category = $1`, categoryName)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return []model.Details{}, err
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var detail model.Details
@@ -80,13 +82,9 @@ func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]mode
 func (s DetailsRepository) GetId(ctx context.Context, categoryName string, typeName string) (int, error) {
 	var id int
 
-	row, err := s.db.QueryContext(ctx, `SELECT (details.id) WHERE details.category = $1 AND details.type_name = $2`, categoryName, typeName)
-	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		return 0, err
-	}
+	row := s.db.QueryRowContext(ctx, `SELECT details.id FROM details WHERE details.category = $1 AND details.type_name = $2`, categoryName, typeName)
 
-	err = row.Scan(&id)
+	err := row.Scan(&id)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return 0, err
@@ -99,7 +97,7 @@ func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, ty
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
-		return nil
+		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE details SET type_name = $1 WHERE id = $2;`, typeName, detailsId)
@@ -139,8 +137,7 @@ func (s DetailsRepository) DeleteType(ctx context.Context, categoryName string, 
 		return nil
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM details
-											WHERE type_name = $1 AND category = $2;`, typeName, categoryName)
+	res, err := tx.ExecContext(ctx, `DELETE FROM details WHERE type_name = $1 AND category = $2;`, typeName, categoryName)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()

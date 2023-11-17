@@ -27,7 +27,7 @@ func (s EventRepository) Create(ctx context.Context, event model.Event) (int, er
 		return 0, nil
 	}
 
-	res, err := tx.ExecContext(ctx, `INSERT INTO events (name, description, date, details_id) VALUES ($1, $2, $3, $4, $5);`, event.Name, event.Description, event.Date, event.DetailsId)
+	res, err := tx.ExecContext(ctx, `INSERT INTO events (name, description, date, details_id) VALUES ($1, $2, $3, $4);`, event.Name, event.Description, event.Date, event.DetailsId)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()
@@ -107,7 +107,7 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, typeName 
 
 		if err != nil {
 			s.logger.Fatalf("error: %v", err.Error())
-			return []model.EventWithDetails{}, nil
+			return []model.EventWithDetails{}, err
 		}
 
 		events = append(events, event)
@@ -122,7 +122,7 @@ func (s EventRepository) Update(ctx context.Context, eventUpd model.Event) error
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
-		return nil
+		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE events SET name = $1, description = $2, date = $3, details_id = $4 WHERE id = $5;`, eventUpd.Name, eventUpd.Description, eventUpd.Date, eventUpd.DetailsId, eventUpd.Id)
@@ -159,10 +159,10 @@ func (s EventRepository) Delete(ctx context.Context, eventId int) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
-		return nil
+		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM events WHERE id = $5;`, eventId)
+	res, err := tx.ExecContext(ctx, `DELETE FROM events WHERE id = $1;`, eventId)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()

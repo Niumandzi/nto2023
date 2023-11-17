@@ -12,10 +12,15 @@ func (s EventService) CreateEvent(event model.EventWithDetails) (int, error) {
 	defer cancel()
 
 	err := validation.ValidateStruct(&event,
-		validation.Field(&event.Name, validation.Required),
+		validation.Field(&event.Name, validation.Required))
+	if err != nil {
+		s.logger.Fatalf("error: %v", err.Error())
+		return 0, err
+	}
+
+	err = validation.ValidateStruct(&event.Details,
 		validation.Field(&event.Details.TypeName, validation.Required),
-		validation.Field(&event.Details.Category, validation.Required, validation.In("entertainment", "enlightenment", "education")),
-	)
+		validation.Field(&event.Details.Category, validation.Required, validation.In("entertainment", "enlightenment", "education")))
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return 0, err

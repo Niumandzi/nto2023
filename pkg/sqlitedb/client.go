@@ -17,14 +17,14 @@ func NewClient(driverName string, filePath string) (*sql.DB, error) {
 func CreateTables(db *sql.DB) error {
 	_, err := db.Exec(
 		`CREATE TABLE IF NOT EXISTS details (
-			id SERIAL PRIMARY KEY,
+			id INTEGER PRIMARY KEY,
 			type_name VARCHAR(255) NOT NULL,
 			category TEXT NOT NULL CHECK (category IN ('entertainment', 'enlightenment', 'education')),
 		    UNIQUE(type_name, category)
 		  );
 	
 		CREATE TABLE IF NOT EXISTS events (
-		  	id SERIAL PRIMARY KEY,
+		  	id INTEGER PRIMARY KEY,
 		  	name VARCHAR(255) NOT NULL,
 		  	description TEXT,
 		  	date TEXT,
