@@ -23,27 +23,27 @@ func NewEventRepository(db *sql.DB, logger logging.Logger) EventRepository {
 func (s EventRepository) Create(ctx context.Context, event model.Event) (int, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		return 0, nil
+		s.logger.Errorf("error: %v", err.Error())
+		return 0, err
 	}
 
 	res, err := tx.ExecContext(ctx, `INSERT INTO events (name, description, date, details_id) VALUES ($1, $2, $3, $4);`, event.Name, event.Description, event.Date, event.DetailsId)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
@@ -106,7 +106,7 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, typeName 
 		)
 
 		if err != nil {
-			s.logger.Fatalf("error: %v", err.Error())
+			s.logger.Errorf("error: %v", err.Error())
 			return []model.EventWithDetails{}, err
 		}
 
@@ -121,33 +121,33 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, typeName 
 func (s EventRepository) Update(ctx context.Context, eventUpd model.Event) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE events SET name = $1, description = $2, date = $3, details_id = $4 WHERE id = $5;`, eventUpd.Name, eventUpd.Description, eventUpd.Date, eventUpd.DetailsId, eventUpd.Id)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("event update", int(rowsCount))
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
@@ -158,33 +158,33 @@ func (s EventRepository) Update(ctx context.Context, eventUpd model.Event) error
 func (s EventRepository) Delete(ctx context.Context, eventId int) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `DELETE FROM events WHERE id = $1;`, eventId)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("event delete", int(rowsCount))
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}

@@ -32,7 +32,6 @@ func (s EventService) CreateEvent(event model.EventWithDetails) (int, error) {
 	}
 
 	eventDB := model.Event{
-		Id:          0,
 		Name:        event.Name,
 		Description: event.Description,
 		Date:        event.Date,

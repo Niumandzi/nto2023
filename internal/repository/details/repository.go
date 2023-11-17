@@ -23,27 +23,27 @@ func NewDetailsRepository(db *sql.DB, logger logging.Logger) *DetailsRepository 
 func (s DetailsRepository) Create(ctx context.Context, categoryName string, typeName string) (int, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		return 0, nil
+		s.logger.Errorf("error: %v", err.Error())
+		return 0, err
 	}
 
 	res, err := tx.ExecContext(ctx, `INSERT INTO details (type_name, category) VALUES ($1, $2);`, typeName, categoryName)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
@@ -56,7 +56,7 @@ func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]mode
 
 	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category FROM details WHERE details.category = $1`, categoryName)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		return []model.Details{}, err
 	}
 
@@ -69,7 +69,7 @@ func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]mode
 			&detail.TypeName,
 			&detail.Category)
 		if err != nil {
-			s.logger.Fatalf("error: %v", err.Error())
+			s.logger.Errorf("error: %v", err.Error())
 			return []model.Details{}, err
 		}
 
@@ -86,7 +86,7 @@ func (s DetailsRepository) GetId(ctx context.Context, categoryName string, typeN
 
 	err := row.Scan(&id)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		return 0, err
 	}
 
@@ -96,33 +96,33 @@ func (s DetailsRepository) GetId(ctx context.Context, categoryName string, typeN
 func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, typeName string) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE details SET type_name = $1 WHERE id = $2;`, typeName, detailsId)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("details type name update", int(rowsCount))
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
@@ -133,33 +133,33 @@ func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, ty
 func (s DetailsRepository) DeleteType(ctx context.Context, categoryName string, typeName string) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		return nil
+		s.logger.Errorf("error: %v", err.Error())
+		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `DELETE FROM details WHERE type_name = $1 AND category = $2;`, typeName, categoryName)
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("details delete", int(rowsCount))
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
+		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
