@@ -4,12 +4,15 @@ go 1.21.1
 
 require (
 	fyne.io/fyne/v2 v2.4.1
+	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/mattn/go-sqlite3 v1.14.18
 	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/net v0.14.0
 )
 
 require (
 	fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a // indirect
+	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fredbi/uri v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -31,7 +34,6 @@ require (
 	github.com/yuin/goldmark v1.5.5 // indirect
 	golang.org/x/image v0.11.0 // indirect
 	golang.org/x/mobile v0.0.0-20230531173138-3c911d8e3eda // indirect
-	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

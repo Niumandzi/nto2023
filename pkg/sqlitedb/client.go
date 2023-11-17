@@ -26,12 +26,14 @@ func CreateTables(db *sql.DB) error {
 			type_id INT NOT NULL,
 			category TEXT CHECK (category IN ('entertainment', 'enlightenment', 'education')),
 			FOREIGN KEY (type_id) REFERENCES event_types(id)
+		    ON DELETE CASCADE
 		  );
 	
 		CREATE TABLE IF NOT EXISTS events (
 		  id SERIAL PRIMARY KEY,
 		  name VARCHAR(255) NOT NULL,
 		  description TEXT,
+		  date TEXT,
 		  details_id INT NOT NULL,
 		  FOREIGN KEY (details_id) REFERENCES categories_types(id)
 		  )`)

@@ -1,8 +1,8 @@
 package model
 
 type EventType struct {
-	ID        int
-	EventType string
+	ID       int
+	TypeName string
 }
 
 type Category struct {
@@ -19,7 +19,7 @@ type CategoryWithEventType struct {
 
 type Event struct {
 	ID          int
-	EventTypeId int
+	DetailsID   int
 	Date        string
 	Name        string
 	Description string
