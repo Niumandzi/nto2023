@@ -6,26 +6,35 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (s EventService) CreateEvent(event model.EventWithCategoryAndType) (int, error) {
+func (s EventService) CreateEvent(event model.EventWithDetails) (int, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
 	err := validation.ValidateStruct(&event,
 		validation.Field(&event.Name, validation.Required),
-		validation.Field(&event.Category.Category, validation.Required, validation.In("entertainment", "enlightenment", "education")),
-		validation.Field(&event.Category.EventType.TypeName, validation.Required),
+		validation.Field(&event.Details.TypeName, validation.Required),
+		validation.Field(&event.Details.Category, validation.Required, validation.In("entertainment", "enlightenment", "education")),
 	)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return 0, err
 	}
 
-	detailId, err := s.categoryTypeRepo.GetCategoryTypeID(ctx, event.Category.Category, event.Category.EventType.TypeName)
+	detailId, err := s.detailsRepo.GetId(ctx, event.Details.Category, event.Details.TypeName)
+	if err != nil {
+		return 0, err
+	}
 
-	event.Category.ID = detailId
+	eventDB := model.Event{
+		Id:          0,
+		Name:        event.Name,
+		Description: event.Description,
+		Date:        event.Date,
+		DetailsId:   detailId,
+	}
 
-	id, err := s.eventRepo.Create(ctx, event)
+	id, err := s.eventRepo.Create(ctx, eventDB)
 	if err != nil {
 		return 0, err
 	}
@@ -33,12 +42,12 @@ func (s EventService) CreateEvent(event model.EventWithCategoryAndType) (int, er
 	return id, nil
 }
 
-func (s EventService) CreateType(eventType string, eventCategory string) (int, error) {
+func (s EventService) CreateDetails(categoryName string, typeName string) (int, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	id, err := s.categoryTypeRepo.CreateCategoryWithType(ctx, eventCategory, eventType)
+	id, err := s.detailsRepo.Create(ctx, categoryName, typeName)
 	if err != nil {
 		return 0, err
 	}

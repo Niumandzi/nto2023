@@ -6,16 +6,16 @@ import (
 )
 
 type EventRepository interface {
-	Create(ctx context.Context, event model.EventWithCategoryAndType) (int, error)
-	Get(ctx context.Context, eventCategory string, eventType string) ([]model.EventWithCategoryAndType, error)
+	Create(ctx context.Context, event model.Event) (int, error)
+	Get(ctx context.Context, categoryName string, typeName string) ([]model.EventWithDetails, error)
 	Update(ctx context.Context, eventUpd model.Event) error
 	Delete(ctx context.Context, eventId int) error
 }
 
-type CategoryTypeRepository interface {
-	CreateCategoryWithType(ctx context.Context, eventCategory string, eventType string) (int, error)
-	GetCategoryTypes(ctx context.Context, eventCategory string) ([]model.EventType, error)
-	GetCategoryTypeID(ctx context.Context, eventCategory string, eventType string) (int, error)
-	UpdateTypeName(ctx context.Context, eventTypeID int, eventType string) error
-	DeleteType(ctx context.Context, eventType string) error
+type DetailsRepository interface {
+	Create(ctx context.Context, categoryName string, typeName string) (int, error)
+	Get(ctx context.Context, categoryName string) ([]model.Details, error)
+	GetId(ctx context.Context, categoryName string, typeName string) (int, error)
+	UpdateTypeName(ctx context.Context, detailsId int, typeName string) error
+	DeleteType(ctx context.Context, categoryName string, typeName string) error
 }

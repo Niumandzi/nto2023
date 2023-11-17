@@ -8,40 +8,26 @@ import (
 	"github.com/niumandzi/nto2023/pkg/logging"
 )
 
-type CategoryTypeRepository struct {
+type DetailsRepository struct {
 	db     *sql.DB
 	logger logging.Logger
 }
 
-func NewCategoryTypeRepository(db *sql.DB, logger logging.Logger) *CategoryTypeRepository {
-	return &CategoryTypeRepository{
+func NewDetailsRepository(db *sql.DB, logger logging.Logger) *DetailsRepository {
+	return &DetailsRepository{
 		db:     db,
 		logger: logger,
 	}
 }
 
-func (s CategoryTypeRepository) CreateCategoryWithType(ctx context.Context, eventCategory string, eventType string) (int, error) {
+func (s DetailsRepository) Create(ctx context.Context, categoryName string, typeName string) (int, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return 0, nil
 	}
 
-	res, err := tx.ExecContext(ctx, `INSERT INTO event_types (type_name) VALUES ($1);`, eventType)
-	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		tx.Rollback()
-		return 0, err
-	}
-
-	eventTypeID, err := res.LastInsertId()
-	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		tx.Rollback()
-		return 0, err
-	}
-
-	res, err = tx.ExecContext(ctx, `INSERT INTO categories_types (type_id, category) VALUES ($1, $2)`, eventTypeID, eventCategory)
+	res, err := tx.ExecContext(ctx, `INSERT INTO details (type_name, category) VALUES ($1, $2);`, typeName, categoryName)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()
@@ -65,35 +51,36 @@ func (s CategoryTypeRepository) CreateCategoryWithType(ctx context.Context, even
 	return int(id), nil
 }
 
-func (s CategoryTypeRepository) GetCategoryTypes(ctx context.Context, eventCategory string) ([]model.EventType, error) {
-	var eventTypes []model.EventType
+func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]model.Details, error) {
+	var details []model.Details
 
-	rows, err := s.db.QueryContext(ctx, `SELECT (event_types.id, event_types.type_name) FROM event_types INNER JOIN categories_types ON categories_types.type_id = event_types.id WHERE categories_types.category = $1`, eventCategory)
+	rows, err := s.db.QueryContext(ctx, `SELECT (details.id, details.type_name, details.category) WHERE details.category = $1`, categoryName)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
-		return []model.EventType{}, err
+		return []model.Details{}, err
 	}
 
 	for rows.Next() {
-		var eventType model.EventType
+		var detail model.Details
 
-		err = rows.Scan(&eventType.ID,
-			&eventType.TypeName)
+		err = rows.Scan(&detail.Id,
+			&detail.TypeName,
+			&detail.Category)
 		if err != nil {
 			s.logger.Fatalf("error: %v", err.Error())
-			return []model.EventType{}, err
+			return []model.Details{}, err
 		}
 
-		eventTypes = append(eventTypes, eventType)
+		details = append(details, detail)
 	}
 
-	return eventTypes, nil
+	return details, nil
 }
 
-func (s CategoryTypeRepository) GetCategoryTypeID(ctx context.Context, eventCategory string, eventType string) (int, error) {
+func (s DetailsRepository) GetId(ctx context.Context, categoryName string, typeName string) (int, error) {
 	var id int
 
-	row, err := s.db.QueryContext(ctx, `SELECT categories_types.id FROM categories_types INNER JOIN event_types ON event_types.id = categories_types.type_id WHERE category = $1 AND event_types.type_name = $2`, eventCategory, eventType)
+	row, err := s.db.QueryContext(ctx, `SELECT (details.id) WHERE details.category = $1 AND details.type_name = $2`, categoryName, typeName)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return 0, err
@@ -108,14 +95,14 @@ func (s CategoryTypeRepository) GetCategoryTypeID(ctx context.Context, eventCate
 	return id, nil
 }
 
-func (s CategoryTypeRepository) UpdateTypeName(ctx context.Context, eventTypeID int, eventTypeUpd string) error {
+func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, typeName string) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return nil
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE event_types SET type_name = $1 WHERE id = $2;`, eventTypeUpd, eventTypeID)
+	res, err := tx.ExecContext(ctx, `UPDATE details SET type_name = $1 WHERE id = $2;`, typeName, detailsId)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()
@@ -129,7 +116,7 @@ func (s CategoryTypeRepository) UpdateTypeName(ctx context.Context, eventTypeID 
 		return err
 	}
 	if rowsCount != 1 {
-		err = errors.NewRowCountError("TypeName update", int(rowsCount))
+		err = errors.NewRowCountError("details type name update", int(rowsCount))
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()
 		return err
@@ -145,15 +132,15 @@ func (s CategoryTypeRepository) UpdateTypeName(ctx context.Context, eventTypeID 
 	return nil
 }
 
-func (s CategoryTypeRepository) DeleteType(ctx context.Context, eventType string) error {
+func (s DetailsRepository) DeleteType(ctx context.Context, categoryName string, typeName string) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return nil
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM event_types
-											WHERE type_name = $1;`, eventType)
+	res, err := tx.ExecContext(ctx, `DELETE FROM details
+											WHERE type_name = $1 AND category = $2;`, typeName, categoryName)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()
@@ -167,7 +154,7 @@ func (s CategoryTypeRepository) DeleteType(ctx context.Context, eventType string
 		return err
 	}
 	if rowsCount != 1 {
-		err = errors.NewRowCountError("Type delete", int(rowsCount))
+		err = errors.NewRowCountError("details delete", int(rowsCount))
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()
 		return err

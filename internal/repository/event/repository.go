@@ -20,14 +20,14 @@ func NewEventRepository(db *sql.DB, logger logging.Logger) EventRepository {
 	}
 }
 
-func (s EventRepository) Create(ctx context.Context, event model.EventWithCategoryAndType) (int, error) {
+func (s EventRepository) Create(ctx context.Context, event model.Event) (int, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		return 0, nil
 	}
 
-	res, err := tx.ExecContext(ctx, `INSERT INTO events (name, description, date, details_id) VALUES ($1, $2, $3, $4, $5);`, event.Name, event.Description, event.Date, event.Category.ID)
+	res, err := tx.ExecContext(ctx, `INSERT INTO events (name, description, date, details_id) VALUES ($1, $2, $3, $4, $5);`, event.Name, event.Description, event.Date, event.DetailsId)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()
@@ -53,25 +53,23 @@ func (s EventRepository) Create(ctx context.Context, event model.EventWithCatego
 
 // Get объединяем два запроса в один, выбор запроса зависит от eventType.
 // Он может быть либо по event_type_id или по event type, либо по category.
-func (s EventRepository) Get(ctx context.Context, eventCategory string, eventType string) ([]model.EventWithCategoryAndType, error) {
+func (s EventRepository) Get(ctx context.Context, categoryName string, typeName string) ([]model.EventWithDetails, error) {
 	var query string
-	var events []model.EventWithCategoryAndType
+	var events []model.EventWithDetails
 
-	switch eventType {
+	switch typeName {
 	//запрос только по по категории
 	case "":
 		query = `SELECT events.id,
        					events.name,
 						events.description,
 						events.date,
-						categories_types.id,
-						categories_types.category,
-						event_types.id,
-						event_types.type_name
+						details.id,
+						details.type_name,
+						details.category
 				   FROM events
-				   INNER JOIN categories_types ON events.details_id = categories_types.id
-				   INNER JOIN event_types ON categories_types.type_id = event_types.id
-				   WHERE categories_types.category = $1;`
+				   INNER JOIN details ON events.details_id = details.id
+				   WHERE details.category = $1;`
 		break
 	//запрос категории + тип
 	default:
@@ -79,40 +77,37 @@ func (s EventRepository) Get(ctx context.Context, eventCategory string, eventTyp
 						events.name, 
 						events.description, 
 						events.date, 
-						categories_types.id,  
-						categories_types.category, 
-						event_types.id, 
-						event_types.type_name
+						details.id,
+						details.type_name,
+						details.category
 				FROM events
-				INNER JOIN categories_types ON events.details_id = categories_types.id
-				INNER JOIN event_types ON categories_types.type_id = event_types.id
-				WHERE categories_types.category = $1 AND event_types.type_name = $2;`
+				INNER JOIN details ON events.details_id = details.id
+				WHERE details.category = $1 AND details.type_name = $2;`
 	}
 
-	rows, err := s.db.QueryContext(ctx, query, eventCategory, eventType)
+	rows, err := s.db.QueryContext(ctx, query, categoryName, typeName)
 	if err != nil {
 		s.logger.Error(err.Error())
-		return []model.EventWithCategoryAndType{}, err
+		return []model.EventWithDetails{}, err
 	}
 
 	defer rows.Close()
 
 	for rows.Next() {
-		var event model.EventWithCategoryAndType
+		var event model.EventWithDetails
 
-		err = rows.Scan(&event.ID,
+		err = rows.Scan(&event.Id,
 			&event.Name,
 			&event.Description,
 			&event.Date,
-			&event.Category.ID,
-			&event.Category.Category,
-			&event.Category.EventType.ID,
-			&event.Category.EventType.TypeName,
+			&event.Details.Id,
+			&event.Details.TypeName,
+			&event.Details.Category,
 		)
 
 		if err != nil {
 			s.logger.Fatalf("error: %v", err.Error())
-			return []model.EventWithCategoryAndType{}, nil
+			return []model.EventWithDetails{}, nil
 		}
 
 		events = append(events, event)
@@ -130,7 +125,7 @@ func (s EventRepository) Update(ctx context.Context, eventUpd model.Event) error
 		return nil
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE events SET name = $1, description = $2, date = $3, details_id = $4 WHERE id = $5;`, eventUpd.Name, eventUpd.Description, eventUpd.Date, eventUpd.DetailsID, eventUpd.ID)
+	res, err := tx.ExecContext(ctx, `UPDATE events SET name = $1, description = $2, date = $3, details_id = $4 WHERE id = $5;`, eventUpd.Name, eventUpd.Description, eventUpd.Date, eventUpd.DetailsId, eventUpd.Id)
 	if err != nil {
 		s.logger.Fatalf("error: %v", err.Error())
 		tx.Rollback()

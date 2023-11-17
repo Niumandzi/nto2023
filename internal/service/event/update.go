@@ -11,7 +11,7 @@ func (s EventService) UpdateEvent(eventUpd model.Event) error {
 
 	defer cancel()
 
-	err := validation.ValidateStruct(&eventUpd, validation.Field(&eventUpd.ID, validation.Required, validation.Min(1)))
+	err := validation.ValidateStruct(&eventUpd, validation.Field(&eventUpd.Id, validation.Required, validation.Min(1)))
 	if err != nil {
 		return err
 	}
@@ -24,17 +24,12 @@ func (s EventService) UpdateEvent(eventUpd model.Event) error {
 	return nil
 }
 
-func (s EventService) UpdateTypeName(eventCategory string, eventType string) error {
+func (s EventService) UpdateTypeName(detailsId int, typeName string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	typeID, err := s.categoryTypeRepo.GetCategoryTypeID(ctx, eventCategory, eventType)
-	if err != nil {
-		return err
-	}
-
-	err = s.categoryTypeRepo.UpdateTypeName(ctx, typeID, eventCategory)
+	err := s.detailsRepo.UpdateTypeName(ctx, detailsId, typeName)
 	if err != nil {
 		return err
 	}

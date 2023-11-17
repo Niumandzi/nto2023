@@ -5,40 +5,40 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventService) GetEventsByCategory(eventCategory string) ([]model.EventWithCategoryAndType, error) {
+func (s EventService) GetEventsByCategory(categoryName string) ([]model.EventWithDetails, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	events, err := s.eventRepo.Get(ctx, eventCategory, "")
+	events, err := s.eventRepo.Get(ctx, categoryName, "")
 	if err != nil {
-		return []model.EventWithCategoryAndType{}, err
+		return []model.EventWithDetails{}, err
 	}
 
 	return events, nil
 }
 
-func (s EventService) GetEventsByCategoryAndType(eventCategory string, eventType string) ([]model.EventWithCategoryAndType, error) {
+func (s EventService) GetEventsByCategoryAndType(eventCategory string, eventType string) ([]model.EventWithDetails, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
 	events, err := s.eventRepo.Get(ctx, eventCategory, eventType)
 	if err != nil {
-		return []model.EventWithCategoryAndType{}, err
+		return []model.EventWithDetails{}, err
 	}
 
 	return events, nil
 }
 
-func (s EventService) GetTypesByCategory(eventCategory string) ([]model.EventType, error) {
+func (s EventService) GetDetailsByCategory(categoryName string) ([]model.Details, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	types, err := s.categoryTypeRepo.GetCategoryTypes(ctx, eventCategory)
+	types, err := s.detailsRepo.Get(ctx, categoryName)
 	if err != nil {
-		return []model.EventType{}, err
+		return []model.Details{}, err
 	}
 
 	return types, nil

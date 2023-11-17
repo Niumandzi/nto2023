@@ -16,26 +16,21 @@ func NewClient(driverName string, filePath string) (*sql.DB, error) {
 
 func CreateTables(db *sql.DB) error {
 	_, err := db.Exec(
-		`CREATE TABLE IF NOT EXISTS event_types (
+		`CREATE TABLE IF NOT EXISTS details (
 			id SERIAL PRIMARY KEY,
-			type_name VARCHAR(255) NOT NULL
-		  );
-	
-		CREATE TABLE IF NOT EXISTS categories_types (
-			id SERIAL PRIMARY KEY,
-			type_id INT NOT NULL,
-			category TEXT CHECK (category IN ('entertainment', 'enlightenment', 'education')),
-			FOREIGN KEY (type_id) REFERENCES event_types(id)
-		    ON DELETE CASCADE
+			type_name VARCHAR(255) NOT NULL,
+			category TEXT NOT NULL CHECK (category IN ('entertainment', 'enlightenment', 'education')),
+		    UNIQUE(type_name, category)
 		  );
 	
 		CREATE TABLE IF NOT EXISTS events (
-		  id SERIAL PRIMARY KEY,
-		  name VARCHAR(255) NOT NULL,
-		  description TEXT,
-		  date TEXT,
-		  details_id INT NOT NULL,
-		  FOREIGN KEY (details_id) REFERENCES categories_types(id)
+		  	id SERIAL PRIMARY KEY,
+		  	name VARCHAR(255) NOT NULL,
+		  	description TEXT,
+		  	date TEXT,
+		  	details_id INT NOT NULL,
+		  	FOREIGN KEY (details_id) REFERENCES details(id)
+			ON DELETE CASCADE
 		  )`)
 	if err != nil {
 		return err
