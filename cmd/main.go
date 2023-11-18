@@ -83,8 +83,19 @@ func main() {
 	//
 	//data3, _ := eventServ.GetEventsByCategoryAndType("entertainment", "театр")
 	//fmt.Printf("events by category and type: %v", data3)
-	//_, _ = id, err
-
+	//teatr3E := model.Event{
+	//	Id:          id,
+	//	Name:        teatr3.Name,
+	//	Description: teatr3.Description,
+	//	Date:        "new date",
+	//	DetailsId:   2,
+	//}
+	//err = eventServ.UpdateEvent(teatr3E)
+	//err = eventServ.UpdateTypeName(1, "театрыыыы")
+	//data2, _ = eventServ.GetEventsByCategory("entertainment")
+	//fmt.Printf("events by category: %v", data2)
+	//err = eventServ.DeleteEvent(1)
+	//err = eventServ.DeleteType("entertainment", "кино")
 	gui := ui.NewGUI(a, w, event)
 	ui.SetupUI(gui)
 }
