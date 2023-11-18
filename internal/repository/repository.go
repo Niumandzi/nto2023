@@ -17,5 +17,5 @@ type DetailsRepository interface {
 	Get(ctx context.Context, categoryName string) ([]model.Details, error)
 	GetId(ctx context.Context, categoryName string, typeName string) (int, error)
 	UpdateTypeName(ctx context.Context, detailsId int, typeName string) error
-	DeleteType(ctx context.Context, categoryName string, typeName string) error
+	DeleteType(ctx context.Context, detailsId int) error
 }

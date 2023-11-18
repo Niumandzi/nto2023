@@ -95,7 +95,7 @@ func main() {
 	//data2, _ = eventServ.GetEventsByCategory("entertainment")
 	//fmt.Printf("events by category: %v", data2)
 	//err = eventServ.DeleteEvent(1)
-	//err = eventServ.DeleteType("entertainment", "кино")
+	//err = eventServ.DeleteType(2)
 	gui := ui.NewGUI(a, w, event)
 	ui.SetupUI(gui)
 }

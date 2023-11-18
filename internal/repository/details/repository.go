@@ -130,14 +130,14 @@ func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, ty
 	return nil
 }
 
-func (s DetailsRepository) DeleteType(ctx context.Context, categoryName string, typeName string) error {
+func (s DetailsRepository) DeleteType(ctx context.Context, detailsId int) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Errorf("error: %v", err.Error())
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM details WHERE type_name = $1 AND category = $2;`, typeName, categoryName)
+	res, err := tx.ExecContext(ctx, `DELETE FROM details WHERE details.id = $1;`, detailsId)
 	if err != nil {
 		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()

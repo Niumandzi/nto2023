@@ -15,12 +15,12 @@ func (s EventService) DeleteEvent(eventId int) error {
 	return nil
 }
 
-func (s EventService) DeleteType(categoryName string, typeName string) error {
+func (s EventService) DeleteType(detailsId int) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	err := s.detailsRepo.DeleteType(ctx, categoryName, typeName)
+	err := s.detailsRepo.DeleteType(ctx, detailsId)
 	if err != nil {
 		return err
 	}

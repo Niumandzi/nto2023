@@ -13,5 +13,5 @@ type EventService interface {
 	UpdateEvent(eventUpd model.Event) error
 	UpdateTypeName(detailsId int, typeName string) error
 	DeleteEvent(eventId int) error
-	DeleteType(categoryName string, typeName string) error
+	DeleteType(detailsId int) error
 }
