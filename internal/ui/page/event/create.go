@@ -9,29 +9,6 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) CreateEventType(categoryName string, window fyne.Window) {
-	nameEntry := component.EntryWidget("Тип события")
-
-	formItems := []*widget.FormItem{
-		widget.NewFormItem("", nameEntry),
-	}
-
-	dialog.ShowForm("Создание нового типа события", "Создать", "Отмена", formItems, func(confirm bool) {
-		if confirm {
-			handleCreateDetails(nameEntry.Text, categoryName, window, s.eventServ)
-		}
-	}, window)
-}
-
-func handleCreateDetails(eventName string, categoryName string, window fyne.Window, eventServ service.EventService) {
-	_, err := eventServ.CreateDetails(categoryName, eventName)
-	if err != nil {
-		dialog.ShowError(err, window)
-	} else {
-		dialog.ShowInformation("Тип создан", "Тип для события успешно создано!", window)
-	}
-}
-
 func (s EventPage) CreateEvent(categoryName string, window fyne.Window) {
 	formData := struct {
 		Name        string
@@ -54,7 +31,7 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window) {
 		typeNames[detail.TypeName] = detail.ID
 	}
 
-	detailsSelect := component.SelectorWidget(typeNames, func(id int) {
+	detailsSelect := component.SelectorWidget("Тип мероприятия", typeNames, func(id int) {
 		formData.DetailsID = id
 	})
 
@@ -65,19 +42,19 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window) {
 		widget.NewFormItem("", detailsSelect),
 	}
 
-	dialog.ShowForm("Создать событие", "Создать", "Отмена", formItems, func(confirm bool) {
+	dialog.ShowForm("                            Создать событие                           ", "Создать", "Отмена", formItems, func(confirm bool) {
 
 		formData.Name = nameEntry.Text
 		formData.Date = dateEntry.Text
 		formData.Description = descriptionEntry.Text
 
 		if confirm {
-			handleCreateEvent(formData.Name, formData.Date, formData.Description, formData.DetailsID, categoryName, window, s.eventServ)
+			handleCreateEvent(formData.Name, formData.Date, formData.Description, formData.DetailsID, window, s.eventServ)
 		}
 	}, window)
 }
 
-func handleCreateEvent(eventName string, eventDate string, eventDescription string, detailsID int, categoryName string, window fyne.Window, eventServ service.EventService) {
+func handleCreateEvent(eventName string, eventDate string, eventDescription string, detailsID int, window fyne.Window, eventServ service.EventService) {
 	newEvent := model.Event{
 		Name:        eventName,
 		Date:        eventDate,

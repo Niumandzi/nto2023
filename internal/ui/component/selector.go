@@ -2,7 +2,7 @@ package component
 
 import "fyne.io/fyne/v2/widget"
 
-func SelectorWidget(typesMap map[string]int, onSelect func(int)) *widget.Select {
+func SelectorWidget(placeHolder string, typesMap map[string]int, onSelect func(int)) *widget.Select {
 	var typeNames []string
 	for typeName := range typesMap {
 		typeNames = append(typeNames, typeName)
@@ -12,6 +12,7 @@ func SelectorWidget(typesMap map[string]int, onSelect func(int)) *widget.Select 
 		id := typesMap[selected]
 		onSelect(id)
 	})
+	typeSelect.PlaceHolder = placeHolder
 
 	return typeSelect
 }

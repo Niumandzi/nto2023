@@ -7,8 +7,10 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	detailsRepository "github.com/niumandzi/nto2023/internal/repository/details"
 	eventRepository "github.com/niumandzi/nto2023/internal/repository/event"
+	detailsService "github.com/niumandzi/nto2023/internal/service/details"
 	eventService "github.com/niumandzi/nto2023/internal/service/event"
 	"github.com/niumandzi/nto2023/internal/ui"
+	detailsPage "github.com/niumandzi/nto2023/internal/ui/page/details"
 	eventPage "github.com/niumandzi/nto2023/internal/ui/page/event"
 	"github.com/niumandzi/nto2023/pkg/logging"
 	"github.com/niumandzi/nto2023/pkg/sqlitedb"
@@ -42,9 +44,13 @@ func main() {
 
 	eventRepo := eventRepository.NewEventRepository(db, logger)
 	detailsRepo := detailsRepository.NewDetailsRepository(db, logger)
-	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
-	event := eventPage.NewEventPage(eventServ, logger)
 
-	gui := ui.NewGUI(a, w, event)
+	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
+	detailsServ := detailsService.NewDetailsService(detailsRepo, timeoutContext, logger, ctx)
+
+	event := eventPage.NewEventPage(eventServ, logger)
+	details := detailsPage.NewDetailsPage(detailsServ, logger)
+
+	gui := ui.NewGUI(a, w, event, details)
 	ui.SetupUI(gui)
 }

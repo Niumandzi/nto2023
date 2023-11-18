@@ -22,7 +22,7 @@ func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Win
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
 	for _, event := range events {
-		card := s.createContactCard(event, window, func() {
+		card := s.createEventCard(event, window, func() {
 			s.ShowEvent(categoryName, detailsID, window, eventContainer)
 		})
 		grid.Add(card)
@@ -32,14 +32,13 @@ func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Win
 	eventContainer.Refresh()
 }
 
-func (s EventPage) createContactCard(event model.EventWithDetails, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Window, onUpdate func()) fyne.CanvasObject {
 	cardText := card(event)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		println(event.ID, event.Name, event.Date, event.Description, event.Details.ID)
-		//s.UpdateEvent(event.ID, event.Name, event.Date, event.Description, event.Details.ID, window)
+		s.UpdateEvent(event.Details.Category, event.ID, event.Name, event.Date, event.Description, event.Details.ID, window)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
@@ -64,8 +63,4 @@ func (s EventPage) createContactCard(event model.EventWithDetails, window fyne.W
 func card(event model.EventWithDetails) string {
 	return fmt.Sprintf("Тип мероприятия: %s\nНазвание: %s\nДата: %s\nОписание: %s",
 		event.Details.TypeName, event.Name, event.Date, event.Description)
-}
-
-func (s EventPage) updateEvent(category string) fyne.CanvasObject {
-	return nil
 }

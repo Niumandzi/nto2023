@@ -25,17 +25,3 @@ func (s EventService) UpdateEvent(eventUpd model.Event) error {
 
 	return nil
 }
-
-func (s EventService) UpdateTypeName(detailsId int, typeName string) error {
-	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
-
-	defer cancel()
-
-	err := s.detailsRepo.UpdateTypeName(ctx, detailsId, typeName)
-	if err != nil {
-		s.logger.Error("error: %v", err.Error())
-		return err
-	}
-
-	return nil
-}

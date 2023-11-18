@@ -4,22 +4,25 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	details "github.com/niumandzi/nto2023/internal/ui/page/details"
 	error2 "github.com/niumandzi/nto2023/internal/ui/page/error"
 	"github.com/niumandzi/nto2023/internal/ui/page/event"
 	"github.com/niumandzi/nto2023/internal/ui/page/index"
 )
 
 type GUI struct {
-	App    fyne.App
-	Window fyne.Window
-	Event  event.EventPage
+	App     fyne.App
+	Window  fyne.Window
+	Event   event.EventPage
+	Details details.DetailsPage
 }
 
-func NewGUI(app fyne.App, window fyne.Window, event event.EventPage) GUI {
+func NewGUI(app fyne.App, window fyne.Window, event event.EventPage, details details.DetailsPage) GUI {
 	return GUI{
-		App:    app,
-		Window: window,
-		Event:  event,
+		App:     app,
+		Window:  window,
+		Event:   event,
+		Details: details,
 	}
 }
 
