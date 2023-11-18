@@ -6,28 +6,14 @@ import (
 	"golang.org/x/net/context"
 )
 
-func (s EventService) CreateEvent(event model.EventWithDetails) (int, error) {
+func (s EventService) CreateEvent(event model.Event) (int, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
-
 	defer cancel()
 
 	err := validation.ValidateStruct(&event,
 		validation.Field(&event.Name, validation.Required))
 	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		return 0, err
-	}
-
-	err = validation.ValidateStruct(&event.Details,
-		validation.Field(&event.Details.TypeName, validation.Required),
-		validation.Field(&event.Details.Category, validation.Required, validation.In("entertainment", "enlightenment", "education")))
-	if err != nil {
-		s.logger.Fatalf("error: %v", err.Error())
-		return 0, err
-	}
-
-	detailId, err := s.detailsRepo.GetId(ctx, event.Details.Category, event.Details.TypeName)
-	if err != nil {
+		s.logger.Error("error: %v", err.Error())
 		return 0, err
 	}
 
@@ -35,7 +21,7 @@ func (s EventService) CreateEvent(event model.EventWithDetails) (int, error) {
 		Name:        event.Name,
 		Description: event.Description,
 		Date:        event.Date,
-		DetailsId:   detailId,
+		DetailsID:   event.DetailsID,
 	}
 
 	id, err := s.eventRepo.Create(ctx, eventDB)
@@ -53,6 +39,7 @@ func (s EventService) CreateDetails(categoryName string, typeName string) (int, 
 
 	id, err := s.detailsRepo.Create(ctx, categoryName, typeName)
 	if err != nil {
+		s.logger.Error("error: %v", err.Error())
 		return 0, err
 	}
 

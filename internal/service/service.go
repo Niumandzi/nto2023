@@ -5,13 +5,16 @@ import (
 )
 
 type EventService interface {
-	CreateEvent(event model.EventWithDetails) (int, error)
-	CreateDetails(categoryName string, typeName string) (int, error)
-	GetEventsByCategory(categoryName string) ([]model.EventWithDetails, error)
-	GetEventsByCategoryAndType(categoryName string, typeName string) ([]model.EventWithDetails, error)
-	GetDetailsByCategory(categoryName string) ([]model.Details, error)
+	CreateEvent(event model.Event) (int, error)
+	GetEvents(categoryName string, detailsID int) ([]model.EventWithDetails, error)
 	UpdateEvent(eventUpd model.Event) error
-	UpdateTypeName(detailsId int, typeName string) error
 	DeleteEvent(eventId int) error
+
+	GetDetails(categoryName string) ([]model.Details, error)
+	CreateDetails(categoryName string, typeName string) (int, error)
+	UpdateTypeName(detailsId int, typeName string) error
 	DeleteType(detailsId int) error
+}
+
+type DetailsService interface {
 }

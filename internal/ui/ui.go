@@ -50,9 +50,9 @@ func NavigationBar(event event.EventPage, mainContent *fyne.Container, window fy
 
 		switch id {
 		case "развлечения":
-			content = event.EventIndex("entertainment")
+			content = event.EventIndex("entertainment", window)
 		case "просвещение":
-			content = event.EventIndex("enlightenment")
+			content = event.EventIndex("enlightenment", window)
 		default:
 			content = error2.ShowErrorPage()
 		}

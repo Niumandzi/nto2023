@@ -12,6 +12,7 @@ require (
 
 require (
 	fyne.io/systray v1.10.1-0.20230722100817-88df1e0ffa9a // indirect
+	fyne.io/x/fyne v0.0.0-20231020065621-89b4a4aea27d // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fredbi/uri v1.0.0 // indirect

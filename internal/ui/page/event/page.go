@@ -3,7 +3,7 @@ package event
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/internal/ui/component"
@@ -22,20 +22,37 @@ func NewEventPage(event service.EventService, logger logging.Logger) EventPage {
 	}
 }
 
-func (s EventPage) EventIndex(category string) fyne.CanvasObject {
-	contactContainer := container.NewStack()
-
-	contactTypes := map[string]string{}
-
-	eventList := func(contactType string) {
+func (s EventPage) EventIndex(categoryName string, window fyne.Window) fyne.CanvasObject {
+	eventContainer := container.NewStack()
+	eventList := func(eventType string, id int) {
+		s.ShowEvent(categoryName, id, window, eventContainer)
 	}
 
-	createButton := widget.NewButtonWithIcon("", theme.ContentAddIcon(), func() {})
-	typeSelect := component.TypeSelectWidget(contactTypes, eventList)
+	details, err := s.eventServ.GetDetails(categoryName)
+	if err != nil {
+		dialog.ShowError(err, window)
+	}
 
-	toolbar := container.NewBorder(nil, nil, typeSelect, createButton)
+	typeNames := make(map[string]int)
+	for _, detail := range details {
+		typeNames[detail.TypeName] = detail.ID
+	}
 
-	content := container.NewBorder(toolbar, nil, nil, nil, contactContainer)
+	typeSelect := component.SelectorWidget(typeNames, func(id int) {
+		eventList("", id)
+	})
+
+	createEventTypeButton := widget.NewButton("Создать новый тип события", func() {
+		s.CreateEventType(categoryName, window)
+	})
+	createEventButton := widget.NewButton("Создать событие", func() {
+		s.CreateEvent(categoryName, window)
+	})
+	createButtons := container.NewHBox(createEventTypeButton, createEventButton)
+
+	toolbar := container.NewBorder(nil, nil, typeSelect, createButtons)
+	content := container.NewBorder(toolbar, nil, nil, nil, eventContainer)
+	eventList("", -1)
 
 	return content
 }

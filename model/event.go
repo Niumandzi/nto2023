@@ -1,21 +1,21 @@
 package model
 
 type Details struct {
-	Id       int
+	ID       int
 	TypeName string
 	Category string
 }
 
 type Event struct {
-	Id          int
+	ID          int
 	Name        string
-	Description string
 	Date        string
-	DetailsId   int
+	Description string
+	DetailsID   int
 }
 
 type EventWithDetails struct {
-	Id          int
+	ID          int
 	Name        string
 	Description string
 	Date        string

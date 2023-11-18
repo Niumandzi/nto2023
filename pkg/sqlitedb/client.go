@@ -15,12 +15,7 @@ func NewClient(driverName string, filePath string) (*sql.DB, error) {
 }
 
 func CreateTables(db *sql.DB) error {
-	_, err := db.Exec(`PRAGMA foreign_keys = ON`)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(
+	_, err := db.Exec(
 		`CREATE TABLE IF NOT EXISTS details (
 			id INTEGER PRIMARY KEY,
 			type_name VARCHAR(255) NOT NULL,
@@ -34,8 +29,8 @@ func CreateTables(db *sql.DB) error {
 		  	description TEXT,
 		  	date TEXT,
 		  	details_id INT NOT NULL,
-		  	FOREIGN KEY (details_id) REFERENCES details(id) ON DELETE CASCADE
-		  )`)
+		  	FOREIGN KEY (details_id) REFERENCES details(id))
+		  	`)
 	if err != nil {
 		return err
 	}

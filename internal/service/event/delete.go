@@ -9,6 +9,7 @@ func (s EventService) DeleteEvent(eventId int) error {
 
 	err := s.eventRepo.Delete(ctx, eventId)
 	if err != nil {
+		s.logger.Error("error: %v", err.Error())
 		return err
 	}
 
@@ -22,6 +23,7 @@ func (s EventService) DeleteType(detailsId int) error {
 
 	err := s.detailsRepo.DeleteType(ctx, detailsId)
 	if err != nil {
+		s.logger.Error("error: %v", err.Error())
 		return err
 	}
 	return nil

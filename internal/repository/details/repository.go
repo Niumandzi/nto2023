@@ -56,7 +56,7 @@ func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]mode
 
 	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category FROM details WHERE details.category = $1`, categoryName)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: %v", err.Error())
 		return []model.Details{}, err
 	}
 
@@ -65,7 +65,7 @@ func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]mode
 	for rows.Next() {
 		var detail model.Details
 
-		err = rows.Scan(&detail.Id,
+		err = rows.Scan(&detail.ID,
 			&detail.TypeName,
 			&detail.Category)
 		if err != nil {
@@ -86,7 +86,7 @@ func (s DetailsRepository) GetId(ctx context.Context, categoryName string, typeN
 
 	err := row.Scan(&id)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: %v", err.Error())
 		return 0, err
 	}
 
@@ -122,7 +122,7 @@ func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, ty
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
@@ -133,7 +133,7 @@ func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, ty
 func (s DetailsRepository) DeleteType(ctx context.Context, detailsId int) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: %v", err.Error())
 		return err
 	}
 

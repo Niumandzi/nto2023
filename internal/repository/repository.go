@@ -7,7 +7,7 @@ import (
 
 type EventRepository interface {
 	Create(ctx context.Context, event model.Event) (int, error)
-	Get(ctx context.Context, categoryName string, typeName string) ([]model.EventWithDetails, error)
+	Get(ctx context.Context, categoryName string, detailsID int) ([]model.EventWithDetails, error)
 	Update(ctx context.Context, eventUpd model.Event) error
 	Delete(ctx context.Context, eventId int) error
 }
