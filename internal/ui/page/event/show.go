@@ -38,7 +38,7 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		s.UpdateEvent(event.Details.Category, event.ID, event.Name, event.Date, event.Description, event.Details.ID, window)
+		s.UpdateEvent(event.Details.Category, event.ID, event.Name, event.Date, event.Description, event.Details.ID, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {

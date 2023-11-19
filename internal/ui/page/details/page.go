@@ -27,7 +27,9 @@ func (s DetailsPage) IndexDetails(categoryName string, window fyne.Window) fyne.
 	}
 
 	createDetailsButton := widget.NewButton("Создать новый тип события", func() {
-		s.CreateDetails(categoryName, window)
+		s.CreateDetails(categoryName, window, func() {
+			detailsList("")
+		})
 	})
 
 	createButtons := container.NewHBox(createDetailsButton)

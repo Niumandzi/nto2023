@@ -9,7 +9,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) CreateEvent(categoryName string, window fyne.Window) {
+func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate func()) {
 	formData := struct {
 		Name        string
 		Date        string
@@ -49,12 +49,12 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window) {
 		formData.Description = descriptionEntry.Text
 
 		if confirm {
-			handleCreateEvent(formData.Name, formData.Date, formData.Description, formData.DetailsID, window, s.eventServ)
+			handleCreateEvent(formData.Name, formData.Date, formData.Description, formData.DetailsID, window, s.eventServ, onUpdate)
 		}
 	}, window)
 }
 
-func handleCreateEvent(eventName string, eventDate string, eventDescription string, detailsID int, window fyne.Window, eventServ service.EventService) {
+func handleCreateEvent(eventName string, eventDate string, eventDescription string, detailsID int, window fyne.Window, eventServ service.EventService, onUpdate func()) {
 	newEvent := model.Event{
 		Name:        eventName,
 		Date:        eventDate,
@@ -67,5 +67,6 @@ func handleCreateEvent(eventName string, eventDate string, eventDescription stri
 		dialog.ShowError(err, window)
 	} else {
 		dialog.ShowInformation("Событие создано", "Событие успешно создано!", window)
+		onUpdate()
 	}
 }

@@ -42,14 +42,12 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 		eventList("", id)
 	})
 
-	createEventTypeButton := widget.NewButton("Создать новый тип события", func() {
-		//s.CreateEventType(categoryName, window)
-	})
-
 	createEventButton := widget.NewButton("Создать событие", func() {
-		s.CreateEvent(categoryName, window)
+		s.CreateEvent(categoryName, window, func() {
+			eventList("", -1)
+		})
 	})
-	createButtons := container.NewHBox(createEventTypeButton, createEventButton)
+	createButtons := container.NewHBox(createEventButton)
 
 	toolbar := container.NewBorder(nil, nil, typeSelect, createButtons)
 	content := container.NewBorder(toolbar, nil, nil, nil, eventContainer)

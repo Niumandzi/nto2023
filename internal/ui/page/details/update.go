@@ -8,7 +8,7 @@ import (
 	"github.com/niumandzi/nto2023/internal/ui/component"
 )
 
-func (s DetailsPage) UpdateDetail(id int, category string, typeName string, window fyne.Window) {
+func (s DetailsPage) UpdateDetail(id int, category string, typeName string, window fyne.Window, onUpdate func()) {
 	switch category {
 	case "entertainment":
 		category = "Развлечения"
@@ -28,17 +28,18 @@ func (s DetailsPage) UpdateDetail(id int, category string, typeName string, wind
 
 	dialog.ShowForm("Обновить событие", "Сохранить", "Отмена", formItems, func(confirm bool) {
 		if confirm {
-			handleUpdateEvent(id, typeNameEntry.Text, window, s.detailsServ)
+			handleUpdateEvent(id, typeNameEntry.Text, window, s.detailsServ, onUpdate)
 		}
 	}, window)
 }
 
-func handleUpdateEvent(detailID int, typeName string, window fyne.Window, detailsServ service.DetailsService) {
+func handleUpdateEvent(detailID int, typeName string, window fyne.Window, detailsServ service.DetailsService, onUpdate func()) {
 
 	err := detailsServ.UpdateDetail(detailID, typeName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	} else {
 		dialog.ShowInformation("Событие обновлено", "Событие успешно обновлено!", window)
+		onUpdate()
 	}
 }

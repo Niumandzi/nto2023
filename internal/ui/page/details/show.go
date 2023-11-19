@@ -38,7 +38,7 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		s.UpdateDetail(detail.ID, detail.Category, detail.TypeName, window)
+		s.UpdateDetail(detail.ID, detail.Category, detail.TypeName, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {

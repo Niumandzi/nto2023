@@ -9,7 +9,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) UpdateEvent(categoryName string, id int, name string, date string, Description string, DetailsID int, window fyne.Window) {
+func (s EventPage) UpdateEvent(categoryName string, id int, name string, date string, Description string, DetailsID int, window fyne.Window, onUpdate func()) {
 	formData := struct {
 		Name        string
 		Date        string
@@ -49,12 +49,12 @@ func (s EventPage) UpdateEvent(categoryName string, id int, name string, date st
 
 	dialog.ShowForm("                                Обновить событие                     ", "Сохранить", "Отмена", formItems, func(confirm bool) {
 		if confirm {
-			handleUpdateEvent(id, nameEntry.Text, dateEntry.Text, descriptionEntry.Text, formData.DetailsID, window, s.eventServ)
+			handleUpdateEvent(id, nameEntry.Text, dateEntry.Text, descriptionEntry.Text, formData.DetailsID, window, s.eventServ, onUpdate)
 		}
 	}, window)
 }
 
-func handleUpdateEvent(eventID int, eventName string, eventDate string, eventDescription string, detailsID int, window fyne.Window, eventServ service.EventService) {
+func handleUpdateEvent(eventID int, eventName string, eventDate string, eventDescription string, detailsID int, window fyne.Window, eventServ service.EventService, onUpdate func()) {
 	updatedEvent := model.Event{
 		ID:          eventID,
 		Name:        eventName,
@@ -68,5 +68,6 @@ func handleUpdateEvent(eventID int, eventName string, eventDate string, eventDes
 		dialog.ShowError(err, window)
 	} else {
 		dialog.ShowInformation("Событие обновлено", "Событие успешно обновлено!", window)
+		onUpdate()
 	}
 }
