@@ -61,6 +61,6 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 }
 
 func card(event model.EventWithDetails) string {
-	return fmt.Sprintf("Тип мероприятия: %s\nНазвание: %s\nДата: %s\nОписание: %s",
+	return fmt.Sprintf("Тип: %s\nНазвание: %s\nДата: %s\nОписание: %s",
 		event.Details.TypeName, event.Name, event.Date, event.Description)
 }

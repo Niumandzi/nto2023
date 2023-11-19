@@ -51,6 +51,6 @@ func main() {
 	event := eventPage.NewEventPage(eventServ, logger)
 	details := detailsPage.NewDetailsPage(detailsServ, logger)
 
-	gui := ui.NewGUI(a, w, event, details)
-	ui.SetupUI(gui)
+	gui := ui.NewGUI(a, w)
+	ui.SetupUI(gui, event, details)
 }

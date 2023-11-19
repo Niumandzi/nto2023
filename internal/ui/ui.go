@@ -11,30 +11,25 @@ import (
 )
 
 type GUI struct {
-	App     fyne.App
-	Window  fyne.Window
-	Event   event.EventPage
-	Details details.DetailsPage
+	App    fyne.App
+	Window fyne.Window
 }
 
-func NewGUI(app fyne.App, window fyne.Window, event event.EventPage, details details.DetailsPage) GUI {
+func NewGUI(app fyne.App, window fyne.Window) GUI {
 	return GUI{
-		App:     app,
-		Window:  window,
-		Event:   event,
-		Details: details,
+		App:    app,
+		Window: window,
 	}
 }
 
-func SetupUI(gui GUI) {
+func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage) {
 	w := gui.Window
-	e := gui.Event
 
 	mainContent := container.NewStack()
 
 	mainContent.Add(index.ShowIndex())
 
-	navBar := NavigationBar(e, mainContent, w)
+	navBar := NavigationBar(event, details, mainContent, w)
 
 	split := container.NewHSplit(navBar, mainContent)
 	split.Offset = 0.2
@@ -43,9 +38,13 @@ func SetupUI(gui GUI) {
 	w.ShowAndRun()
 }
 
-func NavigationBar(event event.EventPage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
+func NavigationBar(event event.EventPage, details details.DetailsPage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
 	treeData := map[string][]string{
-		"": {"развлечения", "просвещение", "образование"}}
+		"":            {"развлечения", "просвещение", "образование"},
+		"развлечения": {"типы развлечений"},
+		"просвещение": {"типы просвещения"},
+		"образование": {"типы образования"},
+	}
 
 	navTree := widget.NewTreeWithStrings(treeData)
 	navTree.OnSelected = func(id string) {
@@ -53,9 +52,13 @@ func NavigationBar(event event.EventPage, mainContent *fyne.Container, window fy
 
 		switch id {
 		case "развлечения":
-			content = event.EventIndex("entertainment", window)
+			content = event.IndexEvent("entertainment", window)
 		case "просвещение":
-			content = event.EventIndex("enlightenment", window)
+			content = event.IndexEvent("enlightenment", window)
+		case "типы развлечений":
+			content = details.IndexDetails("entertainment", window)
+		case "типы просвещения":
+			content = details.IndexDetails("enlightenment", window)
 		default:
 			content = error2.ShowErrorPage()
 		}
@@ -65,4 +68,16 @@ func NavigationBar(event event.EventPage, mainContent *fyne.Container, window fy
 	}
 
 	return navTree
+}
+
+type EventPage interface {
+	IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject
+	ShowEvent(categoryName string, detailsID int, window fyne.Window, eventContainer *fyne.Container)
+	CreateEvent(categoryName string, window fyne.Window)
+	UpdateEvent(categoryName string, ID int, Name string, Date string, Description string, DetailsID int, window fyne.Window)
+}
+
+type DetailsPage interface {
+	IndexDetails(categoryName string, window fyne.Window) fyne.CanvasObject
+	ShowDetails(categoryName string, window fyne.Window, eventContainer *fyne.Container)
 }

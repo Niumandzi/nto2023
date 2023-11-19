@@ -12,7 +12,7 @@ import (
 )
 
 func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventContainer *fyne.Container) {
-	details, err := s.eventDet.GetDetails(categoryName)
+	details, err := s.detailsServ.GetDetails(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -38,11 +38,11 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		//s.UpdateDetail(detail.ID, detail.TypeName, detail.Category, window)
+		s.UpdateDetail(detail.ID, detail.Category, detail.TypeName, window)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.eventDet.DeleteDetail(detail.ID)
+		err := s.detailsServ.DeleteDetail(detail.ID)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
@@ -61,6 +61,16 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 }
 
 func card(detail model.Details) string {
+	var category string
+	switch detail.Category {
+	case "entertainment":
+		category = "Развлечения"
+	case "enlightenment":
+		category = "Просвещение"
+	case "education":
+		category = "Образование"
+	}
+
 	return fmt.Sprintf("Категория: %s\nТип мероприятия: %s",
-		detail.TypeName, detail.Category)
+		category, detail.TypeName)
 }

@@ -2,8 +2,8 @@ package model
 
 type Details struct {
 	ID       int
-	TypeName string
 	Category string
+	TypeName string
 }
 
 type Event struct {

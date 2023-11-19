@@ -31,15 +31,15 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window) {
 		typeNames[detail.TypeName] = detail.ID
 	}
 
-	detailsSelect := component.SelectorWidget("Тип мероприятия", typeNames, func(id int) {
+	detailsSelect := component.SelectorWidget("Тип", typeNames, func(id int) {
 		formData.DetailsID = id
 	})
 
 	formItems := []*widget.FormItem{
+		widget.NewFormItem("", detailsSelect),
 		widget.NewFormItem("", nameEntry),
 		widget.NewFormItem("", dateEntry),
 		widget.NewFormItem("", descriptionEntry),
-		widget.NewFormItem("", detailsSelect),
 	}
 
 	dialog.ShowForm("                            Создать событие                           ", "Создать", "Отмена", formItems, func(confirm bool) {

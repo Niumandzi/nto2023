@@ -9,23 +9,22 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) UpdateEvent(categoryName string, ID int, Name string, Date string, Description string, DetailsID int, window fyne.Window) {
+func (s EventPage) UpdateEvent(categoryName string, id int, name string, date string, Description string, DetailsID int, window fyne.Window) {
 	formData := struct {
 		Name        string
 		Date        string
 		Description string
 		DetailsID   int
 	}{
-		Name:        Name,
-		Date:        Date,
+		Name:        name,
+		Date:        date,
 		Description: Description,
 		DetailsID:   DetailsID,
 	}
 
-	nameEntry := component.EntryWithDataWidget("Название", Name)
-	dateEntry := component.EntryWithDataWidget("Дата", Date)
+	nameEntry := component.EntryWithDataWidget("Название", name)
+	dateEntry := component.EntryWithDataWidget("Дата", date)
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", Description)
-	descriptionEntry.Resize(fyne.NewSize(400, 200)) // Установите желаемые размеры для виджета описания
 
 	details, err := s.eventServ.GetDetails(categoryName)
 	if err != nil {
@@ -42,15 +41,15 @@ func (s EventPage) UpdateEvent(categoryName string, ID int, Name string, Date st
 	})
 
 	formItems := []*widget.FormItem{
+		widget.NewFormItem("", detailsSelect),
 		widget.NewFormItem("", nameEntry),
 		widget.NewFormItem("", dateEntry),
 		widget.NewFormItem("", descriptionEntry),
-		widget.NewFormItem("", detailsSelect),
 	}
 
 	dialog.ShowForm("                                Обновить событие                     ", "Сохранить", "Отмена", formItems, func(confirm bool) {
 		if confirm {
-			handleUpdateEvent(ID, nameEntry.Text, dateEntry.Text, descriptionEntry.Text, formData.DetailsID, window, s.eventServ)
+			handleUpdateEvent(id, nameEntry.Text, dateEntry.Text, descriptionEntry.Text, formData.DetailsID, window, s.eventServ)
 		}
 	}, window)
 }

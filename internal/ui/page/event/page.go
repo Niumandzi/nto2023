@@ -22,7 +22,7 @@ func NewEventPage(event service.EventService, logger logging.Logger) EventPage {
 	}
 }
 
-func (s EventPage) EventIndex(categoryName string, window fyne.Window) fyne.CanvasObject {
+func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject {
 	eventContainer := container.NewStack()
 	eventList := func(eventType string, id int) {
 		s.ShowEvent(categoryName, id, window, eventContainer)

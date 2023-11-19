@@ -10,7 +10,7 @@ import (
 
 func ShowIndex() fyne.CanvasObject {
 	greetingLabel := widget.NewLabel("Приветствуем!")
-	greetingLabel.Alignment = fyne.TextAlignCenter // Выравнивание текста по центру
+	greetingLabel.Alignment = fyne.TextAlignCenter
 
 	descriptionLabel := widget.NewLabel("Это реализация первого задания НТО 2023, командой 'ЯМы Райн Гослинг'")
 	descriptionLabel.Alignment = fyne.TextAlignCenter
