@@ -14,6 +14,7 @@ import (
 	eventPage "github.com/niumandzi/nto2023/internal/ui/page/event"
 	"github.com/niumandzi/nto2023/pkg/logging"
 	"github.com/niumandzi/nto2023/pkg/sqlitedb"
+	"os"
 	"time"
 )
 
@@ -27,6 +28,14 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("НТО 2023")
 	w.Resize(fyne.NewSize(1200, 700))
+
+	iconBytes, err := os.ReadFile("icon.png")
+	if err != nil {
+		dialog.ShowError(err, w)
+	}
+
+	iconResource := fyne.NewStaticResource("IconName", iconBytes)
+	w.SetIcon(iconResource)
 
 	db, err := sqlitedb.NewClient("sqlite3", "./nto2023.db")
 	if err != nil {
