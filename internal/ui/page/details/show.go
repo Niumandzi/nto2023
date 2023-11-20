@@ -46,7 +46,7 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Событие удалено", "Событие успешно удалено!", window)
+			dialog.ShowInformation("Тип удален", "Тип успешно удален!", window)
 			onUpdate()
 		}
 	})
@@ -71,6 +71,6 @@ func card(detail model.Details) string {
 		category = "Образование"
 	}
 
-	return fmt.Sprintf("Категория: %s\nТип мероприятия: %s",
+	return fmt.Sprintf("Категория: %s\nТип: %s",
 		category, detail.TypeName)
 }

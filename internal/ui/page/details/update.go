@@ -19,7 +19,7 @@ func (s DetailsPage) UpdateDetail(id int, category string, typeName string, wind
 	}
 
 	categoryLabel := widget.NewLabel(category)
-	typeNameEntry := component.EntryWithDataWidget("", typeName)
+	typeNameEntry := component.EntryWithDataWidget("Тип события", typeName)
 
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("", categoryLabel),
@@ -39,7 +39,7 @@ func handleUpdateEvent(detailID int, typeName string, window fyne.Window, detail
 	if err != nil {
 		dialog.ShowError(err, window)
 	} else {
-		dialog.ShowInformation("Событие обновлено", "Событие успешно обновлено!", window)
+		dialog.ShowInformation("Тип обновлен", "Тип успешно обновлен!", window)
 		onUpdate()
 	}
 }

@@ -10,11 +10,9 @@ func (s DetailsService) UpdateDetail(detailsId int, typeName string) error {
 
 	defer cancel()
 
-	err := validation.ValidateStruct(&typeName,
-		validation.Field(&typeName, validation.Required),
-	)
+	err := validation.Validate(typeName, validation.Required)
 	if err != nil {
-		s.logger.Error("error: %v", err.Error())
+		s.logger.Error("error: %v", err)
 		return err
 	}
 
