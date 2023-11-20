@@ -23,7 +23,7 @@ func (s EventPage) UpdateEvent(categoryName string, id int, name string, date st
 	}
 
 	nameEntry := component.EntryWithDataWidget("Название", name)
-	dateEntry := component.EntryWithDataWidget("Дата", date)
+	dateEntry := component.EntryWithDataWidget("дд.мм.гггг", date)
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", Description)
 
 	details, err := s.eventServ.GetDetails(categoryName)

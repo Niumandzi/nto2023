@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 func (s DetailsService) UpdateDetail(detailsId int, typeName string) error {
@@ -9,7 +10,15 @@ func (s DetailsService) UpdateDetail(detailsId int, typeName string) error {
 
 	defer cancel()
 
-	err := s.detailsRepo.UpdateTypeName(ctx, detailsId, typeName)
+	err := validation.ValidateStruct(&typeName,
+		validation.Field(&typeName, validation.Required),
+	)
+	if err != nil {
+		s.logger.Error("error: %v", err.Error())
+		return err
+	}
+
+	err = s.detailsRepo.UpdateTypeName(ctx, detailsId, typeName)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

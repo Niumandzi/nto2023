@@ -11,7 +11,11 @@ func (s EventService) UpdateEvent(eventUpd model.Event) error {
 
 	defer cancel()
 
-	err := validation.ValidateStruct(&eventUpd, validation.Field(&eventUpd.ID, validation.Required, validation.Min(1)))
+	err := validation.ValidateStruct(&eventUpd,
+		validation.Field(&eventUpd.Name, validation.Required),
+		validation.Field(&eventUpd.Date, validation.Required, validation.By(validateDate)),
+		validation.Field(&eventUpd.DetailsID, validation.Required, validation.Min(1).Error("Не выбран тип мероприятия")),
+	)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

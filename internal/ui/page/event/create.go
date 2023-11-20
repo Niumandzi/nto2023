@@ -18,7 +18,7 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate
 	}{}
 
 	nameEntry := component.EntryWidget("Название")
-	dateEntry := component.EntryWidget("Дата")
+	dateEntry := component.EntryWidget("дд.мм.гггг")
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 
 	details, err := s.eventServ.GetDetails(categoryName)

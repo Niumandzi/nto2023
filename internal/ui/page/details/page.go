@@ -37,6 +37,6 @@ func (s DetailsPage) IndexDetails(categoryName string, window fyne.Window) fyne.
 	toolbar := container.NewBorder(nil, nil, nil, createButtons)
 	content := container.NewBorder(toolbar, nil, nil, nil, detailsContainer)
 	detailsList("")
-	return content
 
+	return content
 }
