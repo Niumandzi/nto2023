@@ -29,7 +29,30 @@ func CreateTables(db *sql.DB) error {
 		  	description TEXT,
 		  	date TEXT,
 		  	details_id INT NOT NULL,
-		  	FOREIGN KEY (details_id) REFERENCES details(id))
+		  	FOREIGN KEY (details_id) REFERENCES details(id));
+
+		CREATE TABLE IF NOT EXISTS work_type (
+			id INTEGER PRIMARY KEY,
+			name VARCHAR(255) NOT NULL
+		  );
+
+		CREATE TABLE IF NOT EXISTS facility (
+			id INTEGER PRIMARY KEY,
+			name VARCHAR(255) NOT NULL
+		  );
+
+		CREATE TABLE IF NOT EXISTS application (
+		  	id INTEGER PRIMARY KEY,
+		  	description TEXT,
+		  	created_at TEXT,
+		  	due TEXT,
+			status TEXT NOT NULL CHECK (status IN ('created', 'done', 'todo')),
+		    work_type_id INT,
+			event_id INT,
+			facility_id INT,
+		    FOREIGN KEY (work_type_id) REFERENCES work_type(id),
+			FOREIGN KEY (event_id) REFERENCES events(id),
+			FOREIGN KEY (facility_id) REFERENCES facility(id));
 		  	`)
 	if err != nil {
 		return err
