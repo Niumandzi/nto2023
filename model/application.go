@@ -28,6 +28,6 @@ type ApplicationWithDetails struct {
 	Due         string
 	Status      string
 	WorkType    WorkType
-	Event       Event
+	Event       EventWithDetails
 	Facility    Facility
 }
