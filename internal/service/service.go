@@ -18,3 +18,24 @@ type DetailsService interface {
 	UpdateDetail(detailsId int, typeName string) error
 	DeleteDetail(detailsId int) error
 }
+
+type WorkTypeService interface {
+	CreateWorkType(name string) (int, error)
+	GetAllWorkTypes() ([]model.WorkType, error)
+	UpdateWorkType(idOld int, nameUpd string) error
+	DeleteWorkType(id int) error
+}
+
+type FacilityService interface {
+	CreateFacility(name string) (int, error)
+	GetAllFacilities() ([]model.Facility, error)
+	UpdateFacility(idOld int, nameUpd string) error
+	DeleteFacility(id int) error
+}
+
+type ApplicationService interface {
+	CreateApplication(application model.Application) (int, error)
+	GetApplicationsBy(workType string, status string) ([]model.ApplicationWithDetails, error)
+	UpdateApplication(applicationUpd model.Application) error
+	DeleteApplication(applicationId int) error
+}
