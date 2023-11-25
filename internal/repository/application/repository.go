@@ -66,7 +66,7 @@ func (a ApplicationRepository) Create(ctx context.Context, application model.App
 	return int(id), nil
 }
 
-// аналогично как и в events repo, делаем один метод на get по workType и status
+// Get аналогично как и в events repo, делаем один метод на get по workType и status
 // TODO: сделать базовое query и добавлять новое string по наличию поля,
 func (a ApplicationRepository) Get(ctx context.Context, workType string, status string) ([]model.ApplicationWithDetails, error) {
 	args := make([]interface{}, 0, 2)

@@ -40,19 +40,20 @@ func CreateTables(db *sql.DB) error {
 			id INTEGER PRIMARY KEY,
 			name VARCHAR(255) NOT NULL
 		  );
-
+	
 		CREATE TABLE IF NOT EXISTS application (
-		  	id INTEGER PRIMARY KEY,
-		  	description TEXT,
-		  	created_at TEXT,
-		  	due TEXT,
-			status TEXT NOT NULL CHECK (status IN ('created', 'done', 'todo')),
-		    work_type_id INT,
+			id INTEGER PRIMARY KEY,
+			description TEXT,
+			created_at TEXT,
+			due TEXT,
+			status TEXT DEFAULT 'todo' NOT NULL CHECK (status IN ('todo', 'created', 'done')),
+			work_type_id INT,
 			event_id INT,
 			facility_id INT,
-		    FOREIGN KEY (work_type_id) REFERENCES work_type(id),
+			FOREIGN KEY (work_type_id) REFERENCES work_type(id),
 			FOREIGN KEY (event_id) REFERENCES events(id),
-			FOREIGN KEY (facility_id) REFERENCES facility(id));
+			FOREIGN KEY (facility_id) REFERENCES facility(id)
+		);
 		  	`)
 	if err != nil {
 		return err
