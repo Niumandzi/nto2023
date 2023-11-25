@@ -37,8 +37,8 @@ func (a ApplicationRepository) Create(ctx context.Context, application model.App
 											 event_id, 
 											 facility_id) VALUES ($1, $2, $3, $4, $5, $6, $7);`,
 		application.Description,
-		application.CreatedAt,
-		application.Due,
+		application.CreateDate,
+		application.DueDate,
 		application.Status,
 		application.WorkTypeId,
 		application.EventId,
@@ -68,10 +68,10 @@ func (a ApplicationRepository) Create(ctx context.Context, application model.App
 
 // Get аналогично как и в events repo, делаем один метод на get по workType и status
 // TODO: сделать базовое query и добавлять новое string по наличию поля,
-func (a ApplicationRepository) Get(ctx context.Context, workType string, status string) ([]model.ApplicationWithDetails, error) {
+func (a ApplicationRepository) Get(ctx context.Context, categoryName string, workType string, status string) ([]model.ApplicationWithDetails, error) {
 	args := make([]interface{}, 0, 2)
 	var query string
-	var appplications []model.ApplicationWithDetails
+	var applications []model.ApplicationWithDetails
 
 	baseQuery := `SELECT application.id,
 		application.description,
@@ -91,30 +91,38 @@ func (a ApplicationRepository) Get(ctx context.Context, workType string, status 
 		facility.name
 	FROM application
 	INNER JOIN work_type ON application.work_type_id = work_type.id
-	INNER JOIN facility ON application.facility_id = faclility.id
+	INNER JOIN facility ON application.facility_id = facility.id
 	INNER JOIN events ON application.event_id = events.id
 	INNER JOIN details ON events.details_id = details.id`
 
-	if (workType == "") && (status == "") {
-		err := errors.New("no workType and status provided")
+	if (categoryName == "") && (workType == "") && (status == "") {
+		err := errors.New("no categoryName, workType and status provided")
 		a.logger.Errorf(err.Error())
-		return appplications, err
-	} else if (workType == "") && (status != "") {
+		return applications, err
+	} else if (categoryName == "") && (workType == "") && (status != "") {
 		baseQuery += `WHERE application.status = $1;`
 		args = append(args, status)
-	} else if (workType != "") && (status == "") {
-		baseQuery += `WHERE work_type.name = $1;`
-		args = append(args, workType)
-	} else if (workType != "") && (status != "") {
-		baseQuery += `WHERE application.status = $1 AND work_type.name = $2;`
-		args = append(args, status)
-		args = append(args, workType)
+	} else if (categoryName == "") && (workType != "") && (status != "") {
+		baseQuery += `WHERE work_type.name = $1 AND application.status = $2;`
+		args = append(args, workType, status)
+	} else if (categoryName != "") && (workType == "") && (status == "") {
+		baseQuery += `WHERE details.category = $1;`
+		args = append(args, categoryName)
+	} else if (categoryName != "") && (workType != "") && (status == "") {
+		baseQuery += `WHERE details.category = $1 AND work_type.name = $2;`
+		args = append(args, categoryName, workType)
+	} else if (categoryName != "") && (workType == "") && (status != "") {
+		baseQuery += `WHERE details.category = $1 AND application.status = $2;`
+		args = append(args, categoryName, status)
+	} else if (categoryName != "") && (workType != "") && (status != "") {
+		baseQuery += `WHERE details.category = $1 AND work_type.name = $2 AND application.status = $3;`
+		args = append(args, categoryName, workType, status)
 	}
 
 	rows, err := a.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		a.logger.Error(err.Error())
-		return appplications, err
+		return applications, err
 	}
 
 	defer rows.Close()
@@ -124,8 +132,8 @@ func (a ApplicationRepository) Get(ctx context.Context, workType string, status 
 
 		err = rows.Scan(&application.ID,
 			&application.Description,
-			&application.CreatedAt,
-			&application.Due,
+			&application.CreateDate,
+			&application.DueDate,
 			&application.Status,
 			&application.WorkType.ID,
 			&application.WorkType.Name,
@@ -145,10 +153,10 @@ func (a ApplicationRepository) Get(ctx context.Context, workType string, status 
 			return []model.ApplicationWithDetails{}, err
 		}
 
-		appplications = append(appplications, application)
+		applications = append(applications, application)
 	}
 
-	return appplications, nil
+	return applications, nil
 }
 
 func (a ApplicationRepository) Update(ctx context.Context, applicationUpd model.Application) error {
@@ -168,8 +176,8 @@ func (a ApplicationRepository) Update(ctx context.Context, applicationUpd model.
 											    facility_id = $7 
 											WHERE id = $8;`,
 		applicationUpd.Description,
-		applicationUpd.CreatedAt,
-		applicationUpd.Due,
+		applicationUpd.CreateDate,
+		applicationUpd.DueDate,
 		applicationUpd.Status,
 		applicationUpd.WorkTypeId,
 		applicationUpd.EventId,
@@ -205,14 +213,14 @@ func (a ApplicationRepository) Update(ctx context.Context, applicationUpd model.
 	return nil
 }
 
-func (a ApplicationRepository) Delete(ctx context.Context, applId int) error {
+func (a ApplicationRepository) Delete(ctx context.Context, applicationId int) error {
 	tx, err := a.db.BeginTx(ctx, nil)
 	if err != nil {
 		a.logger.Errorf("error: %v", err.Error())
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM application WHERE id = $1;`, applId)
+	res, err := tx.ExecContext(ctx, `DELETE FROM application WHERE id = $1;`, applicationId)
 	if err != nil {
 		a.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
