@@ -22,14 +22,14 @@ type DetailsService interface {
 type WorkTypeService interface {
 	CreateWorkType(name string) (int, error)
 	GetAllWorkTypes() ([]model.WorkType, error)
-	UpdateWorkType(idOld int, nameUpd string) error
+	UpdateWorkType(workType model.WorkType) error
 	DeleteWorkType(id int) error
 }
 
 type FacilityService interface {
 	CreateFacility(name string) (int, error)
 	GetAllFacilities() ([]model.Facility, error)
-	UpdateFacility(idOld int, nameUpd string) error
+	UpdateFacility(facility model.Facility) error
 	DeleteFacility(id int) error
 }
 
