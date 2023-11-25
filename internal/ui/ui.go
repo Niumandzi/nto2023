@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"github.com/niumandzi/nto2023/internal/ui/page/application"
 	"github.com/niumandzi/nto2023/internal/ui/page/details"
 	error2 "github.com/niumandzi/nto2023/internal/ui/page/error"
 	"github.com/niumandzi/nto2023/internal/ui/page/event"
@@ -24,14 +25,14 @@ func NewGUI(app fyne.App, window fyne.Window) GUI {
 	}
 }
 
-func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, facility facility.FacilityPage, workType work.WorkTypePage) {
+func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage) {
 	w := gui.Window
 
 	mainContent := container.NewStack()
 
 	mainContent.Add(index.ShowIndex())
 
-	navBar := NavigationBar(event, details, facility, workType, mainContent, w)
+	navBar := NavigationBar(event, details, application, facility, workType, mainContent, w)
 
 	split := container.NewHSplit(navBar, mainContent)
 	split.Offset = 0.2
@@ -40,12 +41,12 @@ func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, facili
 	w.ShowAndRun()
 }
 
-func NavigationBar(event event.EventPage, details details.DetailsPage, facility facility.FacilityPage, workType work.WorkTypePage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
+func NavigationBar(event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
 	treeData := map[string][]string{
 		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
-		"развлечения":  {"типы развлечений"},
-		"просвещение":  {"типы просвещения"},
-		"образование":  {"типы образования"},
+		"развлечения":  {"работы развлечения", "типы развлечений"},
+		"просвещение":  {"работы просвещение", "типы просвещения"},
+		"образование":  {"работы образование", "типы образования"},
 		"рабочий стол": {"помещения", "типы работ"},
 	}
 
@@ -62,6 +63,12 @@ func NavigationBar(event event.EventPage, details details.DetailsPage, facility 
 			content = details.IndexDetails("entertainment", window)
 		case "типы просвещения":
 			content = details.IndexDetails("enlightenment", window)
+		case "работы развлечения":
+			content = application.IndexApplication("entertainment", "", window)
+		case "работы просвещение":
+			content = application.IndexApplication("enlightenment", "", window)
+		case "рабочий стол":
+			content = application.IndexApplication("", "todo", window)
 		case "помещения":
 			content = facility.IndexFacility(window)
 		case "типы работ":

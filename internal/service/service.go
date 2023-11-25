@@ -35,7 +35,7 @@ type FacilityService interface {
 
 type ApplicationService interface {
 	CreateApplication(application model.Application) (int, error)
-	GetApplications(categoryName string, workType string, status string) ([]model.ApplicationWithDetails, error)
+	GetApplications(categoryName string, facilityId int, workTypeId int, status string) ([]model.ApplicationWithDetails, error)
 	UpdateApplication(applicationUpd model.Application) error
 	DeleteApplication(applicationId int) error
 }

@@ -17,17 +17,17 @@ type Application struct {
 	DueDate     string
 	Status      string
 	WorkTypeId  int
-	EventId     int
 	FacilityId  int
+	EventId     int
 }
 
 type ApplicationWithDetails struct {
 	ID          int
+	WorkType    WorkType
+	Facility    Facility
 	Description string
 	CreateDate  string
 	DueDate     string
 	Status      string
-	WorkType    WorkType
 	Event       EventWithDetails
-	Facility    Facility
 }

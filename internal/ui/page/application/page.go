@@ -12,46 +12,79 @@ import (
 
 type ApplicationPage struct {
 	applicationServ service.ApplicationService
+	facilityServ    service.FacilityService
+	workTypeServ    service.WorkTypeService
 	logger          logging.Logger
 }
 
-func NewApplicationPage(application service.ApplicationService, logger logging.Logger) ApplicationPage {
+func NewApplicationPage(appl service.ApplicationService, fac service.FacilityService, work service.WorkTypeService, logger logging.Logger) ApplicationPage {
 	return ApplicationPage{
-		applicationServ: application,
+		applicationServ: appl,
+		facilityServ:    fac,
+		workTypeServ:    work,
 		logger:          logger,
 	}
 }
 
-func (s ApplicationPage) IndexApplication(categoryName string, window fyne.Window) fyne.CanvasObject {
+func (s ApplicationPage) IndexApplication(categoryName string, status string, window fyne.Window) fyne.CanvasObject {
 	applicationContainer := container.NewStack()
-	applicationList := func(applicationType string, id int) {
-		s.ShowApplication(categoryName, id, window, applicationContainer)
+
+	var selectedFacilityId int
+	var selectedWorkTypeId int
+
+	updateApplicationList := func() {
+		s.ShowApplication(categoryName, selectedFacilityId, selectedWorkTypeId, status, window, applicationContainer)
 	}
 
-	details, err := s.applicationServ.GetDetails(categoryName)
+	facilities, err := s.facilityServ.GetFacilities()
 	if err != nil {
 		dialog.ShowError(err, window)
+		return nil
 	}
 
-	typeNames := make(map[string]int)
-	for _, detail := range details {
-		typeNames[detail.TypeName] = detail.ID
+	facilityNames := make(map[string]int)
+	for _, facility := range facilities {
+		facilityNames[facility.Name] = facility.ID
 	}
 
-	typeSelect := component.SelectorWidget("Тип мероприятия", typeNames, func(id int) {
-		applicationList("", id)
+	facilitySelect := component.SelectorWidget("Помещение", facilityNames, func(id int) {
+		selectedFacilityId = id
+		updateApplicationList()
 	})
 
-	createApplicationButton := widget.NewButton("Создать событие", func() {
-		s.CreateApplication(categoryName, window, func() {
-			applicationList("", -1)
+	workTypes, err := s.workTypeServ.GetWorkTypes()
+	if err != nil {
+		dialog.ShowError(err, window)
+		return nil
+	}
+
+	workNames := make(map[string]int)
+	for _, work := range workTypes {
+		workNames[work.Name] = work.ID
+	}
+
+	workSelect := component.SelectorWidget("Тип работ", workNames, func(id int) {
+		selectedWorkTypeId = id
+		updateApplicationList()
+	})
+
+	sortingButtons := container.NewHBox(facilitySelect, workSelect)
+
+	var toolbar, content *fyne.Container
+	if categoryName != "" {
+		createApplicationButton := widget.NewButton("Создать заявку на выполнение работ", func() {
+			//s.CreateApplication(categoryName, window, func() {
+			//	updateApplicationList(-1)
+			//})
 		})
-	})
-	createButtons := container.NewHBox(createApplicationButton)
+		createButtons := container.NewHBox(createApplicationButton)
+		toolbar = container.NewBorder(nil, nil, sortingButtons, createButtons)
+	} else {
+		toolbar = container.NewBorder(nil, nil, sortingButtons, nil)
+	}
+	content = container.NewBorder(toolbar, nil, nil, nil, applicationContainer)
 
-	toolbar := container.NewBorder(nil, nil, typeSelect, createButtons)
-	content := container.NewBorder(toolbar, nil, nil, nil, applicationContainer)
-	applicationList("", -1)
+	updateApplicationList()
 
 	return content
 }
