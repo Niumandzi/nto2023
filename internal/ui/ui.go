@@ -4,10 +4,11 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	details "github.com/niumandzi/nto2023/internal/ui/page/details"
+	"github.com/niumandzi/nto2023/internal/ui/page/details"
 	error2 "github.com/niumandzi/nto2023/internal/ui/page/error"
 	"github.com/niumandzi/nto2023/internal/ui/page/event"
 	"github.com/niumandzi/nto2023/internal/ui/page/index"
+	"github.com/niumandzi/nto2023/internal/ui/page/work"
 )
 
 type GUI struct {
@@ -22,14 +23,14 @@ func NewGUI(app fyne.App, window fyne.Window) GUI {
 	}
 }
 
-func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage) {
+func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, workType work.WorkTypePage) {
 	w := gui.Window
 
 	mainContent := container.NewStack()
 
 	mainContent.Add(index.ShowIndex())
 
-	navBar := NavigationBar(event, details, mainContent, w)
+	navBar := NavigationBar(event, details, workType, mainContent, w)
 
 	split := container.NewHSplit(navBar, mainContent)
 	split.Offset = 0.2
@@ -38,12 +39,13 @@ func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage) {
 	w.ShowAndRun()
 }
 
-func NavigationBar(event event.EventPage, details details.DetailsPage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
+func NavigationBar(event event.EventPage, details details.DetailsPage, workType work.WorkTypePage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
 	treeData := map[string][]string{
-		"":            {"развлечения", "просвещение", "образование"},
-		"развлечения": {"типы развлечений"},
-		"просвещение": {"типы просвещения"},
-		"образование": {"типы образования"},
+		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
+		"развлечения":  {"типы развлечений"},
+		"просвещение":  {"типы просвещения"},
+		"образование":  {"типы образования"},
+		"рабочий стол": {"помещения", "типы работ"},
 	}
 
 	navTree := widget.NewTreeWithStrings(treeData)
@@ -59,6 +61,8 @@ func NavigationBar(event event.EventPage, details details.DetailsPage, mainConte
 			content = details.IndexDetails("entertainment", window)
 		case "типы просвещения":
 			content = details.IndexDetails("enlightenment", window)
+		case "типы работ":
+			content = workType.IndexWorkType(window)
 		default:
 			content = error2.ShowErrorPage()
 		}

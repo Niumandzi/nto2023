@@ -1,4 +1,4 @@
-package event
+package details
 
 import (
 	"fyne.io/fyne/v2"

@@ -3,21 +3,20 @@ package work
 import (
 	"context"
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/niumandzi/nto2023/model"
 )
 
-func (s WorkTypeService) UpdateWorkType(workType model.WorkType) error {
+func (s WorkTypeService) UpdateWorkType(workTypeId int, name string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	err := validation.Validate(workType.Name, validation.Required)
+	err := validation.Validate(name, validation.Required)
 	if err != nil {
 		s.logger.Error("error: %v", err)
 		return err
 	}
 
-	err = s.workTypeRepo.Update(ctx, workType.ID, workType.Name)
+	err = s.workTypeRepo.Update(ctx, workTypeId, name)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

@@ -1,4 +1,4 @@
-package details
+package work
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventContainer *fyne.Container) {
-	details, err := s.detailsServ.GetDetails(categoryName)
+func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Container) {
+	workType, err := s.workTypeServ.GetAllWorkTypes()
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -21,9 +21,9 @@ func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventC
 	eventContainer.Objects = nil
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
-	for _, detail := range details {
-		card := s.createDetailCard(detail, window, func() {
-			s.ShowDetails(categoryName, window, eventContainer)
+	for _, workType := range workType {
+		card := s.createWorkTypeCard(workType, window, func() {
+			s.ShowWorkType(window, eventContainer)
 		})
 		grid.Add(card)
 	}
@@ -32,17 +32,17 @@ func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventC
 	eventContainer.Refresh()
 }
 
-func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, onUpdate func()) fyne.CanvasObject {
-	cardText := card(detail)
+func (s WorkTypePage) createWorkTypeCard(workType model.WorkType, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+	cardText := card(workType)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		s.UpdateDetail(detail.ID, detail.Category, detail.TypeName, window, onUpdate)
+		s.UpdateWorkType(workType.ID, workType.Name, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.detailsServ.DeleteDetail(detail.ID)
+		err := s.workTypeServ.DeleteWorkType(workType.ID)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
@@ -60,17 +60,7 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 	return eventContainer
 }
 
-func card(detail model.Details) string {
-	var category string
-	switch detail.Category {
-	case "entertainment":
-		category = "Развлечения"
-	case "enlightenment":
-		category = "Просвещение"
-	case "education":
-		category = "Образование"
-	}
+func card(workType model.WorkType) string {
 
-	return fmt.Sprintf("Категория: %s\nТип: %s",
-		category, detail.TypeName)
+	return fmt.Sprintf("Тип: %s", workType.Name)
 }

@@ -22,7 +22,7 @@ type DetailsService interface {
 type WorkTypeService interface {
 	CreateWorkType(name string) (int, error)
 	GetAllWorkTypes() ([]model.WorkType, error)
-	UpdateWorkType(workType model.WorkType) error
+	UpdateWorkType(workTypeId int, name string) error
 	DeleteWorkType(id int) error
 }
 
