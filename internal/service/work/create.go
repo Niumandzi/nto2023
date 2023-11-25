@@ -1,37 +1,25 @@
 package work
 
 import (
-	"context"
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/niumandzi/nto2023/internal/validations"
-	"github.com/niumandzi/nto2023/model"
+	"golang.org/x/net/context"
 )
 
-func (w WorkService) CreateApplication(application model.Application) (int, error) {
-	ctx, cancel := context.WithTimeout(w.ctx, w.contextTimeout)
+func (s WorkTypeService) CreateWorkType(name string) (int, error) {
+	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 	defer cancel()
 
-	err := validation.ValidateStruct(&application,
-		validation.Field(&application.Description, validation.Required),
-		validation.Field(&application.CreatedAt, validation.Required, validation.By(validations.ValidateDate)),
-		validation.Field(&application.DetailsID, validation.Required, validation.Min(1).Error("Не выбран тип мероприятия")),
-	)
+	err := validation.Validate(name, validation.Required)
 	if err != nil {
-		w.logger.Error("error: %v", err.Error())
+		s.logger.Error("error: %v", err)
 		return 0, err
 	}
 
-	eventDB := model.Event{
-		Name:        application.Name,
-		Date:        application.Date,
-		Description: application.Description,
-		DetailsID:   application.DetailsID,
-	}
-
-	id, err := w.eventRepo.Create(ctx, eventDB)
+	id, err := s.workTypeRepo.Create(ctx, name)
 	if err != nil {
+		s.logger.Error("error: %v", err.Error())
 		return 0, err
 	}
 
-	return id, nil
+	return id, err
 }

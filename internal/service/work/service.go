@@ -7,16 +7,16 @@ import (
 	"time"
 )
 
-type WorkService struct {
-	workRepo       repository.WorkTypeRepository
+type WorkTypeService struct {
+	workTypeRepo   repository.WorkTypeRepository
 	contextTimeout time.Duration
 	logger         logging.Logger
 	ctx            context.Context
 }
 
-func NewWorkService(work repository.WorkTypeRepository, timeout time.Duration, logger logging.Logger, ctx context.Context) WorkService {
-	return WorkService{
-		workRepo:       work,
+func NewWorkTypeService(work repository.WorkTypeRepository, timeout time.Duration, logger logging.Logger, ctx context.Context) WorkTypeService {
+	return WorkTypeService{
+		workTypeRepo:   work,
 		contextTimeout: timeout,
 		logger:         logger,
 		ctx:            ctx,
