@@ -1,19 +1,19 @@
-package event
+package facility
 
 import (
 	"context"
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s DetailsService) GetDetails(categoryName string) ([]model.Details, error) {
+func (s FacilityService) GetAllFacilities() ([]model.Facility, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	types, err := s.detailsRepo.Get(ctx, categoryName)
+	types, err := s.facilityRepo.Get(ctx)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
-		return []model.Details{}, err
+		return nil, err
 	}
 
 	return types, nil
