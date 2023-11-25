@@ -16,6 +16,7 @@ import (
 	"github.com/niumandzi/nto2023/internal/ui"
 	detailsPage "github.com/niumandzi/nto2023/internal/ui/page/details"
 	eventPage "github.com/niumandzi/nto2023/internal/ui/page/event"
+	facilityPage "github.com/niumandzi/nto2023/internal/ui/page/facility"
 	workPage "github.com/niumandzi/nto2023/internal/ui/page/work"
 	"github.com/niumandzi/nto2023/pkg/logging"
 	"github.com/niumandzi/nto2023/pkg/sqlitedb"
@@ -63,14 +64,14 @@ func main() {
 
 	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
 	detailsServ := detailsService.NewDetailsService(detailsRepo, timeoutContext, logger, ctx)
-	facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
+	facilityServ := facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
 	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 
 	event := eventPage.NewEventPage(eventServ, logger)
 	details := detailsPage.NewDetailsPage(detailsServ, logger)
-
+	facility := facilityPage.NewFacilityPage(facilityServ, logger)
 	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 
 	gui := ui.NewGUI(a, w)
-	ui.SetupUI(gui, event, details, workType)
+	ui.SetupUI(gui, event, details, facility, workType)
 }

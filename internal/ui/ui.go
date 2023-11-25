@@ -7,6 +7,7 @@ import (
 	"github.com/niumandzi/nto2023/internal/ui/page/details"
 	error2 "github.com/niumandzi/nto2023/internal/ui/page/error"
 	"github.com/niumandzi/nto2023/internal/ui/page/event"
+	"github.com/niumandzi/nto2023/internal/ui/page/facility"
 	"github.com/niumandzi/nto2023/internal/ui/page/index"
 	"github.com/niumandzi/nto2023/internal/ui/page/work"
 )
@@ -23,14 +24,14 @@ func NewGUI(app fyne.App, window fyne.Window) GUI {
 	}
 }
 
-func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, workType work.WorkTypePage) {
+func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, facility facility.FacilityPage, workType work.WorkTypePage) {
 	w := gui.Window
 
 	mainContent := container.NewStack()
 
 	mainContent.Add(index.ShowIndex())
 
-	navBar := NavigationBar(event, details, workType, mainContent, w)
+	navBar := NavigationBar(event, details, facility, workType, mainContent, w)
 
 	split := container.NewHSplit(navBar, mainContent)
 	split.Offset = 0.2
@@ -39,7 +40,7 @@ func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, workTy
 	w.ShowAndRun()
 }
 
-func NavigationBar(event event.EventPage, details details.DetailsPage, workType work.WorkTypePage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
+func NavigationBar(event event.EventPage, details details.DetailsPage, facility facility.FacilityPage, workType work.WorkTypePage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
 	treeData := map[string][]string{
 		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
 		"развлечения":  {"типы развлечений"},
@@ -61,6 +62,8 @@ func NavigationBar(event event.EventPage, details details.DetailsPage, workType 
 			content = details.IndexDetails("entertainment", window)
 		case "типы просвещения":
 			content = details.IndexDetails("enlightenment", window)
+		case "помещения":
+			content = facility.IndexFacility(window)
 		case "типы работ":
 			content = workType.IndexWorkType(window)
 		default:

@@ -1,4 +1,4 @@
-package work
+package facility
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Container) {
-	workType, err := s.workTypeServ.GetWorkTypes()
+func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Container) {
+	facility, err := s.facilityServ.GetFacilities()
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -21,9 +21,9 @@ func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Cont
 	eventContainer.Objects = nil
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
-	for _, workType := range workType {
-		card := s.createWorkTypeCard(workType, window, func() {
-			s.ShowWorkType(window, eventContainer)
+	for _, facility := range facility {
+		card := s.createFacilityCard(facility, window, func() {
+			s.ShowFacility(window, eventContainer)
 		})
 		grid.Add(card)
 	}
@@ -32,21 +32,21 @@ func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Cont
 	eventContainer.Refresh()
 }
 
-func (s WorkTypePage) createWorkTypeCard(workType model.WorkType, window fyne.Window, onUpdate func()) fyne.CanvasObject {
-	cardText := card(workType)
+func (s FacilityPage) createFacilityCard(facility model.Facility, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+	cardText := card(facility)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		s.UpdateWorkType(workType.ID, workType.Name, window, onUpdate)
+		s.UpdateFacility(facility.ID, facility.Name, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.workTypeServ.DeleteWorkType(workType.ID)
+		err := s.facilityServ.DeleteFacility(facility.ID)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Тип удален", "Тип успешно удален!", window)
+			dialog.ShowInformation("Помещение удалено", "Помещение успешно удалено!", window)
 			onUpdate()
 		}
 	})
@@ -60,6 +60,7 @@ func (s WorkTypePage) createWorkTypeCard(workType model.WorkType, window fyne.Wi
 	return eventContainer
 }
 
-func card(workType model.WorkType) string {
-	return fmt.Sprintf("Тип: %s", workType.Name)
+func card(facility model.Facility) string {
+
+	return fmt.Sprintf("Помещение: %s", facility.Name)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s FacilityService) GetAllFacilities() ([]model.Facility, error) {
+func (s FacilityService) GetFacilities() ([]model.Facility, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
