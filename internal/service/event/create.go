@@ -2,9 +2,9 @@ package event
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/niumandzi/nto2023/internal/validations"
 	"github.com/niumandzi/nto2023/model"
 	"golang.org/x/net/context"
-	"regexp"
 )
 
 func (s EventService) CreateEvent(event model.Event) (int, error) {
@@ -13,7 +13,7 @@ func (s EventService) CreateEvent(event model.Event) (int, error) {
 
 	err := validation.ValidateStruct(&event,
 		validation.Field(&event.Name, validation.Required),
-		validation.Field(&event.Date, validation.Required, validation.By(validateDate)),
+		validation.Field(&event.Date, validation.Required, validation.By(validations.ValidateDate)),
 		validation.Field(&event.DetailsID, validation.Required, validation.Min(1).Error("Не выбран тип мероприятия")),
 	)
 	if err != nil {
@@ -35,5 +35,3 @@ func (s EventService) CreateEvent(event model.Event) (int, error) {
 
 	return id, nil
 }
-
-var basicDateRegex = regexp.MustCompile(`^(\d{2})\.(\d{2})\.(\d{4})$`)

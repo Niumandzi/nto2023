@@ -7,8 +7,12 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	detailsRepository "github.com/niumandzi/nto2023/internal/repository/details"
 	eventRepository "github.com/niumandzi/nto2023/internal/repository/event"
+	facilityRepository "github.com/niumandzi/nto2023/internal/repository/facility"
+	workTypeRepository "github.com/niumandzi/nto2023/internal/repository/work"
 	detailsService "github.com/niumandzi/nto2023/internal/service/details"
 	eventService "github.com/niumandzi/nto2023/internal/service/event"
+	facilityService "github.com/niumandzi/nto2023/internal/service/facility"
+	workTypeService "github.com/niumandzi/nto2023/internal/service/work"
 	"github.com/niumandzi/nto2023/internal/ui"
 	detailsPage "github.com/niumandzi/nto2023/internal/ui/page/details"
 	eventPage "github.com/niumandzi/nto2023/internal/ui/page/event"
@@ -53,9 +57,13 @@ func main() {
 
 	eventRepo := eventRepository.NewEventRepository(db, logger)
 	detailsRepo := detailsRepository.NewDetailsRepository(db, logger)
+	facilityRepo := facilityRepository.NewFacilityRepository(db, logger)
+	workTypeRepo := workTypeRepository.NewWorkTypeRepository(db, logger)
 
 	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
 	detailsServ := detailsService.NewDetailsService(detailsRepo, timeoutContext, logger, ctx)
+	facilityServ := facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
+	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 
 	event := eventPage.NewEventPage(eventServ, logger)
 	details := detailsPage.NewDetailsPage(detailsServ, logger)

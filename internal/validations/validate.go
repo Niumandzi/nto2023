@@ -1,11 +1,14 @@
-package event
+package validations
 
 import (
 	"errors"
+	"regexp"
 	"strconv"
 )
 
-func validateDate(value interface{}) error {
+var basicDateRegex = regexp.MustCompile(`^(\d{2})\.(\d{2})\.(\d{4})$`)
+
+func ValidateDate(value interface{}) error {
 	s, ok := value.(string)
 	if !ok {
 		return errors.New("invalid data type for date")
