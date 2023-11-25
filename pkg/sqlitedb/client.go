@@ -46,7 +46,7 @@ func CreateTables(db *sql.DB) error {
 		  	description TEXT,
 		  	created_at TEXT,
 		  	due TEXT,
-			status TEXT NOT NULL CHECK (status IN ('created', 'done', 'todo')),
+			status TEXT NOT NULL CHECK (status IN ('created', 'todo', 'done')),
 		    work_type_id INT,
 			event_id INT,
 			facility_id INT,

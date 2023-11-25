@@ -13,8 +13,8 @@ type Facility struct {
 type Application struct {
 	ID          int
 	Description string
-	CreatedAt   string
-	Due         string
+	CreateDate  string
+	DueDate     string
 	Status      string
 	WorkTypeId  int
 	EventId     int
@@ -24,8 +24,8 @@ type Application struct {
 type ApplicationWithDetails struct {
 	ID          int
 	Description string
-	CreatedAt   string
-	Due         string
+	CreateDate  string
+	DueDate     string
 	Status      string
 	WorkType    WorkType
 	Event       EventWithDetails

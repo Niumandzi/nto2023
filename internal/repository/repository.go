@@ -36,7 +36,7 @@ type FacilityRepository interface {
 
 type ApplicationRepository interface {
 	Create(ctx context.Context, application model.Application) (int, error)
-	Get(ctx context.Context, workType string, status string) ([]model.ApplicationWithDetails, error)
+	Get(ctx context.Context, categoryName string, workType string, status string) ([]model.ApplicationWithDetails, error)
 	Update(ctx context.Context, applicationUpd model.Application) error
-	Delete(ctx context.Context, applId int) error
+	Delete(ctx context.Context, applicationId int) error
 }
