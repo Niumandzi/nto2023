@@ -3,7 +3,8 @@ package work
 import (
 	"context"
 	"database/sql"
-	"github.com/niumandzi/nto2023/internal/errors"
+	"fmt"
+	errcode "github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
 )
@@ -51,13 +52,53 @@ func (w WorkTypeRepository) Create(ctx context.Context, name string) (int, error
 	return int(id), nil
 }
 
-func (w WorkTypeRepository) Get(ctx context.Context) ([]model.WorkType, error) {
+func (w WorkTypeRepository) Get(ctx context.Context, categoryName string, facilityID int, status string) ([]model.WorkType, error) {
+	args := make([]interface{}, 0, 2)
+	kwargs := make(map[string]interface{})
+	var query string
 	var workTypes []model.WorkType
 
-	rows, err := w.db.QueryContext(ctx, `SELECT work_type.id, work_type.name FROM work_type`)
+	query = `SELECT work_type.id,
+                 work_type.name
+          FROM application
+          INNER JOIN work_type ON application.work_type_id = work_type.id
+          INNER JOIN facility ON application.facility_id = facility.id
+          INNER JOIN events ON application.event_id = events.id
+          INNER JOIN details ON events.details_id = details.id
+          WHERE `
+
+	if categoryName != "" {
+		kwargs["details.category"] = categoryName
+	}
+	if facilityID != 0 {
+		kwargs["facility.id"] = facilityID
+	}
+	if status != "" {
+		kwargs["application.status"] = status
+	}
+	if categoryName != "" && facilityID != 0 && status != "" {
+		query = `SELECT work_type.id, work_type.name FROM work_type`
+	}
+
+	length := len(kwargs)
+	if length != 0 {
+		i := 0
+		for key, val := range kwargs {
+			if i == length-1 {
+				query += fmt.Sprintf("%v = ?;", key)
+				args = append(args, val)
+			} else {
+				query += fmt.Sprintf("%v = ? AND ", key)
+				args = append(args, val)
+			}
+			i++
+		}
+	}
+
+	rows, err := w.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		w.logger.Error("error: %v", err.Error())
-		return []model.WorkType{}, err
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -69,7 +110,7 @@ func (w WorkTypeRepository) Get(ctx context.Context) ([]model.WorkType, error) {
 			&workType.Name)
 		if err != nil {
 			w.logger.Errorf("error: %v", err.Error())
-			return []model.WorkType{}, err
+			return nil, err
 		}
 
 		workTypes = append(workTypes, workType)
@@ -99,7 +140,7 @@ func (w WorkTypeRepository) Update(ctx context.Context, idOld int, nameUpd strin
 		return err
 	}
 	if rowsCount != 1 {
-		err = errors.NewRowCountError("work type name update", int(rowsCount))
+		err = errcode.NewRowCountError("work type name update", int(rowsCount))
 		w.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
@@ -136,7 +177,7 @@ func (w WorkTypeRepository) Delete(ctx context.Context, id int) error {
 		return err
 	}
 	if rowsCount != 1 {
-		err = errors.NewRowCountError("work type delete", int(rowsCount))
+		err = errcode.NewRowCountError("work type delete", int(rowsCount))
 		w.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err

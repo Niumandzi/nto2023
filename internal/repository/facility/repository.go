@@ -3,6 +3,7 @@ package facility
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
@@ -51,13 +52,53 @@ func (w FacilityRepository) Create(ctx context.Context, name string) (int, error
 	return int(id), nil
 }
 
-func (w FacilityRepository) Get(ctx context.Context) ([]model.Facility, error) {
+func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.Facility, error) {
+	args := make([]interface{}, 0, 2)
+	kwargs := make(map[string]interface{})
+	var query string
 	var facilities []model.Facility
 
-	rows, err := w.db.QueryContext(ctx, `SELECT facility.id, facility.name FROM facility`)
+	query = `SELECT DISTINCT facility.id, facility.name
+          FROM facility
+          INNER JOIN application ON application.facility_id = facility.id
+          INNER JOIN work_type ON application.work_type_id = work_type.id
+          INNER JOIN events ON application.event_id = events.id
+          INNER JOIN details ON events.details_id = details.id
+          WHERE `
+
+	if categoryName != "" {
+		kwargs["details.category"] = categoryName
+	}
+	if workTypeID != 0 {
+		kwargs["work_type.id"] = workTypeID
+	}
+	if status != "" {
+		kwargs["application.status"] = status
+	}
+	if categoryName != "" && workTypeID != 0 && status != "" {
+		query = `SELECT facility.id, facility.name FROM facility`
+	}
+
+	length := len(kwargs)
+
+	if length != 0 {
+		i := 0
+		for key, val := range kwargs {
+			if i == length-1 {
+				query += fmt.Sprintf("%v = ?;", key)
+				args = append(args, val)
+			} else {
+				query += fmt.Sprintf("%v = ? AND ", key)
+				args = append(args, val)
+			}
+			i++
+		}
+	}
+
+	rows, err := w.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		w.logger.Error("error: %v", err.Error())
-		return []model.Facility{}, err
+		return nil, err
 	}
 
 	defer rows.Close()

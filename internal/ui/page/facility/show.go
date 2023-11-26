@@ -12,7 +12,7 @@ import (
 )
 
 func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Container) {
-	facility, err := s.facilityServ.GetFacilities()
+	facility, err := s.facilityServ.GetFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return

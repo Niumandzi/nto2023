@@ -23,7 +23,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 	dueDateEntry := component.EntryWidget("Дата выполнения (дд.мм.гггг)")
 
-	workTypes, err := s.workTypeServ.GetWorkTypes()
+	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -39,7 +39,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 		nil,
 	)
 
-	facilities, err := s.facilityServ.GetFacilities()
+	facilities, err := s.facilityServ.GetFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -55,7 +55,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 		nil,
 	)
 
-	events, err := s.eventServ.GetEvents(categoryName, -1)
+	events, err := s.eventServ.GetEvents(categoryName, 0)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -65,7 +65,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 		eventNames[event.Name] = event.ID
 	}
 
-	eventSelect := component.SelectorWidget("Событие", eventNames, func(id int) {
+	eventSelect := component.SelectorWidget("Мероприятие", eventNames, func(id int) {
 		formData.EventId = id
 	},
 		nil,

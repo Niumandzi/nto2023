@@ -156,7 +156,7 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 	rows, err := a.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		a.logger.Error(err.Error())
-		return applications, err
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -184,7 +184,7 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 
 		if err != nil {
 			a.logger.Errorf("error: %v", err.Error())
-			return []model.ApplicationWithDetails{}, err
+			return nil, err
 		}
 
 		applications = append(applications, application)

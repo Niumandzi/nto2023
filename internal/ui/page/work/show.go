@@ -12,7 +12,7 @@ import (
 )
 
 func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Container) {
-	workType, err := s.workTypeServ.GetWorkTypes()
+	workType, err := s.workTypeServ.GetWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return

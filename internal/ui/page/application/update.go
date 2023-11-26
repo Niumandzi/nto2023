@@ -33,7 +33,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		},
 	)
 
-	workTypes, err := s.workTypeServ.GetWorkTypes()
+	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -51,7 +51,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		nil,
 	)
 
-	facilities, err := s.facilityServ.GetFacilities()
+	facilities, err := s.facilityServ.GetFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -69,7 +69,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		nil,
 	)
 
-	events, err := s.eventServ.GetEvents(categoryName, -1)
+	events, err := s.eventServ.GetEvents(categoryName, 0)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
