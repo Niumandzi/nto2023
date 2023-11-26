@@ -9,22 +9,10 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) UpdateEvent(categoryName string, id int, name string, date string, Description string, DetailsID int, window fyne.Window, onUpdate func()) {
-	formData := struct {
-		Name        string
-		Date        string
-		Description string
-		DetailsID   int
-	}{
-		Name:        name,
-		Date:        date,
-		Description: Description,
-		DetailsID:   DetailsID,
-	}
-
-	nameEntry := component.EntryWithDataWidget("Название", name)
-	dateEntry := component.EntryWithDataWidget("дд.мм.гггг", date)
-	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", Description)
+func (s EventPage) UpdateEvent(categoryName string, event model.Event, window fyne.Window, onUpdate func()) {
+	nameEntry := component.EntryWithDataWidget("Название", event.Name)
+	dateEntry := component.EntryWithDataWidget("дд.мм.гггг", event.Date)
+	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", event.Description)
 
 	details, err := s.eventServ.GetDetails(categoryName)
 	if err != nil {
@@ -37,7 +25,7 @@ func (s EventPage) UpdateEvent(categoryName string, id int, name string, date st
 	}
 
 	detailsSelect := component.SelectorWidget("Тип мероприятия", typeNames, func(id int) {
-		formData.DetailsID = id
+		event.DetailsID = id
 	})
 
 	formItems := []*widget.FormItem{
@@ -49,21 +37,16 @@ func (s EventPage) UpdateEvent(categoryName string, id int, name string, date st
 
 	dialog.ShowForm("                                Обновить событие                     ", "Сохранить", "Отмена", formItems, func(confirm bool) {
 		if confirm {
-			handleUpdateEvent(id, nameEntry.Text, dateEntry.Text, descriptionEntry.Text, formData.DetailsID, window, s.eventServ, onUpdate)
+			event.Name = nameEntry.Text
+			event.Date = dateEntry.Text
+			event.Description = descriptionEntry.Text
+			handleUpdateEvent(event, window, s.eventServ, onUpdate)
 		}
 	}, window)
 }
 
-func handleUpdateEvent(eventID int, eventName string, eventDate string, eventDescription string, detailsID int, window fyne.Window, eventServ service.EventService, onUpdate func()) {
-	updatedEvent := model.Event{
-		ID:          eventID,
-		Name:        eventName,
-		Date:        eventDate,
-		Description: eventDescription,
-		DetailsID:   detailsID,
-	}
-
-	err := eventServ.UpdateEvent(updatedEvent)
+func handleUpdateEvent(event model.Event, window fyne.Window, eventServ service.EventService, onUpdate func()) {
+	err := eventServ.UpdateEvent(event)
 	if err != nil {
 		dialog.ShowError(err, window)
 	} else {
