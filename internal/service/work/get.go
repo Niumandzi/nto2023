@@ -5,7 +5,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s WorkTypeService) GetAllWorkTypes() ([]model.WorkType, error) {
+func (s WorkTypeService) GetWorkTypes() ([]model.WorkType, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()

@@ -1,4 +1,4 @@
-package details
+package facility
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventContainer *fyne.Container) {
-	details, err := s.detailsServ.GetDetails(categoryName)
+func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Container) {
+	facility, err := s.facilityServ.GetFacilities()
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -21,9 +21,9 @@ func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventC
 	eventContainer.Objects = nil
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
-	for _, detail := range details {
-		card := s.createDetailCard(detail, window, func() {
-			s.ShowDetails(categoryName, window, eventContainer)
+	for _, facility := range facility {
+		card := s.createFacilityCard(facility, window, func() {
+			s.ShowFacility(window, eventContainer)
 		})
 		grid.Add(card)
 	}
@@ -32,21 +32,21 @@ func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventC
 	eventContainer.Refresh()
 }
 
-func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, onUpdate func()) fyne.CanvasObject {
-	cardText := card(detail)
+func (s FacilityPage) createFacilityCard(facility model.Facility, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+	cardText := card(facility)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		s.UpdateDetail(detail.ID, detail.Category, detail.TypeName, window, onUpdate)
+		s.UpdateFacility(facility.ID, facility.Name, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.detailsServ.DeleteDetail(detail.ID)
+		err := s.facilityServ.DeleteFacility(facility.ID)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Тип удален", "Тип успешно удален!", window)
+			dialog.ShowInformation("Помещение удалено", "Помещение успешно удалено!", window)
 			onUpdate()
 		}
 	})
@@ -60,17 +60,7 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 	return eventContainer
 }
 
-func card(detail model.Details) string {
-	var category string
-	switch detail.Category {
-	case "entertainment":
-		category = "Развлечения"
-	case "enlightenment":
-		category = "Просвещение"
-	case "education":
-		category = "Образование"
-	}
+func card(facility model.Facility) string {
 
-	return fmt.Sprintf("Категория: %s\nТип: %s",
-		category, detail.TypeName)
+	return fmt.Sprintf("Помещение: %s", facility.Name)
 }

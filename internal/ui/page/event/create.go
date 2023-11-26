@@ -9,64 +9,58 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate func()) {
-	formData := struct {
-		Name        string
-		Date        string
-		Description string
-		DetailsID   int
-	}{}
+type EventForm struct {
+	Event model.Event
+	Types map[string]int
+}
 
-	nameEntry := component.EntryWidget("Название")
-	dateEntry := component.EntryWidget("дд.мм.гггг")
-	descriptionEntry := component.MultiLineEntryWidget("Описание")
+func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate func()) {
+	var form EventForm
 
 	details, err := s.eventServ.GetDetails(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
+		return
 	}
 
-	typeNames := make(map[string]int)
+	form.Types = make(map[string]int)
 	for _, detail := range details {
-		typeNames[detail.TypeName] = detail.ID
+		form.Types[detail.TypeName] = detail.ID
 	}
-
-	detailsSelect := component.SelectorWidget("Тип", typeNames, func(id int) {
-		formData.DetailsID = id
-	})
 
 	formItems := []*widget.FormItem{
-		widget.NewFormItem("", detailsSelect),
-		widget.NewFormItem("", nameEntry),
-		widget.NewFormItem("", dateEntry),
-		widget.NewFormItem("", descriptionEntry),
+		widget.NewFormItem("Тип", createTypeSelector(&form)),
+		widget.NewFormItem("Название", component.EntryWidget("Название")),
+		widget.NewFormItem("Дата", component.EntryWidget("дд.мм.гггг")),
+		widget.NewFormItem("Описание", component.MultiLineEntryWidget("Описание")),
 	}
 
-	dialog.ShowForm("                            Создать событие                           ", "Создать", "Отмена", formItems, func(confirm bool) {
-
-		formData.Name = nameEntry.Text
-		formData.Date = dateEntry.Text
-		formData.Description = descriptionEntry.Text
-
+	dialog.ShowForm("Создать событие", "Создать", "Отмена", formItems, func(confirm bool) {
 		if confirm {
-			handleCreateEvent(formData.Name, formData.Date, formData.Description, formData.DetailsID, window, s.eventServ, onUpdate)
+			handleCreateEvent(form.Event, window, s.eventServ, onUpdate)
 		}
 	}, window)
 }
 
-func handleCreateEvent(eventName string, eventDate string, eventDescription string, detailsID int, window fyne.Window, eventServ service.EventService, onUpdate func()) {
-	newEvent := model.Event{
-		Name:        eventName,
-		Date:        eventDate,
-		Description: eventDescription,
-		DetailsID:   detailsID,
+func createTypeSelector(form *EventForm) *widget.Select {
+	typeNames := []string{}
+
+	for name := range form.Types {
+		typeNames = append(typeNames, name)
 	}
 
-	_, err := eventServ.CreateEvent(newEvent)
+	selectWidget := widget.NewSelect(typeNames, func(selected string) {
+		form.Event.DetailsID = form.Types[selected]
+	})
+
+	return selectWidget
+}
+func handleCreateEvent(event model.Event, window fyne.Window, eventServ service.EventService, onUpdate func()) {
+	_, err := eventServ.CreateEvent(event)
 	if err != nil {
 		dialog.ShowError(err, window)
-	} else {
-		dialog.ShowInformation("Событие создано", "Событие успешно создано!", window)
-		onUpdate()
+		return
 	}
+	dialog.ShowInformation("Событие создано", "Событие успешно создано!", window)
+	onUpdate()
 }

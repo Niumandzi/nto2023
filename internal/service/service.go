@@ -21,21 +21,21 @@ type DetailsService interface {
 
 type WorkTypeService interface {
 	CreateWorkType(name string) (int, error)
-	GetAllWorkTypes() ([]model.WorkType, error)
-	UpdateWorkType(workType model.WorkType) error
+	GetWorkTypes() ([]model.WorkType, error)
+	UpdateWorkType(workTypeId int, name string) error
 	DeleteWorkType(id int) error
 }
 
 type FacilityService interface {
 	CreateFacility(name string) (int, error)
-	GetAllFacilities() ([]model.Facility, error)
-	UpdateFacility(facility model.Facility) error
+	GetFacilities() ([]model.Facility, error)
+	UpdateFacility(facilityId int, name string) error
 	DeleteFacility(id int) error
 }
 
 type ApplicationService interface {
 	CreateApplication(application model.Application) (int, error)
-	GetApplications(categoryName string, workType string, status string) ([]model.ApplicationWithDetails, error)
+	GetApplications(categoryName string, facilityId int, workTypeId int, status string) ([]model.ApplicationWithDetails, error)
 	UpdateApplication(applicationUpd model.Application) error
 	DeleteApplication(applicationId int) error
 }
