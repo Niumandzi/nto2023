@@ -28,7 +28,9 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate
 
 	detailsSelect := component.SelectorWidget("Тип", typeNames, func(id int) {
 		formData.DetailsID = id
-	})
+	},
+		nil,
+	)
 
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("", detailsSelect),

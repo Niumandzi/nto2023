@@ -26,7 +26,9 @@ func (s EventPage) UpdateEvent(categoryName string, typeName string, event model
 
 	detailsSelect := component.SelectorWidget(typeName, typeNames, func(id int) {
 		event.DetailsID = id
-	})
+	},
+		nil,
+	)
 
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("", detailsSelect),

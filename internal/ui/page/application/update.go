@@ -10,8 +10,27 @@ import (
 )
 
 func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName string, facilityName string, eventName string, application model.Application, window fyne.Window, onUpdate func()) {
+	var status string
+
 	descriptionEntry := component.EntryWithDataWidget("Описание", application.Description)
 	dueDateEntry := component.EntryWithDataWidget("Дата выполнения (дд.мм.гггг)", application.DueDate)
+
+	switch application.Status {
+	case "created":
+		status = "Черновик"
+	case "todo":
+		status = "К выполнению"
+	case "done":
+		status = "Выполнено"
+	}
+
+	statusOptions := map[string]string{"Черновик": "created", "К выполнению": "todo", "Выполнено": "done"}
+	statusSelect := component.SelectorWidget(status, statusOptions,
+		nil,
+		func(selectedStatus string) {
+			application.Status = selectedStatus
+		},
+	)
 
 	workTypes, err := s.workTypeServ.GetWorkTypes()
 	if err != nil {
@@ -24,9 +43,12 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		workNames[work.Name] = work.ID
 	}
 
-	workSelect := component.SelectorWidget(workTypeName, workNames, func(id int) {
-		application.WorkTypeId = id
-	})
+	workSelect := component.SelectorWidget(workTypeName, workNames,
+		func(id int) {
+			application.WorkTypeId = id
+		},
+		nil,
+	)
 
 	facilities, err := s.facilityServ.GetFacilities()
 	if err != nil {
@@ -39,9 +61,12 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		facilityNames[facility.Name] = facility.ID
 	}
 
-	facilitySelect := component.SelectorWidget(facilityName, facilityNames, func(id int) {
-		application.FacilityId = id
-	})
+	facilitySelect := component.SelectorWidget(facilityName, facilityNames,
+		func(id int) {
+			application.FacilityId = id
+		},
+		nil,
+	)
 
 	events, err := s.eventServ.GetEvents(categoryName, -1)
 	if err != nil {
@@ -54,15 +79,19 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		eventNames[event.Name] = event.ID
 	}
 
-	eventSelect := component.SelectorWidget(eventName, eventNames, func(id int) {
-		application.EventId = id
-	})
+	eventSelect := component.SelectorWidget(eventName, eventNames,
+		func(id int) {
+			application.EventId = id
+		},
+		nil,
+	)
 
 	formItems := []*widget.FormItem{
-		widget.NewFormItem("", facilitySelect),
 		widget.NewFormItem("", workSelect),
+		widget.NewFormItem("", facilitySelect),
 		widget.NewFormItem("", descriptionEntry),
 		widget.NewFormItem("", dueDateEntry),
+		widget.NewFormItem("", statusSelect),
 		widget.NewFormItem("", eventSelect),
 	}
 

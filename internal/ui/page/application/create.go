@@ -35,7 +35,9 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 
 	workSelect := component.SelectorWidget("Тип работ", workNames, func(id int) {
 		formData.WorkTypeId = id
-	})
+	},
+		nil,
+	)
 
 	facilities, err := s.facilityServ.GetFacilities()
 	if err != nil {
@@ -49,7 +51,9 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 
 	facilitySelect := component.SelectorWidget("Помещение", facilityNames, func(id int) {
 		formData.FacilityId = id
-	})
+	},
+		nil,
+	)
 
 	events, err := s.eventServ.GetEvents(categoryName, -1)
 	if err != nil {
@@ -63,7 +67,9 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 
 	eventSelect := component.SelectorWidget("Событие", eventNames, func(id int) {
 		formData.EventId = id
-	})
+	},
+		nil,
+	)
 
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("", statusLabel),

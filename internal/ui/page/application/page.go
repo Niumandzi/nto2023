@@ -52,7 +52,9 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 	facilitySelect := component.SelectorWidget("Помещение", facilityNames, func(id int) {
 		selectedFacilityId = id
 		updateApplicationList()
-	})
+	},
+		nil,
+	)
 
 	workTypes, err := s.workTypeServ.GetWorkTypes()
 	if err != nil {
@@ -68,7 +70,9 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 	workSelect := component.SelectorWidget("Тип работ", workNames, func(id int) {
 		selectedWorkTypeId = id
 		updateApplicationList()
-	})
+	},
+		nil,
+	)
 
 	sortingButtons := container.NewHBox(facilitySelect, workSelect)
 

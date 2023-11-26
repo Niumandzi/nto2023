@@ -40,7 +40,9 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 
 	typeSelect := component.SelectorWidget("Тип мероприятия", typeNames, func(id int) {
 		eventList("", id)
-	})
+	},
+		nil,
+	)
 
 	createEventButton := widget.NewButton("Создать событие", func() {
 		s.CreateEvent(categoryName, window, func() {

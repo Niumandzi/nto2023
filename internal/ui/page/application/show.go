@@ -43,6 +43,7 @@ func (s ApplicationPage) createApplicationCard(application model.ApplicationWith
 		appToUpdate := model.Application{
 			ID:          application.ID,
 			Description: application.Description,
+			CreateDate:  application.CreateDate,
 			DueDate:     application.DueDate,
 			Status:      application.Status,
 			WorkTypeId:  application.WorkType.ID,
