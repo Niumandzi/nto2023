@@ -78,6 +78,12 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 
 	var toolbar, content *fyne.Container
 	if categoryName != "" {
+		statusOptions := map[string]string{"Черновик": "created", "К выполнению": "todo", "Выполнено": "done", "Все": ""}
+		statusSelect := component.SelectorWidget("Статус", statusOptions, nil, func(selectedStatus string) {
+			status = selectedStatus
+			updateApplicationList()
+		})
+		sortingButtons.Add(statusSelect)
 		createApplicationButton := widget.NewButton("Создать заявку на выполнение работ", func() {
 			s.CreateApplication(categoryName, window, func() {
 				updateApplicationList()
