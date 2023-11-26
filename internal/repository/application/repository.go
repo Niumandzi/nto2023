@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	errcode "github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
@@ -67,13 +68,13 @@ func (a ApplicationRepository) Create(ctx context.Context, application model.App
 }
 
 // Get аналогично как и в events repo, делаем один метод на get по workType и status
-// TODO: сделать базовое query и добавлять новое string по наличию поля,
 func (a ApplicationRepository) Get(ctx context.Context, categoryName string, facilityID int, workTypeId int, status string) ([]model.ApplicationWithDetails, error) {
 	args := make([]interface{}, 0, 2)
+	kwargs := make(map[string]interface{})
 	var query string
 	var applications []model.ApplicationWithDetails
 
-	baseQuery := `SELECT application.id,
+	query = `SELECT application.id,
 		application.description,
 		application.created_at,
 		application.due,
@@ -93,37 +94,70 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 	INNER JOIN work_type ON application.work_type_id = work_type.id
 	INNER JOIN facility ON application.facility_id = facility.id
 	INNER JOIN events ON application.event_id = events.id
-	INNER JOIN details ON events.details_id = details.id `
+	INNER JOIN details ON events.details_id = details.id 
+	WHERE `
 
-	if (categoryName == "") && (workTypeId == 0) && (status == "") {
-		err := errors.New("no categoryName, workType and status provided")
+	if categoryName != "" {
+		kwargs["details.category"] = categoryName
+	}
+	if facilityID != 0 {
+		kwargs["facility.id"] = facilityID
+	}
+	if workTypeId != 0 {
+		kwargs["work_type.id"] = workTypeId
+	}
+	if status != "" {
+		kwargs["application.status"] = status
+	}
+
+	length := len(kwargs)
+	if length == 0 {
+		err := errors.New("no categoryName, facilityId, workType and status provided")
 		a.logger.Errorf(err.Error())
 		return applications, err
-	} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
-		query = baseQuery + `WHERE application.status = $1;`
-		args = append(args, status)
-		a.logger.Infof("1")
-	} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
-		query = baseQuery + `WHERE work_type.id = $1 AND application.status = $2;`
-		args = append(args, workTypeId, status)
-		a.logger.Infof("2")
-	} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
-		query = baseQuery + `WHERE details.category = $1;`
-		args = append(args, categoryName)
-		a.logger.Infof("3")
-	} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
-		query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2;`
-		args = append(args, categoryName, workTypeId)
-		a.logger.Infof("4")
-	} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
-		query = baseQuery + `WHERE details.category = $1 AND application.status = $2;`
-		args = append(args, categoryName, status)
-		a.logger.Infof("5")
-	} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
-		query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2 AND application.status = $3;`
-		args = append(args, categoryName, workTypeId, status)
-		a.logger.Infof("6")
 	}
+
+	i := 0
+	for key, val := range kwargs {
+		if i == length-1 {
+			query += fmt.Sprintf("%v = ?;", key)
+			args = append(args, val)
+		} else {
+			query += fmt.Sprintf("%v = ? AND ", key)
+			args = append(args, val)
+		}
+		i++
+	}
+
+	//if (categoryName == "") && (workTypeId == 0) && (status == "") {
+	//	err := errors.New("no categoryName, workType and status provided")
+	//	a.logger.Errorf(err.Error())
+	//	return applications, err
+	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
+	//	query = baseQuery + `WHERE application.status = $1;`
+	//	args = append(args, status)
+	//	a.logger.Infof("1")
+	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
+	//	query = baseQuery + `WHERE work_type.id = $1 AND application.status = $2;`
+	//	args = append(args, workTypeId, status)
+	//	a.logger.Infof("2")
+	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
+	//	query = baseQuery + `WHERE details.category = $1;`
+	//	args = append(args, categoryName)
+	//	a.logger.Infof("3")
+	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
+	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2;`
+	//	args = append(args, categoryName, workTypeId)
+	//	a.logger.Infof("4")
+	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
+	//	query = baseQuery + `WHERE details.category = $1 AND application.status = $2;`
+	//	args = append(args, categoryName, status)
+	//	a.logger.Infof("5")
+	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
+	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2 AND application.status = $3;`
+	//	args = append(args, categoryName, workTypeId, status)
+	//	a.logger.Infof("6")
+	//}
 
 	rows, err := a.db.QueryContext(ctx, query, args...)
 	if err != nil {
