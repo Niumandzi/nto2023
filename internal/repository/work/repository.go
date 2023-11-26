@@ -76,7 +76,7 @@ func (w WorkTypeRepository) Get(ctx context.Context, categoryName string, facili
 	if status != "" {
 		kwargs["application.status"] = status
 	}
-	if categoryName != "" && facilityID != 0 && status != "" {
+	if categoryName == "" && facilityID == 0 && status == "" {
 		query = `SELECT work_type.id, work_type.name FROM work_type`
 	}
 

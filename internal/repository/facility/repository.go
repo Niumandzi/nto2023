@@ -75,7 +75,7 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 	if status != "" {
 		kwargs["application.status"] = status
 	}
-	if categoryName != "" && workTypeID != 0 && status != "" {
+	if categoryName == "" && workTypeID == 0 && status == "" {
 		query = `SELECT facility.id, facility.name FROM facility`
 	}
 
