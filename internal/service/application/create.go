@@ -15,7 +15,7 @@ func (s ApplicationService) CreateApplication(application model.Application) (in
 		validation.Field(&application.Description, validation.Required),
 		validation.Field(&application.CreateDate, validation.Required, validation.By(validations.ValidateDate)),
 		validation.Field(&application.DueDate, validation.Required, validation.By(validations.ValidateDate)),
-		validation.Field(&application.Description, validation.Required, validation.In("created", "todo", "done")),
+		validation.Field(&application.Status, validation.Required, validation.In("created")),
 		validation.Field(&application.EventId, validation.Required, validation.Min(1).Error("Не выбрано мероприятие")),
 		validation.Field(&application.WorkTypeId, validation.Required, validation.Min(1).Error("Не выбрано помещение")),
 		validation.Field(&application.FacilityId, validation.Required, validation.Min(1).Error("Не выбран тип работ")),

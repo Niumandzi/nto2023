@@ -12,14 +12,16 @@ import (
 
 type ApplicationPage struct {
 	applicationServ service.ApplicationService
+	eventServ       service.EventService
 	facilityServ    service.FacilityService
 	workTypeServ    service.WorkTypeService
 	logger          logging.Logger
 }
 
-func NewApplicationPage(appl service.ApplicationService, fac service.FacilityService, work service.WorkTypeService, logger logging.Logger) ApplicationPage {
+func NewApplicationPage(appl service.ApplicationService, event service.EventService, fac service.FacilityService, work service.WorkTypeService, logger logging.Logger) ApplicationPage {
 	return ApplicationPage{
 		applicationServ: appl,
+		eventServ:       event,
 		facilityServ:    fac,
 		workTypeServ:    work,
 		logger:          logger,
@@ -73,9 +75,9 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 	var toolbar, content *fyne.Container
 	if categoryName != "" {
 		createApplicationButton := widget.NewButton("Создать заявку на выполнение работ", func() {
-			//s.CreateApplication(categoryName, window, func() {
-			//	updateApplicationList(-1)
-			//})
+			s.CreateApplication(categoryName, window, func() {
+				updateApplicationList()
+			})
 		})
 		createButtons := container.NewHBox(createApplicationButton)
 		toolbar = container.NewBorder(nil, nil, sortingButtons, createButtons)
