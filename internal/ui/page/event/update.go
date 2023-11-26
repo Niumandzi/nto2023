@@ -9,7 +9,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) UpdateEvent(categoryName string, event model.Event, window fyne.Window, onUpdate func()) {
+func (s EventPage) UpdateEvent(categoryName string, typeName string, event model.Event, window fyne.Window, onUpdate func()) {
 	nameEntry := component.EntryWithDataWidget("Название", event.Name)
 	dateEntry := component.EntryWithDataWidget("дд.мм.гггг", event.Date)
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", event.Description)
@@ -24,7 +24,7 @@ func (s EventPage) UpdateEvent(categoryName string, event model.Event, window fy
 		typeNames[detail.TypeName] = detail.ID
 	}
 
-	detailsSelect := component.SelectorWidget("Тип мероприятия", typeNames, func(id int) {
+	detailsSelect := component.SelectorWidget(typeName, typeNames, func(id int) {
 		event.DetailsID = id
 	})
 

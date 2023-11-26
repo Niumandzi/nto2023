@@ -16,7 +16,7 @@ func (s WorkTypePage) UpdateWorkType(id int, name string, window fyne.Window, on
 		widget.NewFormItem("", nameEntry),
 	}
 
-	dialog.ShowForm("Обновить событие", "Сохранить", "Отмена", formItems, func(confirm bool) {
+	dialog.ShowForm("Обновить тип работ", "Сохранить", "Отмена", formItems, func(confirm bool) {
 		if confirm {
 			handleUpdateEvent(id, nameEntry.Text, window, s.workTypeServ, onUpdate)
 		}

@@ -40,7 +40,16 @@ func (s ApplicationPage) createApplicationCard(application model.ApplicationWith
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		//s.UpdateApplication(application., application.ID, application.Name, application.Date, application.Description, application.Details.ID, window, onUpdate)
+		appToUpdate := model.Application{
+			ID:          application.ID,
+			Description: application.Description,
+			DueDate:     application.DueDate,
+			Status:      application.Status,
+			WorkTypeId:  application.WorkType.ID,
+			FacilityId:  application.Facility.ID,
+			EventId:     application.Event.ID,
+		}
+		s.UpdateApplication(categoryName, application.WorkType.Name, application.Facility.Name, application.Event.Name, appToUpdate, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {

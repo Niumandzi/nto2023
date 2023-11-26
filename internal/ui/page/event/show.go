@@ -45,7 +45,7 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 			Description: event.Description,
 			DetailsID:   event.Details.ID,
 		}
-		s.UpdateEvent(event.Details.Category, eventToUpdate, window, onUpdate)
+		s.UpdateEvent(event.Details.Category, event.Details.TypeName, eventToUpdate, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
