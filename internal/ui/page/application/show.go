@@ -69,7 +69,7 @@ func (s ApplicationPage) createApplicationCard(application model.ApplicationWith
 	buttons := container.NewHBox(layout.NewSpacer(), updateButton, deleteButton)
 
 	statusColorBar := canvas.NewRectangle(getColorBasedOnStatus(application.Status))
-	statusColorBar.SetMinSize(fyne.NewSize(200, 6)) // Устанавливаем размер полоски
+	statusColorBar.SetMinSize(fyne.NewSize(200, 6))
 
 	card := widget.NewCard("", "", container.NewBorder(statusColorBar, buttons, nil, nil, label))
 

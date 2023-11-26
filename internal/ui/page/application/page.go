@@ -44,7 +44,7 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 		return nil
 	}
 
-	facilityNames := make(map[string]int)
+	facilityNames := map[string]int{"Все": 0}
 	for _, facility := range facilities {
 		facilityNames[facility.Name] = facility.ID
 	}
@@ -62,7 +62,7 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 		return nil
 	}
 
-	workNames := make(map[string]int)
+	workNames := map[string]int{"Все": 0}
 	for _, work := range workTypes {
 		workNames[work.Name] = work.ID
 	}

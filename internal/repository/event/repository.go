@@ -59,7 +59,7 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID
 	var events []model.EventWithDetails
 
 	switch detailsID {
-	case -1:
+	case 0:
 		query = `SELECT events.id,
                      events.name,
                      events.description,

@@ -33,7 +33,7 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 		dialog.ShowError(err, window)
 	}
 
-	typeNames := make(map[string]int)
+	typeNames := map[string]int{"Все": 0}
 	for _, detail := range details {
 		typeNames[detail.TypeName] = detail.ID
 	}
@@ -46,14 +46,14 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 
 	createEventButton := widget.NewButton("Создать событие", func() {
 		s.CreateEvent(categoryName, window, func() {
-			eventList("", -1)
+			eventList("", 0)
 		})
 	})
 	createButtons := container.NewHBox(createEventButton)
 
 	toolbar := container.NewBorder(nil, nil, typeSelect, createButtons)
 	content := container.NewBorder(toolbar, nil, nil, nil, eventContainer)
-	eventList("", -1)
+	eventList("", 0)
 
 	return content
 }

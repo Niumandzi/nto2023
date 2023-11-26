@@ -13,6 +13,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 	var status string
 
 	descriptionEntry := component.EntryWithDataWidget("Описание", application.Description)
+	createDateLabel := widget.NewLabel(application.CreateDate)
 	dueDateEntry := component.EntryWithDataWidget("Дата выполнения (дд.мм.гггг)", application.DueDate)
 
 	switch application.Status {
@@ -90,6 +91,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		widget.NewFormItem("", workSelect),
 		widget.NewFormItem("", facilitySelect),
 		widget.NewFormItem("", descriptionEntry),
+		widget.NewFormItem("", createDateLabel),
 		widget.NewFormItem("", dueDateEntry),
 		widget.NewFormItem("", statusSelect),
 		widget.NewFormItem("", eventSelect),

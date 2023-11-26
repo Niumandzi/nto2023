@@ -136,27 +136,21 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
 	//	query = baseQuery + `WHERE application.status = $1;`
 	//	args = append(args, status)
-	//	a.logger.Infof("1")
 	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
 	//	query = baseQuery + `WHERE work_type.id = $1 AND application.status = $2;`
 	//	args = append(args, workTypeId, status)
-	//	a.logger.Infof("2")
 	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
 	//	query = baseQuery + `WHERE details.category = $1;`
 	//	args = append(args, categoryName)
-	//	a.logger.Infof("3")
 	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
 	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2;`
 	//	args = append(args, categoryName, workTypeId)
-	//	a.logger.Infof("4")
 	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
 	//	query = baseQuery + `WHERE details.category = $1 AND application.status = $2;`
 	//	args = append(args, categoryName, status)
-	//	a.logger.Infof("5")
 	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
 	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2 AND application.status = $3;`
 	//	args = append(args, categoryName, workTypeId, status)
-	//	a.logger.Infof("6")
 	//}
 
 	rows, err := a.db.QueryContext(ctx, query, args...)
