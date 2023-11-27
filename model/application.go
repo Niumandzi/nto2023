@@ -4,12 +4,6 @@ type WorkType struct {
 	ID   int
 	Name string
 }
-
-type Facility struct {
-	ID   int
-	Name string
-}
-
 type Application struct {
 	ID          int
 	Description string
