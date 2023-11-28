@@ -40,3 +40,10 @@ type ApplicationRepository interface {
 	Update(ctx context.Context, applicationUpd model.Application) error
 	Delete(ctx context.Context, applicationId int) error
 }
+
+type BookingRepository interface {
+	Create(ctx context.Context, booking model.Booking) (int, error)
+	Get(ctx context.Context) ([]model.BookingWithFacility, error)
+	Update(ctx context.Context, bookingUpd model.Booking) error
+	Delete(ctx context.Context, bookingId int) error
+}

@@ -2,7 +2,7 @@ package application
 
 import (
 	"context"
-	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation"
 	"github.com/niumandzi/nto2023/internal/validations"
 	"github.com/niumandzi/nto2023/model"
 )

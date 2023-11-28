@@ -39,3 +39,10 @@ type ApplicationService interface {
 	UpdateApplication(applicationUpd model.Application) error
 	DeleteApplication(applicationId int) error
 }
+
+type BookingService interface {
+	CreateBooking(booking model.Booking) (int, error)
+	GetBookings() ([]model.BookingWithFacility, error)
+	UpdateBooking(bookingUpd model.Booking) error
+	DeleteBooking(bookingId int) error
+}

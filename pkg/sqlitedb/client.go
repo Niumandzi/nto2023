@@ -53,7 +53,19 @@ func CreateTables(db *sql.DB) error {
 		    FOREIGN KEY (work_type_id) REFERENCES work_type(id),
 			FOREIGN KEY (event_id) REFERENCES events(id),
 			FOREIGN KEY (facility_id) REFERENCES facility(id));
-		  	`)
+
+		CREATE TABLE IF NOT EXISTS booking (
+            ID INTEGER PRIMARY KEY,
+            Description TEXT,
+            CreateDate TEXT,
+            StartDate TEXT,
+            EndDate TEXT,
+            EventID INTEGER,
+            FacilityID INTEGER,
+            PartID INTEGER,
+            FOREIGN KEY (EventID) REFERENCES events(id),
+            FOREIGN KEY (FacilityID) REFERENCES facility(id));
+	`)
 	if err != nil {
 		return err
 	}

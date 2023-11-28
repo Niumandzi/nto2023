@@ -7,12 +7,14 @@ import (
 	"fyne.io/fyne/v2/dialog"
 
 	applicationRepository "github.com/niumandzi/nto2023/internal/repository/application"
+	bookingRepository "github.com/niumandzi/nto2023/internal/repository/booking"
 	detailsRepository "github.com/niumandzi/nto2023/internal/repository/details"
 	eventRepository "github.com/niumandzi/nto2023/internal/repository/event"
 	facilityRepository "github.com/niumandzi/nto2023/internal/repository/facility"
 	workTypeRepository "github.com/niumandzi/nto2023/internal/repository/work"
 
 	applicationService "github.com/niumandzi/nto2023/internal/service/application"
+	bookingService "github.com/niumandzi/nto2023/internal/service/booking"
 	detailsService "github.com/niumandzi/nto2023/internal/service/details"
 	eventService "github.com/niumandzi/nto2023/internal/service/event"
 	facilityService "github.com/niumandzi/nto2023/internal/service/facility"
@@ -21,6 +23,7 @@ import (
 	"github.com/niumandzi/nto2023/internal/ui"
 
 	applicationPage "github.com/niumandzi/nto2023/internal/ui/page/application"
+	bookingPage "github.com/niumandzi/nto2023/internal/ui/page/booking"
 	detailsPage "github.com/niumandzi/nto2023/internal/ui/page/details"
 	eventPage "github.com/niumandzi/nto2023/internal/ui/page/event"
 	facilityPage "github.com/niumandzi/nto2023/internal/ui/page/facility"
@@ -70,18 +73,21 @@ func main() {
 	facilityRepo := facilityRepository.NewFacilityRepository(db, logger)
 	workTypeRepo := workTypeRepository.NewWorkTypeRepository(db, logger)
 	applicationRepo := applicationRepository.NewApplicationRepository(db, logger)
+	bookingRepo := bookingRepository.NewBookingRepository(db, logger)
 
 	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
 	detailsServ := detailsService.NewDetailsService(detailsRepo, timeoutContext, logger, ctx)
 	facilityServ := facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
 	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 	applicationServ := applicationService.NewApplicationService(applicationRepo, timeoutContext, logger, ctx)
+	bookingServ := bookingService.NewBookingService(bookingRepo, timeoutContext, logger, ctx)
 
 	event := eventPage.NewEventPage(eventServ, logger)
 	details := detailsPage.NewDetailsPage(detailsServ, logger)
 	facility := facilityPage.NewFacilityPage(facilityServ, logger)
 	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 	application := applicationPage.NewApplicationPage(applicationServ, eventServ, facilityServ, workTypeServ, logger)
+	bookingPage.NewBookingPage(bookingServ, logger)
 
 	gui := ui.NewGUI(a, w)
 	ui.SetupUI(gui, event, details, application, facility, workType)
