@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/niumandzi/nto2023/internal/ui/page/application"
+	"github.com/niumandzi/nto2023/internal/ui/page/booking"
 	"github.com/niumandzi/nto2023/internal/ui/page/details"
 	error2 "github.com/niumandzi/nto2023/internal/ui/page/error"
 	"github.com/niumandzi/nto2023/internal/ui/page/event"
@@ -25,14 +26,14 @@ func NewGUI(app fyne.App, window fyne.Window) GUI {
 	}
 }
 
-func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage) {
+func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage, booking booking.BookingPage) {
 	w := gui.Window
 
 	mainContent := container.NewStack()
 
 	mainContent.Add(index.ShowIndex())
 
-	navBar := NavigationBar(event, details, application, facility, workType, mainContent, w)
+	navBar := NavigationBar(event, details, application, facility, workType, booking, mainContent, w)
 
 	split := container.NewHSplit(navBar, mainContent)
 	split.Offset = 0.2
@@ -41,13 +42,12 @@ func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, applic
 	w.ShowAndRun()
 }
 
-func NavigationBar(event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
+func NavigationBar(event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage, booking booking.BookingPage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
 	treeData := map[string][]string{
-		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
-		"развлечения":  {"работы развлечения", "типы развлечений"},
-		"просвещение":  {"работы просвещение", "типы просвещения"},
-		"образование":  {"работы образование", "типы образования"},
-		"рабочий стол": {"помещения", "типы работ"},
+		"":            {"развлечения", "просвещение", "образование", "рабочий стол"},
+		"развлечения": {"типы развлечений", "работы развлечения", "бронь развлечения"},
+		"просвещение": {"типы просвещения", "работы просвещение", "бронь просвещение"},
+		"образование": {"типы образования", "работы образование", "бронь образование"},
 	}
 
 	navTree := widget.NewTreeWithStrings(treeData)
@@ -67,6 +67,10 @@ func NavigationBar(event event.EventPage, details details.DetailsPage, applicati
 			content = application.IndexApplication("entertainment", "", window)
 		case "работы просвещение":
 			content = application.IndexApplication("enlightenment", "", window)
+		case "бронь развлечения":
+			content = booking.IndexBooking("entertainment", window)
+		case "бронь просвещение":
+			content = booking.IndexBooking("enlightenment", window)
 		case "рабочий стол":
 			content = application.IndexApplication("", "todo", window)
 		case "помещения":
@@ -84,14 +88,9 @@ func NavigationBar(event event.EventPage, details details.DetailsPage, applicati
 	return navTree
 }
 
-type EventPage interface {
-	IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject
-	ShowEvent(categoryName string, detailsID int, window fyne.Window, eventContainer *fyne.Container)
-	CreateEvent(categoryName string, window fyne.Window)
-	UpdateEvent(categoryName string, ID int, Name string, Date string, Description string, DetailsID int, window fyne.Window)
-}
-
-type DetailsPage interface {
-	IndexDetails(categoryName string, window fyne.Window) fyne.CanvasObject
-	ShowDetails(categoryName string, window fyne.Window, eventContainer *fyne.Container)
-}
+//type EventPage interface {
+//	IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject
+//	ShowEvent(categoryName string, detailsID int, window fyne.Window, eventContainer *fyne.Container)
+//	CreateEvent(categoryName string, window fyne.Window)
+//	UpdateEvent(categoryName string, ID int, Name string, Date string, Description string, DetailsID int, window fyne.Window)
+//}

@@ -42,7 +42,7 @@ type ApplicationService interface {
 
 type BookingService interface {
 	CreateBooking(booking model.Booking) (int, error)
-	GetBookings() ([]model.BookingWithFacility, error)
+	GetBookings(categoryName string) ([]model.BookingWithFacility, error)
 	UpdateBooking(bookingUpd model.Booking) error
 	DeleteBooking(bookingId int) error
 }

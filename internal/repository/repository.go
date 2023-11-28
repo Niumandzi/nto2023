@@ -43,7 +43,7 @@ type ApplicationRepository interface {
 
 type BookingRepository interface {
 	Create(ctx context.Context, booking model.Booking) (int, error)
-	Get(ctx context.Context) ([]model.BookingWithFacility, error)
+	Get(ctx context.Context, categoryName string) ([]model.BookingWithFacility, error)
 	Update(ctx context.Context, bookingUpd model.Booking) error
 	Delete(ctx context.Context, bookingId int) error
 }

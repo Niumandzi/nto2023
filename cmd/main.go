@@ -87,8 +87,8 @@ func main() {
 	facility := facilityPage.NewFacilityPage(facilityServ, logger)
 	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 	application := applicationPage.NewApplicationPage(applicationServ, eventServ, facilityServ, workTypeServ, logger)
-	bookingPage.NewBookingPage(bookingServ, logger)
+	booking := bookingPage.NewBookingPage(bookingServ, logger)
 
 	gui := ui.NewGUI(a, w)
-	ui.SetupUI(gui, event, details, application, facility, workType)
+	ui.SetupUI(gui, event, details, application, facility, workType, booking)
 }

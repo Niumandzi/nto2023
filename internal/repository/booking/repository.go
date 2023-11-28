@@ -24,7 +24,7 @@ func (b BookingRepository) Create(ctx context.Context, booking model.Booking) (i
 	panic("implement me")
 }
 
-func (b BookingRepository) Get(ctx context.Context) ([]model.BookingWithFacility, error) {
+func (b BookingRepository) Get(ctx context.Context, categoryName string) ([]model.BookingWithFacility, error) {
 	//TODO implement me
 	panic("implement me")
 }
