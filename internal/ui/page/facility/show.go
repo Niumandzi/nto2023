@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/niumandzi/nto2023/model"
+	"strings"
 )
 
 func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Container) {
@@ -32,13 +33,13 @@ func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Cont
 	eventContainer.Refresh()
 }
 
-func (s FacilityPage) createFacilityCard(facility model.Facility, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+func (s FacilityPage) createFacilityCard(facility model.FacilityWithParts, window fyne.Window, onUpdate func()) fyne.CanvasObject {
 	cardText := card(facility)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		s.UpdateFacility(facility.ID, facility.Name, window, onUpdate)
+		s.UpdateFacility(facility.ID, facility.Name, facility.Parts, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
@@ -60,7 +61,18 @@ func (s FacilityPage) createFacilityCard(facility model.Facility, window fyne.Wi
 	return eventContainer
 }
 
-func card(facility model.Facility) string {
+func card(facility model.FacilityWithParts) string {
+	result := fmt.Sprintf("Помещение: %s", facility.Name)
 
-	return fmt.Sprintf("Помещение: %s", facility.Name)
+	if len(facility.Parts) > 0 {
+		partsInfo := []string{}
+		for _, part := range facility.Parts {
+			partsInfo = append(partsInfo, fmt.Sprintf("Часть: %s", part.Name))
+		}
+		result += "\n" + strings.Join(partsInfo, "\n")
+	} else {
+		result += "\nЧасти: нет"
+	}
+
+	return result
 }

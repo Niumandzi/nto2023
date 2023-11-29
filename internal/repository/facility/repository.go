@@ -7,6 +7,8 @@ import (
 	"github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
+	"strconv"
+	"strings"
 )
 
 type FacilityRepository struct {
@@ -21,14 +23,16 @@ func NewFacilityRepository(db *sql.DB, logger logging.Logger) FacilityRepository
 	}
 }
 
-func (w FacilityRepository) Create(ctx context.Context, name string) (int, error) {
+func (w FacilityRepository) Create(ctx context.Context, name string, parts []string) (int, error) {
 	tx, err := w.db.BeginTx(ctx, nil)
 	if err != nil {
 		w.logger.Errorf("error: %v", err.Error())
 		return 0, err
 	}
 
-	res, err := tx.ExecContext(ctx, `INSERT INTO facility (name) VALUES ($1);`, name)
+	haveParts := len(parts) > 0 // Устанавливаем haveParts в true, если массив parts не пустой
+
+	res, err := tx.ExecContext(ctx, `INSERT INTO facility (name, have_parts) VALUES ($1, $2);`, name, haveParts)
 	if err != nil {
 		w.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
@@ -42,6 +46,17 @@ func (w FacilityRepository) Create(ctx context.Context, name string) (int, error
 		return 0, err
 	}
 
+	if haveParts {
+		for _, partName := range parts {
+			_, err := tx.ExecContext(ctx, `INSERT INTO part (name, facility_id) VALUES ($1, $2);`, partName, id)
+			if err != nil {
+				w.logger.Errorf("error: %v", err.Error())
+				tx.Rollback()
+				return 0, err
+			}
+		}
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		w.logger.Errorf("error: %v", err.Error())
@@ -52,19 +67,29 @@ func (w FacilityRepository) Create(ctx context.Context, name string) (int, error
 	return int(id), nil
 }
 
-func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.Facility, error) {
+func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error) {
 	args := make([]interface{}, 0, 2)
 	kwargs := make(map[string]interface{})
 	var query string
-	var facilities []model.Facility
 
-	query = `SELECT DISTINCT facility.id, facility.name
-          FROM facility
-          INNER JOIN application ON application.facility_id = facility.id
-          INNER JOIN work_type ON application.work_type_id = work_type.id
-          INNER JOIN events ON application.event_id = events.id
-          INNER JOIN details ON events.details_id = details.id
-          WHERE `
+	//query = `SELECT DISTINCT facility.id, facility.name, facility.have_parts
+	//      FROM facility
+	//      INNER JOIN application ON application.facility_id = facility.id
+	//      INNER JOIN work_type ON application.work_type_id = work_type.id
+	//      INNER JOIN events ON application.event_id = events.id
+	//      INNER JOIN details ON events.details_id = details.id
+	//      WHERE `
+
+	query = `SELECT facility.id, facility.name, facility.have_parts,
+	     			COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
+       				COALESCE(GROUP_CONCAT(part.name), '') AS part_names
+		 FROM facility
+	     LEFT JOIN part ON facility.id = part.facility_id
+	     INNER JOIN application ON application.facility_id = facility.id
+	     INNER JOIN work_type ON application.work_type_id = work_type.id
+	     INNER JOIN events ON application.event_id = events.id
+	     INNER JOIN details ON events.details_id = details.id
+	     WHERE `
 
 	if categoryName != "" {
 		kwargs["details.category"] = categoryName
@@ -76,7 +101,12 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 		kwargs["application.status"] = status
 	}
 	if categoryName == "" && workTypeID == 0 && status == "" {
-		query = `SELECT facility.id, facility.name FROM facility`
+		query = `SELECT facility.id, facility.name, facility.have_parts, 
+          			COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
+       				COALESCE(GROUP_CONCAT(part.name), '') AS part_names
+		  FROM facility
+          LEFT JOIN part ON facility.id = part.facility_id
+          GROUP BY facility.id;`
 	}
 
 	length := len(kwargs)
@@ -93,6 +123,7 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 			}
 			i++
 		}
+		query += " GROUP BY facility.id;"
 	}
 
 	rows, err := w.db.QueryContext(ctx, query, args...)
@@ -103,17 +134,27 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 
 	defer rows.Close()
 
+	var facilities []model.FacilityWithParts
 	for rows.Next() {
-		var facility model.Facility
+		var fwp model.FacilityWithParts
+		var partIDs, partNames string
 
-		err = rows.Scan(&facility.ID,
-			&facility.Name)
+		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames)
 		if err != nil {
 			w.logger.Errorf("error: %v", err.Error())
-			return []model.Facility{}, err
+			return []model.FacilityWithParts{}, err
 		}
 
-		facilities = append(facilities, facility)
+		if partIDs != "" {
+			ids := strings.Split(partIDs, ",")
+			names := strings.Split(partNames, ",")
+			for i, idStr := range ids {
+				id, _ := strconv.Atoi(idStr)
+				fwp.Parts = append(fwp.Parts, model.Parts{ID: id, Name: names[i]})
+			}
+		}
+
+		facilities = append(facilities, fwp)
 	}
 
 	return facilities, nil

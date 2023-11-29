@@ -44,10 +44,11 @@ func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, applic
 
 func NavigationBar(event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage, booking booking.BookingPage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
 	treeData := map[string][]string{
-		"":            {"развлечения", "просвещение", "образование", "рабочий стол"},
-		"развлечения": {"типы развлечений", "работы развлечения", "бронь развлечения"},
-		"просвещение": {"типы просвещения", "работы просвещение", "бронь просвещение"},
-		"образование": {"типы образования", "работы образование", "бронь образование"},
+		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
+		"развлечения":  {"типы развлечений", "работы развлечения", "бронь развлечения"},
+		"просвещение":  {"типы просвещения", "работы просвещение", "бронь просвещение"},
+		"образование":  {"типы образования", "работы образование", "бронь образование"},
+		"рабочий стол": {"помещения", "типы работ"},
 	}
 
 	navTree := widget.NewTreeWithStrings(treeData)

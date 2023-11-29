@@ -27,8 +27,8 @@ type WorkTypeService interface {
 }
 
 type FacilityService interface {
-	CreateFacility(name string) (int, error)
-	GetFacilities(categoryName string, workTypeID int, status string) ([]model.Facility, error)
+	CreateFacility(name string, parts []string) (int, error)
+	GetFacilities(categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
 	UpdateFacility(facilityId int, name string) error
 	DeleteFacility(id int) error
 }

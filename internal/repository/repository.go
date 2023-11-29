@@ -28,8 +28,8 @@ type WorkTypeRepository interface {
 }
 
 type FacilityRepository interface {
-	Create(ctx context.Context, name string) (int, error)
-	Get(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.Facility, error)
+	Create(ctx context.Context, name string, parts []string) (int, error)
+	Get(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
 	Update(ctx context.Context, idOld int, nameUpd string) error
 	Delete(ctx context.Context, id int) error
 }
