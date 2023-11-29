@@ -29,7 +29,8 @@ func CreateTables(db *sql.DB) error {
 		  	description TEXT,
 		  	date TEXT,
 		  	details_id INT NOT NULL,
-		  	FOREIGN KEY (details_id) REFERENCES details(id));
+		  	FOREIGN KEY (details_id) REFERENCES details(id)
+		  );
 
 		CREATE TABLE IF NOT EXISTS work_type (
 			id INTEGER PRIMARY KEY,
@@ -38,9 +39,17 @@ func CreateTables(db *sql.DB) error {
 
 		CREATE TABLE IF NOT EXISTS facility (
 			id INTEGER PRIMARY KEY,
-			name VARCHAR(255) NOT NULL
+			name VARCHAR(255) NOT NULL,
+		    have_parts BOOLEAN
 		  );
 
+    	CREATE TABLE IF NOT EXISTS part (
+    	    id INTEGER PRIMARY KEY,
+			name VARCHAR(255) NOT NULL,
+			facility_id INT,
+			FOREIGN KEY (facility_id) REFERENCES facility(id)
+    	  );
+    	
 		CREATE TABLE IF NOT EXISTS application (
 		  	id INTEGER PRIMARY KEY,
 		  	description TEXT,
@@ -52,19 +61,21 @@ func CreateTables(db *sql.DB) error {
 			facility_id INT,
 		    FOREIGN KEY (work_type_id) REFERENCES work_type(id),
 			FOREIGN KEY (event_id) REFERENCES events(id),
-			FOREIGN KEY (facility_id) REFERENCES facility(id));
+			FOREIGN KEY (facility_id) REFERENCES facility(id)
+		  );
 
 		CREATE TABLE IF NOT EXISTS booking (
-            ID INTEGER PRIMARY KEY,
-            Description TEXT,
-            CreateDate TEXT,
-            StartDate TEXT,
-            EndDate TEXT,
-            EventID INTEGER,
-            FacilityID INTEGER,
-            PartID INTEGER,
-            FOREIGN KEY (EventID) REFERENCES events(id),
-            FOREIGN KEY (FacilityID) REFERENCES facility(id));
+			id INTEGER PRIMARY KEY,
+			description TEXT,
+			create_date TEXT,
+			start_date TEXT,
+			end_date TEXT,
+			event_id INT,
+			facility_id INT, -- Идентификатор помещения
+			parts TEXT, -- Список идентификаторов частей помещения
+			FOREIGN KEY (event_id) REFERENCES events(id),
+			FOREIGN KEY (facility_id) REFERENCES facility(id)
+          );
 	`)
 	if err != nil {
 		return err
