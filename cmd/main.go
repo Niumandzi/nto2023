@@ -82,7 +82,7 @@ func main() {
 	applicationServ := applicationService.NewApplicationService(applicationRepo, timeoutContext, logger, ctx)
 	bookingServ := bookingService.NewBookingService(bookingRepo, timeoutContext, logger, ctx)
 
-	event := eventPage.NewEventPage(eventServ, logger)
+	event := eventPage.NewEventPage(eventServ, detailsServ, logger)
 	details := detailsPage.NewDetailsPage(detailsServ, logger)
 	facility := facilityPage.NewFacilityPage(facilityServ, logger)
 	workType := workPage.NewWorkTypePage(workTypeServ, logger)

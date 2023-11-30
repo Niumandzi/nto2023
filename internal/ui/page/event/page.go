@@ -11,14 +11,16 @@ import (
 )
 
 type EventPage struct {
-	eventServ service.EventService
-	logger    logging.Logger
+	eventServ   service.EventService
+	detailsServ service.DetailsService
+	logger      logging.Logger
 }
 
-func NewEventPage(event service.EventService, logger logging.Logger) EventPage {
+func NewEventPage(event service.EventService, det service.DetailsService, logger logging.Logger) EventPage {
 	return EventPage{
-		eventServ: event,
-		logger:    logger,
+		eventServ:   event,
+		detailsServ: det,
+		logger:      logger,
 	}
 }
 
@@ -28,7 +30,7 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 		s.ShowEvent(categoryName, id, window, eventContainer)
 	}
 
-	details, err := s.eventServ.GetDetails(categoryName)
+	details, err := s.detailsServ.GetDetails(categoryName, true)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

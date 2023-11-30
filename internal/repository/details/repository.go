@@ -51,10 +51,10 @@ func (s DetailsRepository) Create(ctx context.Context, categoryName string, type
 	return int(id), nil
 }
 
-func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]model.Details, error) {
+func (s DetailsRepository) Get(ctx context.Context, categoryName string, isActive bool) ([]model.Details, error) {
 	var details []model.Details
 
-	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category FROM details WHERE details.category = $1`, categoryName)
+	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category FROM details WHERE details.category = $1 AND details.is_active = $2`, categoryName, isActive)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return []model.Details{}, err
@@ -130,14 +130,14 @@ func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, ty
 	return nil
 }
 
-func (s DetailsRepository) DeleteType(ctx context.Context, detailsId int) error {
+func (s DetailsRepository) DeleteRestoreType(ctx context.Context, detailsId int, isActive bool) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM details WHERE details.id = $1;`, detailsId)
+	res, err := tx.ExecContext(ctx, `UPDATE details SET is_active = $1 WHERE details.id = $2;`, isActive, detailsId)
 	if err != nil {
 		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()

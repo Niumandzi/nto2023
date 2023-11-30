@@ -52,20 +52,21 @@ func (w WorkTypeRepository) Create(ctx context.Context, name string) (int, error
 	return int(id), nil
 }
 
-func (w WorkTypeRepository) Get(ctx context.Context, categoryName string, facilityID int, status string) ([]model.WorkType, error) {
-	args := make([]interface{}, 0, 2)
+func (w WorkTypeRepository) Get(ctx context.Context, categoryName string, facilityID int, status string, isActive bool) ([]model.WorkType, error) {
+	args := make([]interface{}, 0, 4)
 	kwargs := make(map[string]interface{})
 	var query string
 	var workTypes []model.WorkType
 
-	query = `SELECT work_type.id,
-                 work_type.name
-          FROM application
-          INNER JOIN work_type ON application.work_type_id = work_type.id
-          INNER JOIN facility ON application.facility_id = facility.id
-          INNER JOIN events ON application.event_id = events.id
-          INNER JOIN details ON events.details_id = details.id
-          WHERE `
+	baseQuery := `SELECT work_type.id,
+                         work_type.name
+                  FROM work_type `
+
+	joinClause := `INNER JOIN application ON work_type.id = application.work_type_id
+                    INNER JOIN facility ON application.facility_id = facility.id
+                    INNER JOIN events ON application.event_id = events.id
+                    INNER JOIN details ON events.details_id = details.id
+                    WHERE `
 
 	if categoryName != "" {
 		kwargs["details.category"] = categoryName
@@ -76,23 +77,24 @@ func (w WorkTypeRepository) Get(ctx context.Context, categoryName string, facili
 	if status != "" {
 		kwargs["application.status"] = status
 	}
-	if categoryName == "" && facilityID == 0 && status == "" {
-		query = `SELECT work_type.id, work_type.name FROM work_type`
-	}
+	kwargs["details.isActive"] = isActive
 
 	length := len(kwargs)
-	if length != 0 {
+	if length > 0 {
+		query = baseQuery + joinClause
 		i := 0
 		for key, val := range kwargs {
 			if i == length-1 {
 				query += fmt.Sprintf("%v = ?;", key)
-				args = append(args, val)
 			} else {
 				query += fmt.Sprintf("%v = ? AND ", key)
-				args = append(args, val)
 			}
+			args = append(args, val)
 			i++
 		}
+	} else {
+		query = baseQuery + fmt.Sprintf("WHERE details.isActive = ?;", isActive)
+		args = append(args, isActive)
 	}
 
 	rows, err := w.db.QueryContext(ctx, query, args...)
@@ -106,8 +108,7 @@ func (w WorkTypeRepository) Get(ctx context.Context, categoryName string, facili
 	for rows.Next() {
 		var workType model.WorkType
 
-		err = rows.Scan(&workType.ID,
-			&workType.Name)
+		err = rows.Scan(&workType.ID, &workType.Name)
 		if err != nil {
 			w.logger.Errorf("error: %v", err.Error())
 			return nil, err
@@ -156,14 +157,14 @@ func (w WorkTypeRepository) Update(ctx context.Context, idOld int, nameUpd strin
 	return nil
 }
 
-func (w WorkTypeRepository) Delete(ctx context.Context, id int) error {
+func (w WorkTypeRepository) Delete(ctx context.Context, workTypeId int, isActive bool) error {
 	tx, err := w.db.BeginTx(ctx, nil)
 	if err != nil {
 		w.logger.Error("error: %v", err.Error())
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM work_type WHERE work_type.id = $1;`, id)
+	res, err := tx.ExecContext(ctx, `UPDATE work_type SET is_active = $1 WHERE work_type.id = $1;`, isActive, workTypeId)
 	if err != nil {
 		w.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()

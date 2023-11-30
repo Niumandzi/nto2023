@@ -14,7 +14,7 @@ func (s EventPage) UpdateEvent(categoryName string, typeName string, event model
 	dateEntry := component.EntryWithDataWidget("дд.мм.гггг", event.Date)
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", event.Description)
 
-	details, err := s.eventServ.GetDetails(categoryName)
+	details, err := s.detailsServ.GetDetails(categoryName, true)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

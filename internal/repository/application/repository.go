@@ -129,30 +129,6 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 		i++
 	}
 
-	//if (categoryName == "") && (workTypeId == 0) && (status == "") {
-	//	err := errors.New("no categoryName, workType and status provided")
-	//	a.logger.Errorf(err.Error())
-	//	return applications, err
-	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE application.status = $1;`
-	//	args = append(args, status)
-	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE work_type.id = $1 AND application.status = $2;`
-	//	args = append(args, workTypeId, status)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
-	//	query = baseQuery + `WHERE details.category = $1;`
-	//	args = append(args, categoryName)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
-	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2;`
-	//	args = append(args, categoryName, workTypeId)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE details.category = $1 AND application.status = $2;`
-	//	args = append(args, categoryName, status)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2 AND application.status = $3;`
-	//	args = append(args, categoryName, workTypeId, status)
-	//}
-
 	rows, err := a.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		a.logger.Error(err.Error())

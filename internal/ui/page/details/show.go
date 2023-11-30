@@ -12,7 +12,7 @@ import (
 )
 
 func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventContainer *fyne.Container) {
-	details, err := s.detailsServ.GetDetails(categoryName)
+	details, err := s.detailsServ.GetDetails(categoryName, true)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -42,7 +42,7 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.detailsServ.DeleteDetail(detail.ID)
+		err := s.detailsServ.DeleteRestoreType(detail.ID, false)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {

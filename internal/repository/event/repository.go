@@ -53,7 +53,7 @@ func (s EventRepository) Create(ctx context.Context, event model.Event) (int, er
 
 // Get объединяем два запроса в один, выбор запроса зависит от eventType.
 // Он может быть либо по event_type_id или по event type, либо по category.
-func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID int) ([]model.EventWithDetails, error) {
+func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID int, isActive bool) ([]model.EventWithDetails, error) {
 	var query string
 	var args []interface{}
 	var events []model.EventWithDetails
@@ -69,8 +69,8 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID
                      details.category
               FROM events
               INNER JOIN details ON events.details_id = details.id
-              WHERE details.category = $1;`
-		args = append(args, categoryName)
+              WHERE details.category = $1 AND events.is_active = $2;`
+		args = append(args, categoryName, isActive)
 
 	default:
 		query = `SELECT events.id, 
@@ -82,8 +82,8 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID
                      details.category
              FROM events
              INNER JOIN details ON events.details_id = details.id
-             WHERE details.id = $1;`
-		args = append(args, detailsID)
+             WHERE details.id = $1 AND events.is_active = $2;`
+		args = append(args, detailsID, isActive)
 	}
 
 	rows, err := s.db.QueryContext(ctx, query, args...)
@@ -154,14 +154,14 @@ func (s EventRepository) Update(ctx context.Context, eventUpd model.Event) error
 	return nil
 }
 
-func (s EventRepository) Delete(ctx context.Context, eventId int) error {
+func (s EventRepository) Delete(ctx context.Context, eventId int, isActive bool) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Errorf("error: %v", err.Error())
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM events WHERE id = $1;`, eventId)
+	res, err := tx.ExecContext(ctx, `UPDATE events SET is_active = $1 WHERE id = $2;`, isActive, eventId)
 	if err != nil {
 		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()

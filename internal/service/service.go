@@ -6,31 +6,31 @@ import (
 
 type EventService interface {
 	CreateEvent(event model.Event) (int, error)
-	GetEvents(categoryName string, detailsID int) ([]model.EventWithDetails, error)
+	GetEvents(categoryName string, detailsID int, isActive bool) ([]model.EventWithDetails, error)
 	UpdateEvent(eventUpd model.Event) error
-	DeleteEvent(eventId int) error
-	GetDetails(categoryName string) ([]model.Details, error) //переписать
+	DeleteRestoreEvent(eventId int, isActive bool) error
 }
 
 type DetailsService interface {
 	CreateDetail(categoryName string, typeName string) (int, error)
-	GetDetails(categoryName string) ([]model.Details, error)
+	GetDetails(categoryName string, isActive bool) ([]model.Details, error)
 	UpdateDetail(detailsId int, typeName string) error
-	DeleteDetail(detailsId int) error
+	DeleteRestoreType(detailsId int, isActive bool) error
 }
 
 type WorkTypeService interface {
 	CreateWorkType(name string) (int, error)
-	GetWorkTypes(categoryName string, facilityID int, status string) ([]model.WorkType, error)
+	GetWorkTypes(categoryName string, facilityID int, status string, isActive bool) ([]model.WorkType, error)
 	UpdateWorkType(workTypeId int, name string) error
-	DeleteWorkType(id int) error
+	DeleteRestoreWorkType(id int, isActive bool) error
 }
 
 type FacilityService interface {
 	CreateFacility(name string, parts []string) (int, error)
-	GetFacilities(categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
+	GetFacilities(categoryName string, workTypeID int, status string, isActive bool) ([]model.FacilityWithParts, error)
+	GetFacilitiesByDate(startDate string, endDate string, isActive bool) ([]model.FacilityWithParts, error)
 	UpdateFacility(facilityId int, name string) error
-	DeleteFacility(id int) error
+	DeleteRestoreFacility(id int, isActive bool) error
 }
 
 type ApplicationService interface {

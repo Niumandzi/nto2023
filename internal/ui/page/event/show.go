@@ -12,7 +12,7 @@ import (
 )
 
 func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Window, eventContainer *fyne.Container) {
-	events, err := s.eventServ.GetEvents(categoryName, detailsID)
+	events, err := s.eventServ.GetEvents(categoryName, detailsID, true)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -49,7 +49,7 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.eventServ.DeleteEvent(event.ID)
+		err := s.eventServ.DeleteRestoreEvent(event.ID, false)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {

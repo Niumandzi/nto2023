@@ -5,7 +5,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
-func (s WorkTypeService) UpdateWorkType(workTypeId int, name string) error {
+func (s WorkTypeService) UpdateWorkType(workTypeID int, name string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
@@ -16,7 +16,7 @@ func (s WorkTypeService) UpdateWorkType(workTypeId int, name string) error {
 		return err
 	}
 
-	err = s.workTypeRepo.Update(ctx, workTypeId, name)
+	err = s.workTypeRepo.Update(ctx, workTypeID, name)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

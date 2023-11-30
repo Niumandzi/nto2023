@@ -12,7 +12,7 @@ import (
 )
 
 func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Container) {
-	workType, err := s.workTypeServ.GetWorkTypes("", 0, "")
+	workType, err := s.workTypeServ.GetWorkTypes("", 0, "", true)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -42,7 +42,7 @@ func (s WorkTypePage) createWorkTypeCard(workType model.WorkType, window fyne.Wi
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.workTypeServ.DeleteWorkType(workType.ID)
+		err := s.workTypeServ.DeleteRestoreWorkType(workType.ID, false)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
