@@ -68,7 +68,7 @@ func (a ApplicationRepository) Create(ctx context.Context, application model.App
 }
 
 // Get аналогично как и в events repo, делаем один метод на get по workType и status
-func (a ApplicationRepository) Get(ctx context.Context, categoryName string, facilityID int, workTypeId int, status string) ([]model.ApplicationWithDetails, error) {
+func (a ApplicationRepository) Get(ctx context.Context, categoryName string, facilityID int, workTypeID int, status string) ([]model.ApplicationWithDetails, error) {
 	args := make([]interface{}, 0, 2)
 	kwargs := make(map[string]interface{})
 	var query string
@@ -103,8 +103,8 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 	if facilityID != 0 {
 		kwargs["facility.id"] = facilityID
 	}
-	if workTypeId != 0 {
-		kwargs["work_type.id"] = workTypeId
+	if workTypeID != 0 {
+		kwargs["work_type.id"] = workTypeID
 	}
 	if status != "" {
 		kwargs["application.status"] = status

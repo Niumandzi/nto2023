@@ -172,7 +172,7 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
 			&booking.CreateDate,
 			&booking.StartDate,
 			&booking.EndDate,
-			&booking.EventID,
+			&booking.Event.ID,
 			&booking.Facility.ID,
 			&booking.Facility.Name,
 			&booking.Facility.HaveParts)
