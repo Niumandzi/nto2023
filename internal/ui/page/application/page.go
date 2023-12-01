@@ -41,7 +41,6 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 	facilities, err := s.facilityServ.GetFacilities(categoryName, selectedWorkTypeId, status, true)
 	if err != nil {
 		dialog.ShowError(err, window)
-		return nil
 	}
 
 	facilityNames := map[string]int{"Все": 0}
@@ -59,7 +58,6 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 	workTypes, err := s.workTypeServ.GetWorkTypes(categoryName, selectedFacilityId, status, true)
 	if err != nil {
 		dialog.ShowError(err, window)
-		return nil
 	}
 
 	workNames := map[string]int{"Все": 0}

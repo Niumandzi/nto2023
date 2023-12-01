@@ -3,7 +3,6 @@ package work
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	errcode "github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
@@ -53,51 +52,34 @@ func (w WorkTypeRepository) Create(ctx context.Context, name string) (int, error
 }
 
 func (w WorkTypeRepository) Get(ctx context.Context, categoryName string, facilityID int, status string, isActive bool) ([]model.WorkType, error) {
-	args := make([]interface{}, 0, 4)
-	kwargs := make(map[string]interface{})
-	var query string
+	args := make([]interface{}, 0, 5)
 	var workTypes []model.WorkType
 
 	baseQuery := `SELECT work_type.id,
                          work_type.name
-                  FROM work_type `
+			FROM work_type
+			LEFT JOIN application ON application.work_type_id = work_type.id
+			LEFT JOIN facility ON application.facility_id = facility.id
+			LEFT JOIN events ON application.event_id = events.id
+			LEFT JOIN details ON events.details_id = details.id
+			WHERE work_type.is_active = ?`
 
-	joinClause := `INNER JOIN application ON work_type.id = application.work_type_id
-                    INNER JOIN facility ON application.facility_id = facility.id
-                    INNER JOIN events ON application.event_id = events.id
-                    INNER JOIN details ON events.details_id = details.id
-                    WHERE `
+	args = append(args, isActive)
 
 	if categoryName != "" {
-		kwargs["details.category"] = categoryName
+		baseQuery += ` AND details.category = ?`
+		args = append(args, categoryName)
 	}
 	if facilityID != 0 {
-		kwargs["facility.id"] = facilityID
+		baseQuery += ` AND facility.id = ?`
+		args = append(args, facilityID)
 	}
 	if status != "" {
-		kwargs["application.status"] = status
-	}
-	kwargs["details.isActive"] = isActive
-
-	length := len(kwargs)
-	if length > 0 {
-		query = baseQuery + joinClause
-		i := 0
-		for key, val := range kwargs {
-			if i == length-1 {
-				query += fmt.Sprintf("%v = ?;", key)
-			} else {
-				query += fmt.Sprintf("%v = ? AND ", key)
-			}
-			args = append(args, val)
-			i++
-		}
-	} else {
-		query = baseQuery + fmt.Sprintf("WHERE details.isActive = ?;", isActive)
-		args = append(args, isActive)
+		baseQuery += ` AND application.status = ?`
+		args = append(args, status)
 	}
 
-	rows, err := w.db.QueryContext(ctx, query, args...)
+	rows, err := w.db.QueryContext(ctx, baseQuery, args...)
 	if err != nil {
 		w.logger.Error("error: %v", err.Error())
 		return nil, err
@@ -164,7 +146,7 @@ func (w WorkTypeRepository) Delete(ctx context.Context, workTypeId int, isActive
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE work_type SET is_active = $1 WHERE work_type.id = $1;`, isActive, workTypeId)
+	res, err := tx.ExecContext(ctx, `UPDATE work_type SET is_active = $1 WHERE work_type.id = $2;`, isActive, workTypeId)
 	if err != nil {
 		w.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()

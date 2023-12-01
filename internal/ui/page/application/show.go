@@ -17,7 +17,6 @@ func (s ApplicationPage) ShowApplication(categoryName string, facilityId int, wo
 	applications, err := s.applicationServ.GetApplications(categoryName, facilityId, workTypeId, status)
 	if err != nil {
 		dialog.ShowError(err, window)
-		return
 	}
 
 	applicationContainer.Objects = nil
