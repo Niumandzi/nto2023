@@ -106,8 +106,7 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
 				booking.event_id, 
 				booking.facility_id,
 				facility.name, 
-				facility.have_parts, 
-				facility.is_active
+				facility.have_parts
 			FROM
 			    booking
 			INNER JOIN 
@@ -171,6 +170,7 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
 		err = rows.Scan(&booking.ID,
 			&booking.Description,
 			&booking.CreateDate,
+			&booking.StartDate,
 			&booking.EndDate,
 			&booking.EventID,
 			&booking.Facility.ID,
