@@ -32,12 +32,20 @@ func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Parts, w
 		partsVBox.Add(partEntry)
 	}
 
-	// Add/Delete part buttons similar to CreateFacility
 	addPartButton := widget.NewButton("    Добавить часть для помещения    ", func() {
-		// Similar implementation as in CreateFacility
+		newEntry := component.EntryWidget("Часть помещения")
+		partsEntries = append(partsEntries, newEntry)
+		partsVBox.Add(newEntry)
+		window.Canvas().Refresh(partsVBox)
 	})
+
 	deleteLastPartButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		// Similar implementation as in CreateFacility
+		if len(partsEntries) > 0 {
+			lastIndex := len(partsEntries) - 1
+			partsVBox.Remove(partsEntries[lastIndex])
+			partsEntries = partsEntries[:lastIndex]
+			window.Canvas().Refresh(partsVBox)
+		}
 	})
 	buttonBox := container.NewHBox(addPartButton, deleteLastPartButton)
 	vbox.Add(buttonBox)
