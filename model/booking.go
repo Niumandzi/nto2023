@@ -6,9 +6,9 @@ type Booking struct {
 	CreateDate  string
 	StartDate   string
 	EndDate     string
-	EventID     string
+	EventID     int
 	FacilityID  int
-	PartID      int
+	PartIDs     []int
 }
 
 type BookingWithFacility struct {
@@ -17,7 +17,7 @@ type BookingWithFacility struct {
 	CreateDate  string
 	StartDate   string
 	EndDate     string
-	EventID     string
+	EventID     int
 	Facility    Facility
-	Part        Parts
+	Parts       []Parts
 }
