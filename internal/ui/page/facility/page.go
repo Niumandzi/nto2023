@@ -13,9 +13,9 @@ type FacilityPage struct {
 	logger       logging.Logger
 }
 
-func NewFacilityPage(det service.FacilityService, logger logging.Logger) FacilityPage {
+func NewFacilityPage(fac service.FacilityService, logger logging.Logger) FacilityPage {
 	return FacilityPage{
-		facilityServ: det,
+		facilityServ: fac,
 		logger:       logger,
 	}
 }

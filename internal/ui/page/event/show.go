@@ -58,10 +58,16 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 		}
 	})
 
+	bookingButton := widget.NewButtonWithIcon("", theme.FileIcon(), func() {
+
+	})
+
 	deleteButton.Importance = widget.LowImportance
 	updateButton.Importance = widget.LowImportance
+	bookingButton.Importance = widget.LowImportance
 
-	buttons := container.NewHBox(layout.NewSpacer(), updateButton, deleteButton)
+	buttons := container.NewHBox(layout.NewSpacer(), bookingButton, updateButton, deleteButton)
+
 	eventContainer := widget.NewCard("", "", container.NewBorder(nil, buttons, nil, nil, label))
 
 	return eventContainer
