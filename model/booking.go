@@ -19,5 +19,5 @@ type BookingWithFacility struct {
 	EndDate     string
 	Event       EventWithDetails
 	Facility    Facility
-	Parts       []Parts
+	Parts       []Part
 }

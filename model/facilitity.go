@@ -1,6 +1,6 @@
 package model
 
-type Parts struct {
+type Part struct {
 	ID         int
 	FacilityID int
 	Name       string
@@ -16,5 +16,5 @@ type FacilityWithParts struct {
 	ID        int
 	Name      string
 	HaveParts bool
-	Parts     []Parts
+	Parts     []Part
 }

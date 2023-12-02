@@ -120,7 +120,7 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 			names := strings.Split(partNames, ",")
 			for i, idStr := range ids {
 				id, _ := strconv.Atoi(idStr)
-				fwp.Parts = append(fwp.Parts, model.Parts{ID: id, Name: names[i]})
+				fwp.Parts = append(fwp.Parts, model.Part{ID: id, Name: names[i]})
 			}
 		}
 
@@ -130,31 +130,26 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 	return facilities, nil
 }
 
-func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, endDate string, isActive bool) ([]model.FacilityWithParts, error) {
-	var query string
+func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, endDate string) ([]model.FacilityWithParts, error) {
+	query := `
+    SELECT 
+		facility.id, 
+		facility.name, 
+		facility.have_parts,
+		COALESCE(GROUP_CONCAT(DISTINCT CASE WHEN b.id IS NULL THEN part.id END), '') AS part_ids,
+		COALESCE(GROUP_CONCAT(DISTINCT CASE WHEN b.id IS NULL THEN part.name END), '') AS part_names
+	FROM facility
+	LEFT JOIN part ON facility.id = part.facility_id AND part.is_active = TRUE
+	LEFT JOIN booking_part bp ON part.id = bp.part_id
+	LEFT JOIN booking b ON (bp.booking_id = b.id AND ((b.start_date <= $1 AND b.end_date >= $1) OR (b.start_date <= $2 AND b.end_date >= $2) OR (b.start_date >= $1 AND b.end_date <= $2)))
+	WHERE facility.is_active = TRUE
+	GROUP BY facility.id
+	HAVING (facility.have_parts = FALSE AND COUNT(DISTINCT b.id) = 0) OR (facility.have_parts = TRUE AND COUNT(DISTINCT CASE WHEN b.id IS NOT NULL THEN b.id END) < COUNT(DISTINCT part.id))
+    `
 
-	query = `SELECT 
-                facility.id, 
-                facility.name, 
-                facility.have_parts,
-                COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
-                COALESCE(GROUP_CONCAT(part.name), '') AS part_names
-            FROM facility
-            LEFT JOIN part ON facility.id = part.facility_id
-            LEFT JOIN booking_part ON part.id = booking_part.part_id
-            LEFT JOIN booking ON booking_part.booking_id = booking.id AND (booking.start_date < $1 AND booking.end_date > $2)
-            WHERE facility.is_active = $3
-            AND facility.id NOT IN (
-                SELECT booking.facility_id
-                FROM booking
-                WHERE (booking.start_date < $1 AND booking.end_date > $2)
-            )
-            AND booking.id IS NULL
-            GROUP BY facility.id`
-
-	rows, err := w.db.QueryContext(ctx, query, endDate, startDate, isActive)
+	rows, err := w.db.QueryContext(ctx, query, startDate, endDate)
 	if err != nil {
-		w.logger.Error("error: %v", err.Error())
+		w.logger.Errorf("error: %v", err.Error())
 		return nil, err
 	}
 
@@ -168,7 +163,7 @@ func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, end
 		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames)
 		if err != nil {
 			w.logger.Errorf("error: %v", err.Error())
-			return []model.FacilityWithParts{}, err
+			return nil, err
 		}
 
 		if partIDs != "" {
@@ -176,7 +171,7 @@ func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, end
 			names := strings.Split(partNames, ",")
 			for i, idStr := range ids {
 				id, _ := strconv.Atoi(idStr)
-				fwp.Parts = append(fwp.Parts, model.Parts{ID: id, Name: names[i]})
+				fwp.Parts = append(fwp.Parts, model.Part{ID: id, Name: names[i]})
 			}
 		}
 

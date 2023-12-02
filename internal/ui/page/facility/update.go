@@ -11,7 +11,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Parts, window fyne.Window, onUpdate func()) {
+func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Part, window fyne.Window, onUpdate func()) {
 	for _, part := range parts {
 		println(part.ID, part.Name)
 	}
@@ -72,7 +72,7 @@ func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Parts, w
 	customPopUp.Show()
 }
 
-func handleUpdateFacility(id int, name string, parts []model.Parts, window fyne.Window, facilityServ service.FacilityService, onUpdate func()) {
+func handleUpdateFacility(id int, name string, parts []model.Part, window fyne.Window, facilityServ service.FacilityService, onUpdate func()) {
 
 	err := facilityServ.UpdateFacility(id, name)
 	if err != nil {

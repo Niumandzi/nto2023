@@ -57,7 +57,7 @@ func (s BookingPage) createBookingCard(booking model.BookingWithFacility, catego
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Событие удалено", "Событие успешно удалено!", window)
+			dialog.ShowInformation("Бронирование удалено", "Бронирование успешно удалено!", window)
 			onUpdate()
 		}
 	})
@@ -73,7 +73,9 @@ func (s BookingPage) createBookingCard(booking model.BookingWithFacility, catego
 }
 
 func combineCards(booking model.BookingWithFacility, categoryName string) string {
-	return eventCard(booking, categoryName) + "\n" + facilityCard(booking) + "\n" + cardBooking(booking)
+	return eventCard(booking, categoryName) + "\n\n" +
+		facilityCard(booking) + "\n\n" +
+		bookingСard(booking)
 }
 
 func eventCard(booking model.BookingWithFacility, categoryName string) string {
@@ -113,7 +115,7 @@ func facilityCard(booking model.BookingWithFacility) string {
 	return result
 }
 
-func cardBooking(booking model.BookingWithFacility) string {
+func bookingСard(booking model.BookingWithFacility) string {
 	return fmt.Sprintf("Описание: %s\nДата создания: %s\nДата начала: %s\nДата окончания: %s",
 		booking.Description, booking.CreateDate, booking.StartDate, booking.EndDate)
 }

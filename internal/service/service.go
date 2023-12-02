@@ -28,7 +28,7 @@ type WorkTypeService interface {
 type FacilityService interface {
 	CreateFacility(name string, parts []string) (int, error)
 	GetFacilities(categoryName string, workTypeID int, status string, isActive bool) ([]model.FacilityWithParts, error)
-	GetFacilitiesByDate(startDate string, endDate string, isActive bool) ([]model.FacilityWithParts, error)
+	GetFacilitiesByDate(startDate string, endDate string) ([]model.FacilityWithParts, error)
 	UpdateFacility(facilityId int, name string) error
 	DeleteRestoreFacility(id int, isActive bool) error
 }
@@ -45,4 +45,9 @@ type BookingService interface {
 	GetBookings(startDate string, endDate string, eventID int, categoryName string) ([]model.BookingWithFacility, error)
 	UpdateBooking(bookingUpd model.Booking) error
 	DeleteBooking(bookingId int) error
+}
+
+type PartService interface {
+	Update(bookingUpd model.Booking) error
+	Delete(partID int) error
 }

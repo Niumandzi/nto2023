@@ -4,10 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	errcode "github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
+	"strconv"
+	"strings"
 )
 
 type BookingRepository struct {
@@ -95,113 +96,107 @@ func (b BookingRepository) Create(ctx context.Context, booking model.Booking) (i
 
 func (b BookingRepository) Get(ctx context.Context, startDate string, endDate string, eventId int, categoryName string) ([]model.BookingWithFacility, error) {
 	var bookings []model.BookingWithFacility
-	kwargs := make(map[string]interface{})
-	args := make([]interface{}, 0, 3)
+	args := make([]interface{}, 0)
 
 	query := `SELECT booking.id, 
-				booking.description, 
-				booking.create_date, 
-				booking.start_date, 
-				booking.end_date,
-				booking.event_id, 
-				booking.facility_id,
-				facility.name, 
-				facility.have_parts
-			FROM
-			    booking
-			INNER JOIN 
-			        events ON booking.event_id = events.id
-			INNER JOIN 
-			        details ON events.details_id = details.id
-			INNER JOIN
-			    facility ON booking.facility_id = facility.id`
+                booking.description, 
+                booking.create_date, 
+                booking.start_date, 
+                booking.end_date,
+                booking.facility_id,
+                facility.name, 
+                facility.have_parts,
+                booking.event_id, 
+                events.name,
+                events.date,
+                events.description,
+                details.category,
+                details.type_name,
+                COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
+                COALESCE(GROUP_CONCAT(part.name), '') AS part_names
+            FROM
+                booking
+            INNER JOIN 
+                events ON booking.event_id = events.id
+            INNER JOIN 
+                details ON events.details_id = details.id
+            INNER JOIN
+                facility ON booking.facility_id = facility.id
+            LEFT JOIN
+                booking_part ON booking.id = booking_part.booking_id
+            LEFT JOIN
+                part ON booking_part.part_id = part.id`
 
-	var dateQuery string
+	var whereClauses []string
 	if startDate != "" && endDate != "" {
-		dateQuery = "(booking.end_date < ? OR booking.start_date > ?)"
+		whereClauses = append(whereClauses, "booking.start_date >= ? AND booking.end_date <= ?")
+		args = append(args, startDate, endDate)
 	}
 	if eventId != 0 {
-		kwargs["booking.facility_id"] = eventId
+		whereClauses = append(whereClauses, "booking.event_id = ?")
+		args = append(args, eventId)
 	}
 	if categoryName != "" {
-		kwargs["details.category"] = categoryName
+		whereClauses = append(whereClauses, "details.category = ?")
+		args = append(args, categoryName)
 	}
 
-	var rows *sql.Rows
-	var err error
-
-	length := len(kwargs)
-	if length == 0 && dateQuery == "" {
-		query += `;`
-		rows, err = b.db.QueryContext(ctx, query)
-		if err != nil {
-			b.logger.Errorf("error: %v", err.Error())
-			return []model.BookingWithFacility{}, nil
-		}
-	} else {
-		query += ` WHERE `
-		if dateQuery != "" {
-			query += dateQuery + ` AND `
-		}
-		i := 0
-		for key, val := range kwargs {
-			if i == length-1 {
-				query += fmt.Sprintf("%v = ?;", key)
-				args = append(args, val)
-			} else {
-				query += fmt.Sprintf("%v ? AND ", key)
-				args = append(args, val)
-			}
-			i++
-		}
-		rows, err = b.db.QueryContext(ctx, query, args...)
-		if err != nil {
-			b.logger.Errorf("error: %v", err.Error())
-			return []model.BookingWithFacility{}, nil
-		}
+	if len(whereClauses) > 0 {
+		query += " WHERE " + strings.Join(whereClauses, " AND ")
 	}
 
+	query += " GROUP BY booking.id;"
+
+	rows, err := b.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		b.logger.Errorf("error: %v", err.Error())
+		return nil, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var booking model.BookingWithFacility
-		var parts []model.Parts
+		var partIds, partNames string
 
-		err = rows.Scan(&booking.ID,
+		err = rows.Scan(
+			&booking.ID,
 			&booking.Description,
 			&booking.CreateDate,
 			&booking.StartDate,
 			&booking.EndDate,
-			&booking.Event.ID,
 			&booking.Facility.ID,
 			&booking.Facility.Name,
-			&booking.Facility.HaveParts)
-
+			&booking.Facility.HaveParts,
+			&booking.Event.ID,
+			&booking.Event.Name,
+			&booking.Event.Date,
+			&booking.Event.Description,
+			&booking.Event.Details.Category,
+			&booking.Event.Details.TypeName,
+			&partIds,
+			&partNames,
+		)
 		if err != nil {
-			b.logger.Errorf("error: %v", err.Error())
-			return []model.BookingWithFacility{}, err
+			b.logger.Errorf("error scanning booking: %v", err.Error())
+			return nil, err
 		}
 
-		partRows, err := b.db.QueryContext(ctx, `SELECT part.id, part.name, part.facility_id FROM booking_part 
-    													INNER JOIN 
-    															part ON booking_part.part_id = part.id 
-                                            			WHERE booking_part.booking_id = ?`,
-			booking.ID)
-		if err != nil {
-			b.logger.Errorf("error: %v", err.Error())
-			return []model.BookingWithFacility{}, err
+		if booking.Facility.HaveParts && partIds != "" {
+			ids := strings.Split(partIds, ",")
+			names := strings.Split(partNames, ",")
+			for i, idStr := range ids {
+				var part model.Part
+				part.ID, err = strconv.Atoi(idStr)
+				if err != nil {
+					b.logger.Errorf("error converting part ID to integer: %v", err.Error())
+					continue
+				}
+				part.Name = names[i]
+				part.FacilityID = booking.Facility.ID
+				booking.Parts = append(booking.Parts, part)
+			}
 		}
 
-		defer partRows.Close()
-
-		for partRows.Next() {
-			var part model.Parts
-			err = partRows.Scan(&part.ID, part.Name, part.FacilityID)
-
-			parts = append(parts, part)
-		}
-
-		booking.Parts = parts
 		bookings = append(bookings, booking)
 	}
 
