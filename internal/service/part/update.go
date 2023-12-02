@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-func (s PartService) UpdateBooking(update map[int]string) error {
+func (s PartService) UpdatePart(update map[int]string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 	defer cancel()
 

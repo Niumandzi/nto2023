@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/niumandzi/nto2023/internal/errors"
-	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
 	"strconv"
 	"strings"
@@ -23,7 +22,7 @@ func NewPartRepository(db *sql.DB, logger logging.Logger) PartRepository {
 	}
 }
 
-func (p PartRepository) Create(ctx context.Context, part model.Part) (int, error) {
+func (p PartRepository) Create(ctx context.Context, facilityID int, partNames []string) (int, error) {
 	return 0, nil
 }
 

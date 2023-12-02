@@ -50,7 +50,7 @@ type BookingRepository interface {
 }
 
 type PartRepository interface {
-	Create(ctx context.Context, part model.Part) (int, error)
+	Create(ctx context.Context, facilityID int, partNames []string) (int, error)
 	Update(ctx context.Context, updates map[int]string) error
 	Delete(ctx context.Context, partIds []int, isActive bool) error
 }

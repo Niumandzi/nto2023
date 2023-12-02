@@ -2,15 +2,15 @@ package part
 
 import "context"
 
-func (s PartService) DeletePart(partIds []int, isActive bool) error {
+func (s PartService) CreatePart(facilityID int, partNames []string) (int, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 	defer cancel()
 
-	err := s.partRepo.Delete(ctx, partIds, isActive)
+	id, err := s.partRepo.Create(ctx, facilityID, partNames)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
-		return err
+		return 0, err
 	}
 
-	return nil
+	return id, nil
 }

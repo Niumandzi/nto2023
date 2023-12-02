@@ -22,24 +22,24 @@ func NewFacilityRepository(db *sql.DB, logger logging.Logger) FacilityRepository
 	}
 }
 
-func (w FacilityRepository) Create(ctx context.Context, name string, parts []string) (int, error) {
-	tx, err := w.db.BeginTx(ctx, nil)
+func (f FacilityRepository) Create(ctx context.Context, name string, parts []string) (int, error) {
+	tx, err := f.db.BeginTx(ctx, nil)
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		return 0, err
 	}
 
 	haveParts := len(parts) > 0
 	res, err := tx.ExecContext(ctx, `INSERT INTO facility (name, have_parts) VALUES ($1, $2);`, name, haveParts)
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
@@ -48,7 +48,7 @@ func (w FacilityRepository) Create(ctx context.Context, name string, parts []str
 		for _, partName := range parts {
 			_, err := tx.ExecContext(ctx, `INSERT INTO part (name, facility_id) VALUES ($1, $2);`, partName, id)
 			if err != nil {
-				w.logger.Errorf("error: %v", err.Error())
+				f.logger.Errorf("error: %v", err.Error())
 				tx.Rollback()
 				return 0, err
 			}
@@ -57,7 +57,7 @@ func (w FacilityRepository) Create(ctx context.Context, name string, parts []str
 
 	err = tx.Commit()
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
@@ -65,7 +65,7 @@ func (w FacilityRepository) Create(ctx context.Context, name string, parts []str
 	return int(id), nil
 }
 
-func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTypeID int, status string, isActive bool) ([]model.FacilityWithParts, error) {
+func (f FacilityRepository) Get(ctx context.Context, categoryName string, workTypeID int, status string, isActive bool) ([]model.FacilityWithParts, error) {
 	args := make([]interface{}, 0, 5)
 
 	baseQuery := `SELECT facility.id, facility.name, facility.have_parts,
@@ -96,9 +96,9 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 
 	baseQuery += " GROUP BY facility.id;"
 
-	rows, err := w.db.QueryContext(ctx, baseQuery, args...)
+	rows, err := f.db.QueryContext(ctx, baseQuery, args...)
 	if err != nil {
-		w.logger.Error("error: %v", err.Error())
+		f.logger.Error("error: %v", err.Error())
 		return nil, err
 	}
 
@@ -111,7 +111,7 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 
 		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames)
 		if err != nil {
-			w.logger.Errorf("error: %v", err.Error())
+			f.logger.Errorf("error: %v", err.Error())
 			return []model.FacilityWithParts{}, err
 		}
 
@@ -130,7 +130,7 @@ func (w FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 	return facilities, nil
 }
 
-func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, endDate string) ([]model.FacilityWithParts, error) {
+func (f FacilityRepository) GetByDate(ctx context.Context, startDate string, endDate string) ([]model.FacilityWithParts, error) {
 	query := `
     SELECT 
 		facility.id, 
@@ -147,9 +147,9 @@ func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, end
 	HAVING (facility.have_parts = FALSE AND COUNT(DISTINCT b.id) = 0) OR (facility.have_parts = TRUE AND COUNT(DISTINCT CASE WHEN b.id IS NOT NULL THEN b.id END) < COUNT(DISTINCT part.id))
     `
 
-	rows, err := w.db.QueryContext(ctx, query, startDate, endDate)
+	rows, err := f.db.QueryContext(ctx, query, startDate, endDate)
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		return nil, err
 	}
 
@@ -162,7 +162,7 @@ func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, end
 
 		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames)
 		if err != nil {
-			w.logger.Errorf("error: %v", err.Error())
+			f.logger.Errorf("error: %v", err.Error())
 			return nil, err
 		}
 
@@ -181,36 +181,36 @@ func (w FacilityRepository) GetByDate(ctx context.Context, startDate string, end
 	return facilities, nil
 }
 
-func (w FacilityRepository) Update(ctx context.Context, idOld int, nameUpd string) error {
-	tx, err := w.db.BeginTx(ctx, nil)
+func (f FacilityRepository) Update(ctx context.Context, idOld int, nameUpd string) error {
+	tx, err := f.db.BeginTx(ctx, nil)
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE facility SET name = $1 WHERE id = $2;`, nameUpd, idOld)
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("facility name update", int(rowsCount))
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		w.logger.Error("error: %v", err.Error())
+		f.logger.Error("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
@@ -218,36 +218,36 @@ func (w FacilityRepository) Update(ctx context.Context, idOld int, nameUpd strin
 	return nil
 }
 
-func (w FacilityRepository) Delete(ctx context.Context, facilityId int, isActive bool) error {
-	tx, err := w.db.BeginTx(ctx, nil)
+func (f FacilityRepository) Delete(ctx context.Context, facilityId int, isActive bool) error {
+	tx, err := f.db.BeginTx(ctx, nil)
 	if err != nil {
-		w.logger.Error("error: %v", err.Error())
+		f.logger.Error("error: %v", err.Error())
 		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE facility SET is_active = $1 WHERE facility.id = $2;`, isActive, facilityId)
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("facility delete", int(rowsCount))
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		w.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
