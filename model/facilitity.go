@@ -4,6 +4,7 @@ type Part struct {
 	ID         int
 	FacilityID int
 	Name       string
+	IsActive   bool
 }
 
 type Facility struct {
