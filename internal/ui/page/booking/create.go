@@ -1,6 +1,7 @@
 package booking
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -17,6 +18,7 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	var selectedEventID int
 	var selectedFacilityID int
 	var facilityNames map[string]int
+	var facilityParts map[int]map[string]int // facilityName: {partName1: partId1, partName2: partId2}
 	var facilitySelect *widget.Select
 
 	events, err := s.eventServ.GetEvents(categoryName, 0, true)
@@ -71,6 +73,15 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 				}
 			}
 
+			facilityParts = make(map[int]map[string]int)
+			for _, facility := range facilities {
+				parts := make(map[string]int)
+				for _, part := range facility.Parts {
+					parts[part.Name] = part.ID
+				}
+				facilityParts[facility.ID] = parts
+			}
+
 			if facilitySelect != nil {
 				facilitySelect.Options = getFacilityOptions(facilityNames)
 				facilitySelect.Refresh()
@@ -83,6 +94,7 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	endDateEntry.OnChanged = func(string) { updateFacilities() }
 
 	facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
+		fmt.Print(facilityParts)
 		selectedFacilityID = id
 	}, nil)
 
