@@ -7,7 +7,6 @@ import (
 
 func (s BookingService) GetBookings(startDate string, endDate string, eventID int, categoryName string) ([]model.BookingWithFacility, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
-
 	defer cancel()
 
 	bookings, err := s.bookingRepo.Get(ctx, startDate, endDate, eventID, categoryName)

@@ -48,6 +48,6 @@ type BookingService interface {
 }
 
 type PartService interface {
-	Update(bookingUpd model.Booking) error
-	Delete(partID int) error
+	UpdateBooking(updates map[int]string) error
+	DeleteBooking(partIds []int, isActive bool) error
 }

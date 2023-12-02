@@ -11,6 +11,7 @@ import (
 	detailsRepository "github.com/niumandzi/nto2023/internal/repository/details"
 	eventRepository "github.com/niumandzi/nto2023/internal/repository/event"
 	facilityRepository "github.com/niumandzi/nto2023/internal/repository/facility"
+	partRepository "github.com/niumandzi/nto2023/internal/repository/part"
 	workTypeRepository "github.com/niumandzi/nto2023/internal/repository/work"
 
 	applicationService "github.com/niumandzi/nto2023/internal/service/application"
@@ -18,6 +19,7 @@ import (
 	detailsService "github.com/niumandzi/nto2023/internal/service/details"
 	eventService "github.com/niumandzi/nto2023/internal/service/event"
 	facilityService "github.com/niumandzi/nto2023/internal/service/facility"
+	partService "github.com/niumandzi/nto2023/internal/service/part"
 	workTypeService "github.com/niumandzi/nto2023/internal/service/work"
 
 	"github.com/niumandzi/nto2023/internal/ui"
@@ -74,6 +76,7 @@ func main() {
 	workTypeRepo := workTypeRepository.NewWorkTypeRepository(db, logger)
 	applicationRepo := applicationRepository.NewApplicationRepository(db, logger)
 	bookingRepo := bookingRepository.NewBookingRepository(db, logger)
+	partRepo := partRepository.NewPartRepository(db, logger)
 
 	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
 	detailsServ := detailsService.NewDetailsService(detailsRepo, timeoutContext, logger, ctx)
@@ -81,10 +84,11 @@ func main() {
 	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 	applicationServ := applicationService.NewApplicationService(applicationRepo, timeoutContext, logger, ctx)
 	bookingServ := bookingService.NewBookingService(bookingRepo, timeoutContext, logger, ctx)
+	partServ := partService.NewPartService(partRepo, timeoutContext, logger, ctx)
 
 	event := eventPage.NewEventPage(eventServ, detailsServ, logger)
 	details := detailsPage.NewDetailsPage(detailsServ, logger)
-	facility := facilityPage.NewFacilityPage(facilityServ, logger)
+	facility := facilityPage.NewFacilityPage(facilityServ, partServ, logger)
 	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 	application := applicationPage.NewApplicationPage(applicationServ, eventServ, facilityServ, workTypeServ, logger)
 	booking := bookingPage.NewBookingPage(bookingServ, eventServ, facilityServ, logger)
