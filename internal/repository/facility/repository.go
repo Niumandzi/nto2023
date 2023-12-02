@@ -70,7 +70,8 @@ func (f FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 
 	baseQuery := `SELECT facility.id, facility.name, facility.have_parts,
                   COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
-                  COALESCE(GROUP_CONCAT(part.name), '') AS part_names
+                  COALESCE(GROUP_CONCAT(part.name), '') AS part_names,
+                  COALESCE(GROUP_CONCAT(part.is_active), '') AS part_names
            FROM facility
            LEFT JOIN part ON facility.id = part.facility_id
            LEFT JOIN application ON application.facility_id = facility.id
@@ -107,9 +108,9 @@ func (f FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 	var facilities []model.FacilityWithParts
 	for rows.Next() {
 		var fwp model.FacilityWithParts
-		var partIDs, partNames string
+		var partIDs, partNames, partStatuses string
 
-		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames)
+		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames, &partStatuses)
 		if err != nil {
 			f.logger.Errorf("error: %v", err.Error())
 			return []model.FacilityWithParts{}, err
@@ -118,15 +119,23 @@ func (f FacilityRepository) Get(ctx context.Context, categoryName string, workTy
 		if partIDs != "" {
 			ids := strings.Split(partIDs, ",")
 			names := strings.Split(partNames, ",")
+			statuses := strings.Split(partStatuses, ",")
 			for i, idStr := range ids {
+				var status bool
 				id, _ := strconv.Atoi(idStr)
-				fwp.Parts = append(fwp.Parts, model.Part{ID: id, Name: names[i]})
+				switch statuses[i] {
+				case "1":
+					status = true
+					break
+				case "0":
+					status = false
+				}
+				fwp.Parts = append(fwp.Parts, model.Part{ID: id, Name: names[i], IsActive: status})
 			}
 		}
 
 		facilities = append(facilities, fwp)
 	}
-
 	return facilities, nil
 }
 
