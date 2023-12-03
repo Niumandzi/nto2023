@@ -20,7 +20,7 @@ func (s FacilityPage) CreateFacility(window fyne.Window, onUpdate func()) {
 	partsVBox := container.NewVBox()
 	vbox.Add(partsVBox)
 
-	addPartButton := widget.NewButton("    Добавить часть для помещения    ", func() {
+	addPartButton := widget.NewButton("     Добавить часть для помещения    ", func() {
 		newEntry := component.EntryWidget("Часть помещения")
 		partsEntries = append(partsEntries, newEntry)
 		partsVBox.Add(newEntry)

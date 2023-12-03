@@ -19,7 +19,6 @@ func (s FacilityService) GetFacilities() ([]model.FacilityWithParts, error) {
 }
 
 func (s FacilityService) GetActiveFacilities(categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error) {
-	println(categoryName, workTypeID, status)
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()

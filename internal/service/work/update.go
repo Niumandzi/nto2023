@@ -7,7 +7,6 @@ import (
 
 func (s WorkTypeService) UpdateWorkType(workTypeID int, name string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
-
 	defer cancel()
 
 	err := validation.Validate(name, validation.Required)

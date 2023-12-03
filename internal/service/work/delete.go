@@ -4,7 +4,6 @@ import "context"
 
 func (s WorkTypeService) DeleteRestoreWorkType(workTypeID int, isActive bool) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
-
 	defer cancel()
 
 	err := s.workTypeRepo.Delete(ctx, workTypeID, isActive)

@@ -53,6 +53,6 @@ type BookingService interface {
 
 type PartService interface {
 	CreatePart(facilityID int, partNames []string) (int, error)
-	UpdatePart(updates map[int]string) error
-	DeletePart(partIds []int, isActive bool) error
+	UpdatePart(update map[int]string) error
+	DeletePart(delete map[int]bool) error
 }

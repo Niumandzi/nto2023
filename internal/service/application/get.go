@@ -7,7 +7,6 @@ import (
 
 func (s ApplicationService) GetApplications(categoryName string, facilityID int, workTypeId int, status string) ([]model.ApplicationWithDetails, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
-
 	defer cancel()
 
 	events, err := s.applicationRepo.Get(ctx, categoryName, facilityID, workTypeId, status)

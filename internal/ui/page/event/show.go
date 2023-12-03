@@ -71,16 +71,6 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 		}
 	})
 
-	//deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-	//	err := s.eventServ.DeleteRestoreEvent(event.ID, false)
-	//	if err != nil {
-	//		dialog.ShowError(err, window)
-	//	} else {
-	//		dialog.ShowInformation("Событие удалено", "Событие успешно удалено!", window)
-	//		onUpdate()
-	//	}
-	//})
-
 	bookingButton := widget.NewButtonWithIcon("", theme.FileIcon(), func() {
 
 	})

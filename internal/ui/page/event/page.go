@@ -51,9 +51,8 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 			eventList("", 0)
 		})
 	})
-	createButtons := container.NewHBox(createEventButton)
 
-	toolbar := container.NewBorder(nil, nil, typeSelect, createButtons)
+	toolbar := container.NewBorder(nil, nil, typeSelect, createEventButton)
 	content := container.NewBorder(toolbar, nil, nil, nil, eventContainer)
 	eventList("", 0)
 
