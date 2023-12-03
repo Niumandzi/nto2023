@@ -16,7 +16,7 @@ func (s DetailsService) UpdateDetail(detailsID int, typeName string) error {
 		return err
 	}
 
-	err = s.detailsRepo.UpdateTypeName(ctx, detailsID, typeName)
+	err = s.detailsRepo.Update(ctx, detailsID, typeName)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

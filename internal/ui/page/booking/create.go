@@ -20,7 +20,7 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	var facilityParts map[int]map[int]string
 	var facilitySelect *widget.Select
 
-	events, err := s.eventServ.GetEvents(categoryName, 0, true)
+	events, err := s.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -80,7 +80,7 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 			}
 
 			if facilitySelect != nil {
-				facilitySelect.Options = facilityNames
+				//facilitySelect.Options = facilityNames
 				facilitySelect.Refresh()
 			}
 		}

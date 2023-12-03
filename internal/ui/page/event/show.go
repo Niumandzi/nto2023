@@ -12,7 +12,7 @@ import (
 )
 
 func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Window, eventContainer *fyne.Container) {
-	events, err := s.eventServ.GetEvents(categoryName, detailsID, true)
+	events, err := s.eventServ.GetEvents(categoryName, detailsID)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -33,7 +33,7 @@ func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Win
 }
 
 func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Window, onUpdate func()) fyne.CanvasObject {
-	cardText := card(event)
+	cardText, isActive := card(event)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
@@ -48,15 +48,38 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 		s.UpdateEvent(event.Details.Category, event.Details.TypeName, eventToUpdate, window, onUpdate)
 	})
 
-	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.eventServ.DeleteRestoreEvent(event.ID, false)
+	var icon fyne.Resource
+	var dialogTitle, dialogMessage string
+
+	if isActive {
+		icon = theme.DeleteIcon()
+		dialogTitle = "Событие удалено"
+		dialogMessage = "Событие успешно удалено!"
+	} else {
+		icon = theme.ViewRefreshIcon()
+		dialogTitle = "Событие восстановлено"
+		dialogMessage = "Событие успешно восстановлено!"
+	}
+
+	deleteButton := widget.NewButtonWithIcon("", icon, func() {
+		err := s.eventServ.DeleteRestoreEvent(event.ID, !isActive)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Событие удалено", "Событие успешно удалено!", window)
+			dialog.ShowInformation(dialogTitle, dialogMessage, window)
 			onUpdate()
 		}
 	})
+
+	//deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
+	//	err := s.eventServ.DeleteRestoreEvent(event.ID, false)
+	//	if err != nil {
+	//		dialog.ShowError(err, window)
+	//	} else {
+	//		dialog.ShowInformation("Событие удалено", "Событие успешно удалено!", window)
+	//		onUpdate()
+	//	}
+	//})
 
 	bookingButton := widget.NewButtonWithIcon("", theme.FileIcon(), func() {
 
@@ -73,7 +96,7 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 	return eventContainer
 }
 
-func card(event model.EventWithDetails) string {
+func card(event model.EventWithDetails) (string, bool) {
 	return fmt.Sprintf("Тип: %s\nНазвание: %s\nДата: %s\nОписание: %s",
-		event.Details.TypeName, event.Name, event.Date, event.Description)
+		event.Details.TypeName, event.Name, event.Date, event.Description), event.IsActive
 }

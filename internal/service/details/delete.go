@@ -7,7 +7,7 @@ func (s DetailsService) DeleteRestoreType(detailsID int, isActive bool) error {
 
 	defer cancel()
 
-	err := s.detailsRepo.DeleteRestoreType(ctx, detailsID, isActive)
+	err := s.detailsRepo.Delete(ctx, detailsID, isActive)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

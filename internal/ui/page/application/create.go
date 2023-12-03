@@ -39,7 +39,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 		nil,
 	)
 
-	facilities, err := s.facilityServ.GetFacilities("", 0, "")
+	facilities, err := s.facilityServ.GetActiveFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -55,7 +55,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 		nil,
 	)
 
-	events, err := s.eventServ.GetEvents(categoryName, 0)
+	events, err := s.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

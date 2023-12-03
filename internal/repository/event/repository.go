@@ -23,27 +23,27 @@ func NewEventRepository(db *sql.DB, logger logging.Logger) EventRepository {
 func (s EventRepository) Create(ctx context.Context, event model.Event) (int, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		return 0, err
 	}
 
 	res, err := tx.ExecContext(ctx, `INSERT INTO events (name, description, date, details_id) VALUES ($1, $2, $3, $4);`, event.Name, event.Description, event.Date, event.DetailsID)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
 	id, err := res.LastInsertId()
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
@@ -51,9 +51,7 @@ func (s EventRepository) Create(ctx context.Context, event model.Event) (int, er
 	return int(id), nil
 }
 
-// Get объединяем два запроса в один, выбор запроса зависит от eventType.
-// Он может быть либо по event_type_id или по event type, либо по category.
-func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID int, isActive bool) ([]model.EventWithDetails, error) {
+func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID int) ([]model.EventWithDetails, error) {
 	var query string
 	var args []interface{}
 	var events []model.EventWithDetails
@@ -64,29 +62,80 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID
                      events.name,
                      events.description,
                      events.date,
+                     events.is_active,
                      details.id,
                      details.type_name,
                      details.category
               FROM events
               INNER JOIN details ON events.details_id = details.id
-              WHERE details.category = $1 AND events.is_active = $2;`
-		args = append(args, categoryName, isActive)
+              WHERE details.category = $1;`
+		args = append(args, categoryName)
 
 	default:
 		query = `SELECT events.id, 
                      events.name, 
                      events.description, 
                      events.date, 
+                     events.is_active,
                      details.id,
                      details.type_name,
                      details.category
              FROM events
              INNER JOIN details ON events.details_id = details.id
-             WHERE details.id = $1 AND events.is_active = $2;`
-		args = append(args, detailsID, isActive)
+             WHERE details.id = $1;`
+		args = append(args, detailsID)
 	}
 
 	rows, err := s.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		s.logger.Error(err.Error())
+		return []model.EventWithDetails{}, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var event model.EventWithDetails
+
+		err = rows.Scan(&event.ID,
+			&event.Name,
+			&event.Description,
+			&event.Date,
+			&event.IsActive,
+			&event.Details.ID,
+			&event.Details.TypeName,
+			&event.Details.Category,
+		)
+
+		if err != nil {
+			s.logger.Error("error: ", err.Error())
+			return []model.EventWithDetails{}, err
+		}
+
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
+func (s EventRepository) GetActive(ctx context.Context, categoryName string) ([]model.EventWithDetails, error) {
+
+	var args []interface{}
+	var events []model.EventWithDetails
+
+	query := `SELECT events.id,
+                     events.name,
+                     events.description,
+                     events.date,
+                     details.id,
+                     details.type_name,
+                     details.category
+              FROM events
+              INNER JOIN details ON events.details_id = details.id
+              WHERE events.is_active = TRUE AND details.category = $1;`
+	args = append(args, categoryName)
+
+	rows, err := s.db.QueryContext(ctx, query, categoryName)
 	if err != nil {
 		s.logger.Error(err.Error())
 		return []model.EventWithDetails{}, err
@@ -107,7 +156,7 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID
 		)
 
 		if err != nil {
-			s.logger.Errorf("error: %v", err.Error())
+			s.logger.Error("error: ", err.Error())
 			return []model.EventWithDetails{}, err
 		}
 
@@ -120,33 +169,33 @@ func (s EventRepository) Get(ctx context.Context, categoryName string, detailsID
 func (s EventRepository) Update(ctx context.Context, eventUpd model.Event) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE events SET name = $1, description = $2, date = $3, details_id = $4 WHERE id = $5;`, eventUpd.Name, eventUpd.Description, eventUpd.Date, eventUpd.DetailsID, eventUpd.ID)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("event update", int(rowsCount))
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}
@@ -157,33 +206,33 @@ func (s EventRepository) Update(ctx context.Context, eventUpd model.Event) error
 func (s EventRepository) Delete(ctx context.Context, eventId int, isActive bool) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		return err
 	}
 
 	res, err := tx.ExecContext(ctx, `UPDATE events SET is_active = $1 WHERE id = $2;`, isActive, eventId)
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	rowsCount, err := res.RowsAffected()
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if rowsCount != 1 {
 		err = errors.NewRowCountError("event delete", int(rowsCount))
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		s.logger.Errorf("error: %v", err.Error())
+		s.logger.Error("error: ", err.Error())
 		tx.Rollback()
 		return err
 	}

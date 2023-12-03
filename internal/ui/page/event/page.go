@@ -30,7 +30,7 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 		s.ShowEvent(categoryName, id, window, eventContainer)
 	}
 
-	details, err := s.detailsServ.GetDetails(categoryName, true)
+	details, err := s.detailsServ.GetDetails(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

@@ -16,7 +16,7 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate
 	dateEntry := component.EntryWidget("гггг-мм-дд")
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 
-	details, err := s.detailsServ.GetDetails(categoryName, true)
+	details, err := s.detailsServ.GetActiveDetails(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

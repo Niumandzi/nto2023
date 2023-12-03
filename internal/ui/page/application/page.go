@@ -38,7 +38,7 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 		s.ShowApplication(categoryName, selectedFacilityId, selectedWorkTypeId, status, window, applicationContainer)
 	}
 
-	facilities, err := s.facilityServ.GetFacilities(categoryName, selectedWorkTypeId, status, true)
+	facilities, err := s.facilityServ.GetActiveFacilities(categoryName, selectedWorkTypeId, status)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -55,7 +55,7 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 		nil,
 	)
 
-	workTypes, err := s.workTypeServ.GetWorkTypes(categoryName, selectedFacilityId, status)
+	workTypes, err := s.workTypeServ.GetActiveWorkTypes(categoryName, selectedFacilityId, status)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

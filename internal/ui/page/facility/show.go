@@ -13,7 +13,7 @@ import (
 )
 
 func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Container) {
-	facility, err := s.facilityServ.GetFacilities("", 0, "")
+	facility, err := s.facilityServ.GetFacilities()
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -41,16 +41,6 @@ func (s FacilityPage) createFacilityCard(facility model.FacilityWithParts, windo
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
 		s.UpdateFacility(facility.ID, facility.Name, facility.Parts, window, onUpdate)
 	})
-
-	//deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-	//	err := s.facilityServ.DeleteRestoreFacility(facility.ID, false)
-	//	if err != nil {
-	//		dialog.ShowError(err, window)
-	//	} else {
-	//		dialog.ShowInformation("Помещение удалено", "Помещение успешно удалено!", window)
-	//		onUpdate()
-	//	}
-	//})
 
 	var icon fyne.Resource
 	var dialogTitle, dialogMessage string
@@ -90,7 +80,11 @@ func card(facility model.FacilityWithParts) (string, bool) {
 	if len(facility.Parts) > 0 {
 		partsInfo := []string{}
 		for _, part := range facility.Parts {
-			partsInfo = append(partsInfo, fmt.Sprintf("Часть: %s", part.Name))
+			partDisplay := part.Name
+			if !part.IsActive {
+				partDisplay += " (удалено)"
+			}
+			partsInfo = append(partsInfo, fmt.Sprintf("Часть: %s", partDisplay))
 		}
 		result += "\n" + strings.Join(partsInfo, "\n")
 	} else {

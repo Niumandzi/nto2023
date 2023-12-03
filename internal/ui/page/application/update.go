@@ -51,7 +51,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		nil,
 	)
 
-	facilities, err := s.facilityServ.GetFacilities("", 0, "")
+	facilities, err := s.facilityServ.GetActiveFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -69,7 +69,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		nil,
 	)
 
-	events, err := s.eventServ.GetEvents(categoryName, 0)
+	events, err := s.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return

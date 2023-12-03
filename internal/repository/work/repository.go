@@ -81,7 +81,7 @@ func (w WorkTypeRepository) Get(ctx context.Context) ([]model.WorkType, error) {
 }
 
 func (w WorkTypeRepository) GetActive(ctx context.Context, categoryName string, facilityID int, status string) ([]model.WorkType, error) {
-	args := make([]interface{}, 0, 5)
+	args := make([]interface{}, 0, 3)
 	var workTypes []model.WorkType
 
 	baseQuery := `SELECT work_type.id,
@@ -108,7 +108,7 @@ func (w WorkTypeRepository) GetActive(ctx context.Context, categoryName string, 
 
 	rows, err := w.db.QueryContext(ctx, baseQuery, args...)
 	if err != nil {
-		w.logger.Error("error: %v", err.Error())
+		w.logger.Error("error: ", err.Error())
 		return nil, err
 	}
 
@@ -119,7 +119,7 @@ func (w WorkTypeRepository) GetActive(ctx context.Context, categoryName string, 
 
 		err = rows.Scan(&workType.ID, &workType.Name)
 		if err != nil {
-			w.logger.Errorf("error: %v", err.Error())
+			w.logger.Error("error: ", err.Error())
 			return nil, err
 		}
 

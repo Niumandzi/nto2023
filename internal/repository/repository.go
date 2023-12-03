@@ -8,16 +8,18 @@ import (
 type EventRepository interface {
 	Create(ctx context.Context, event model.Event) (int, error)
 	Get(ctx context.Context, categoryName string, detailsID int) ([]model.EventWithDetails, error)
+	GetActive(ctx context.Context, categoryName string) ([]model.EventWithDetails, error)
 	Update(ctx context.Context, eventUpd model.Event) error
 	Delete(ctx context.Context, eventID int, isActive bool) error
 }
 
 type DetailsRepository interface {
 	Create(ctx context.Context, categoryName string, typeName string) (int, error)
-	Get(ctx context.Context, categoryName string, isActive bool) ([]model.Details, error)
-	GetId(ctx context.Context, categoryName string, typeName string) (int, error)
-	UpdateTypeName(ctx context.Context, detailsID int, typeName string) error
-	DeleteRestoreType(ctx context.Context, detailsID int, isActive bool) error
+	Get(ctx context.Context, categoryName string) ([]model.Details, error)
+	//GetId(ctx context.Context, categoryName string, typeName string) (int, error)
+	GetActive(ctx context.Context, categoryName string) ([]model.Details, error)
+	Update(ctx context.Context, detailsId int, typeName string) error
+	Delete(ctx context.Context, detailsID int, isActive bool) error
 }
 
 type WorkTypeRepository interface {
@@ -30,7 +32,8 @@ type WorkTypeRepository interface {
 
 type FacilityRepository interface {
 	Create(ctx context.Context, name string, parts []string) (int, error)
-	Get(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
+	Get(ctx context.Context) ([]model.FacilityWithParts, error)
+	GetActive(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
 	GetByDate(ctx context.Context, startDate string, endDate string) ([]model.FacilityWithParts, error)
 	Update(ctx context.Context, idOld int, nameUpd string) error
 	Delete(ctx context.Context, facilityID int, isActive bool) error
