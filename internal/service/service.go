@@ -6,7 +6,7 @@ import (
 
 type EventService interface {
 	CreateEvent(event model.Event) (int, error)
-	GetEvents(categoryName string, detailsID int, isActive bool) ([]model.EventWithDetails, error)
+	GetEvents(categoryName string, detailsID int) ([]model.EventWithDetails, error)
 	UpdateEvent(eventUpd model.Event) error
 	DeleteRestoreEvent(eventId int, isActive bool) error
 }
@@ -20,14 +20,15 @@ type DetailsService interface {
 
 type WorkTypeService interface {
 	CreateWorkType(name string) (int, error)
-	GetWorkTypes(categoryName string, facilityID int, status string) ([]model.WorkType, error)
+	GetWorkTypes() ([]model.WorkType, error)
+	GetActiveWorkTypes(categoryName string, facilityID int, status string) ([]model.WorkType, error)
 	UpdateWorkType(workTypeId int, name string) error
 	DeleteRestoreWorkType(id int, isActive bool) error
 }
 
 type FacilityService interface {
 	CreateFacility(name string, parts []string) (int, error)
-	GetFacilities(categoryName string, workTypeID int, status string, isActive bool) ([]model.FacilityWithParts, error)
+	GetFacilities(categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
 	GetFacilitiesByDate(startDate string, endDate string) ([]model.FacilityWithParts, error)
 	UpdateFacility(facilityId int, name string) error
 	DeleteRestoreFacility(id int, isActive bool) error
