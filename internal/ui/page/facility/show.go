@@ -13,7 +13,7 @@ import (
 )
 
 func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Container) {
-	facility, err := s.facilityServ.GetFacilities("", 0, "", true)
+	facility, err := s.facilityServ.GetFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -34,7 +34,7 @@ func (s FacilityPage) ShowFacility(window fyne.Window, eventContainer *fyne.Cont
 }
 
 func (s FacilityPage) createFacilityCard(facility model.FacilityWithParts, window fyne.Window, onUpdate func()) fyne.CanvasObject {
-	cardText := card(facility)
+	cardText, isActive := card(facility)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
@@ -42,12 +42,35 @@ func (s FacilityPage) createFacilityCard(facility model.FacilityWithParts, windo
 		s.UpdateFacility(facility.ID, facility.Name, facility.Parts, window, onUpdate)
 	})
 
-	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.facilityServ.DeleteRestoreFacility(facility.ID, false)
+	//deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
+	//	err := s.facilityServ.DeleteRestoreFacility(facility.ID, false)
+	//	if err != nil {
+	//		dialog.ShowError(err, window)
+	//	} else {
+	//		dialog.ShowInformation("Помещение удалено", "Помещение успешно удалено!", window)
+	//		onUpdate()
+	//	}
+	//})
+
+	var icon fyne.Resource
+	var dialogTitle, dialogMessage string
+
+	if isActive {
+		icon = theme.DeleteIcon()
+		dialogTitle = "Помещение удалено"
+		dialogMessage = "Помещение успешно удален!"
+	} else {
+		icon = theme.ViewRefreshIcon()
+		dialogTitle = "Помещение восстановлено"
+		dialogMessage = "Помещение успешно восстановлен!"
+	}
+
+	deleteButton := widget.NewButtonWithIcon("", icon, func() {
+		err := s.facilityServ.DeleteRestoreFacility(facility.ID, !isActive)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Помещение удалено", "Помещение успешно удалено!", window)
+			dialog.ShowInformation(dialogTitle, dialogMessage, window)
 			onUpdate()
 		}
 	})
@@ -61,7 +84,7 @@ func (s FacilityPage) createFacilityCard(facility model.FacilityWithParts, windo
 	return eventContainer
 }
 
-func card(facility model.FacilityWithParts) string {
+func card(facility model.FacilityWithParts) (string, bool) {
 	result := fmt.Sprintf("Помещение: %s", facility.Name)
 
 	if len(facility.Parts) > 0 {
@@ -74,5 +97,5 @@ func card(facility model.FacilityWithParts) string {
 		result += "\nЧасти: нет"
 	}
 
-	return result
+	return result, facility.IsActive
 }
