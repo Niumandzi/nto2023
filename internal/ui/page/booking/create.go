@@ -1,7 +1,6 @@
 package booking
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -18,7 +17,7 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	var selectedEventID int
 	var selectedFacilityID int
 	var facilityNames map[string]int
-	var facilityParts map[int]map[string]int // facilityName: {partName1: partId1, partName2: partId2}
+	var facilityParts map[int]map[int]string
 	var facilitySelect *widget.Select
 
 	events, err := s.eventServ.GetEvents(categoryName, 0, true)
@@ -51,12 +50,10 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 			facilities, err := s.facilityServ.GetFacilitiesByDate(startDateEntry.Text, endDateEntry.Text)
 			if err != nil {
 				dialog.ShowError(err, window)
-				return
 			}
 
 			facilityNames = make(map[string]int)
 			for _, facility := range facilities {
-				facilityNames[facility.Name] = facility.ID
 				partsDescription := ""
 				for _, part := range facility.Parts {
 					if partsDescription != "" {
@@ -73,29 +70,28 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 				}
 			}
 
-			facilityParts = make(map[int]map[string]int)
+			facilityParts = make(map[int]map[int]string)
 			for _, facility := range facilities {
-				parts := make(map[string]int)
+				parts := make(map[int]string)
 				for _, part := range facility.Parts {
-					parts[part.Name] = part.ID
+					parts[part.ID] = part.Name
 				}
 				facilityParts[facility.ID] = parts
 			}
 
 			if facilitySelect != nil {
-				facilitySelect.Options = getFacilityOptions(facilityNames)
+				facilitySelect.Options = facilityNames
 				facilitySelect.Refresh()
 			}
 		}
-
 	}
 
 	startDateEntry.OnChanged = func(string) { updateFacilities() }
 	endDateEntry.OnChanged = func(string) { updateFacilities() }
 
 	facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
-		fmt.Print(facilityParts)
 		selectedFacilityID = id
+		println(id)
 	}, nil)
 
 	vbox.Add(facilitySelect)
@@ -141,12 +137,4 @@ func handleCreateBooking(appData model.Booking, window fyne.Window, bookingServ 
 		dialog.ShowInformation("Бронирование создано", "Бронирование успешно создано!", window)
 		onUpdate()
 	}
-}
-
-func getFacilityOptions(facilityNames map[string]int) []string {
-	var options []string
-	for name := range facilityNames {
-		options = append(options, name)
-	}
-	return options
 }
