@@ -12,7 +12,7 @@ import (
 )
 
 func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Container) {
-	workType, err := s.workTypeServ.GetWorkTypes("", 0, "", true)
+	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -21,7 +21,7 @@ func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Cont
 	eventContainer.Objects = nil
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
-	for _, workType := range workType {
+	for _, workType := range workTypes {
 		card := s.createWorkTypeCard(workType, window, func() {
 			s.ShowWorkType(window, eventContainer)
 		})
@@ -33,7 +33,7 @@ func (s WorkTypePage) ShowWorkType(window fyne.Window, eventContainer *fyne.Cont
 }
 
 func (s WorkTypePage) createWorkTypeCard(workType model.WorkType, window fyne.Window, onUpdate func()) fyne.CanvasObject {
-	cardText := card(workType)
+	cardText, isActive := card(workType)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
@@ -41,12 +41,25 @@ func (s WorkTypePage) createWorkTypeCard(workType model.WorkType, window fyne.Wi
 		s.UpdateWorkType(workType.ID, workType.Name, window, onUpdate)
 	})
 
-	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.workTypeServ.DeleteRestoreWorkType(workType.ID, false)
+	var icon fyne.Resource
+	var dialogTitle, dialogMessage string
+
+	if isActive {
+		icon = theme.DeleteIcon()
+		dialogTitle = "Тип удален"
+		dialogMessage = "Тип успешно удален!"
+	} else {
+		icon = theme.ViewRefreshIcon()
+		dialogTitle = "Тип восстановлен"
+		dialogMessage = "Тип успешно восстановлен!"
+	}
+
+	deleteButton := widget.NewButtonWithIcon("", icon, func() {
+		err := s.workTypeServ.DeleteRestoreWorkType(workType.ID, !isActive)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Тип удален", "Тип успешно удален!", window)
+			dialog.ShowInformation(dialogTitle, dialogMessage, window)
 			onUpdate()
 		}
 	})
@@ -60,6 +73,6 @@ func (s WorkTypePage) createWorkTypeCard(workType model.WorkType, window fyne.Wi
 	return eventContainer
 }
 
-func card(workType model.WorkType) string {
-	return fmt.Sprintf("Тип: %s", workType.Name)
+func card(workType model.WorkType) (string, bool) {
+	return fmt.Sprintf("Тип: %s", workType.Name), workType.IsActive
 }

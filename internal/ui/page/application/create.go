@@ -23,7 +23,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 	dueDateEntry := component.EntryWidget("Дата выполнения (гггг-мм-дд)")
 
-	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "", true)
+	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

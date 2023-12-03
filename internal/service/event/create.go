@@ -2,7 +2,6 @@ package event
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/niumandzi/nto2023/internal/validations"
 	"github.com/niumandzi/nto2023/model"
 	"golang.org/x/net/context"
 )
@@ -13,7 +12,7 @@ func (s EventService) CreateEvent(event model.Event) (int, error) {
 
 	err := validation.ValidateStruct(&event,
 		validation.Field(&event.Name, validation.Required),
-		validation.Field(&event.Date, validation.Required, validation.By(validations.ValidateDate)),
+		validation.Field(&event.Date, validation.Required, validation.Date("2006-01-02")),
 		validation.Field(&event.DetailsID, validation.Required, validation.Min(1).Error("Не выбран тип мероприятия")),
 	)
 	if err != nil {

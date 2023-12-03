@@ -33,7 +33,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		},
 	)
 
-	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "", true)
+	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return

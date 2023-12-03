@@ -20,7 +20,7 @@ type DetailsService interface {
 
 type WorkTypeService interface {
 	CreateWorkType(name string) (int, error)
-	GetWorkTypes(categoryName string, facilityID int, status string, isActive bool) ([]model.WorkType, error)
+	GetWorkTypes(categoryName string, facilityID int, status string) ([]model.WorkType, error)
 	UpdateWorkType(workTypeId int, name string) error
 	DeleteRestoreWorkType(id int, isActive bool) error
 }

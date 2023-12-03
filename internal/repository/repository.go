@@ -22,7 +22,7 @@ type DetailsRepository interface {
 
 type WorkTypeRepository interface {
 	Create(ctx context.Context, name string) (int, error)
-	Get(ctx context.Context, categoryName string, facilityID int, status string, isActive bool) ([]model.WorkType, error)
+	Get(ctx context.Context, categoryName string, facilityID int, status string) ([]model.WorkType, error)
 	Update(ctx context.Context, idOld int, nameUpd string) error
 	Delete(ctx context.Context, workTypeID int, isActive bool) error
 }

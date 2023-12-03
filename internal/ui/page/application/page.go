@@ -55,7 +55,7 @@ func (s ApplicationPage) IndexApplication(categoryName string, status string, wi
 		nil,
 	)
 
-	workTypes, err := s.workTypeServ.GetWorkTypes(categoryName, selectedFacilityId, status, true)
+	workTypes, err := s.workTypeServ.GetWorkTypes(categoryName, selectedFacilityId, status)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}

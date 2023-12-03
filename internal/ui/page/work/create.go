@@ -27,7 +27,7 @@ func handleCreateWorkType(name string, window fyne.Window, workTypeServ service.
 	if err != nil {
 		dialog.ShowError(err, window)
 	} else {
-		dialog.ShowInformation("Тип создан", "Тип работ успешно создано!", window)
+		dialog.ShowInformation("Тип создан", "Тип работ успешно создан!", window)
 		onUpdate()
 	}
 }
