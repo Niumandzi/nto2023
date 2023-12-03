@@ -40,10 +40,36 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	startDateEntry := component.EntryWidget("Дата начала (гггг-мм-дд)")
 	endDateEntry := component.EntryWidget("Дата окончания (гггг-мм-дд)")
 
+	var customPopUp *widget.PopUp
+
+	saveButton := widget.NewButton("            Создать            ", func() {
+		var parts []int
+
+		formData := model.Booking{
+			CreateDate:  time.Now().Format("2006-02-01"),
+			Description: descriptionEntry.Text,
+			StartDate:   startDateEntry.Text,
+			EndDate:     endDateEntry.Text,
+			EventID:     selectedEventID,
+			FacilityID:  selectedFacilityID,
+			PartIDs:     parts,
+		}
+
+		handleCreateBooking(formData, window, s.bookingServ, onUpdate, customPopUp)
+	})
+
+	cancelButton := widget.NewButton("            Отмена            ", func() {
+		customPopUp.Hide()
+	})
+
+	buttons := container.NewHBox(saveButton, cancelButton)
+
 	vbox.Add(createDateLabel)
 	vbox.Add(descriptionEntry)
 	vbox.Add(startDateEntry)
 	vbox.Add(endDateEntry)
+
+	facilityNames = make(map[string]int)
 
 	updateFacilities := func() {
 		if startDateEntry.Text != "" && endDateEntry.Text != "" {
@@ -52,7 +78,6 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 				dialog.ShowError(err, window)
 			}
 
-			facilityNames = make(map[string]int)
 			for _, facility := range facilities {
 				partsDescription := ""
 				for _, part := range facility.Parts {
@@ -81,8 +106,17 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 
 			if facilitySelect != nil {
 				//facilitySelect.Options = facilityNames
-				facilitySelect.Refresh()
+				//facilitySelect.Refresh()
+				vbox.Remove(facilitySelect)
+				vbox.Remove(buttons)
+				facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
+					selectedFacilityID = id
+					println(id)
+				}, nil)
+				vbox.Add(facilitySelect)
+				vbox.Add(buttons)
 			}
+
 		}
 	}
 
@@ -96,29 +130,6 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 
 	vbox.Add(facilitySelect)
 
-	var customPopUp *widget.PopUp
-
-	saveButton := widget.NewButton("            Создать            ", func() {
-		var parts []int
-
-		formData := model.Booking{
-			CreateDate:  time.Now().Format("2006-02-01"),
-			Description: descriptionEntry.Text,
-			StartDate:   startDateEntry.Text,
-			EndDate:     endDateEntry.Text,
-			EventID:     selectedEventID,
-			FacilityID:  selectedFacilityID,
-			PartIDs:     parts,
-		}
-
-		handleCreateBooking(formData, window, s.bookingServ, onUpdate, customPopUp)
-	})
-
-	cancelButton := widget.NewButton("            Отмена            ", func() {
-		customPopUp.Hide()
-	})
-
-	buttons := container.NewHBox(saveButton, cancelButton)
 	vbox.Add(buttons)
 
 	customPopUp = widget.NewModalPopUp(vbox, window.Canvas())
