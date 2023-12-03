@@ -11,9 +11,9 @@ import (
 )
 
 func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Part, window fyne.Window, onUpdate func()) {
-	update := make(map[int]string)
-	var delete []int
-	var create []string
+	updateData := make(map[int]string)
+	var deleteData []int
+	var createData []string
 
 	vbox := container.NewVBox()
 	nameEntry := component.EntryWidget("Помещение")
@@ -30,11 +30,11 @@ func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Part, wi
 
 		partEntry.OnChanged = func(newText string) {
 			if newText != part.Name && newText != "" {
-				update[partID] = newText
+				updateData[partID] = newText
 				println(1)
 			} else {
 				println(2)
-				delete = append(delete, partID)
+				deleteData = append(deleteData, partID)
 			}
 		}
 
@@ -51,7 +51,7 @@ func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Part, wi
 
 	var customPopUp *widget.PopUp
 	saveButton := widget.NewButton("            Обновить            ", func() {
-		handleUpdateFacility(id, nameEntry.Text, update, delete, create, window, s.facilityServ, s.partServ, onUpdate, customPopUp)
+		handleUpdateFacility(id, nameEntry.Text, updateData, deleteData, createData, window, s.facilityServ, s.partServ, onUpdate, customPopUp)
 	})
 
 	cancelButton := widget.NewButton("            Отмена            ", func() {
@@ -76,6 +76,7 @@ func handleUpdateFacility(id int, name string, update map[int]string, delete []i
 	if len(delete) > 0 {
 		err = partServ.DeletePart(delete, false)
 	}
+
 	if len(create) > 0 {
 		_, err = partServ.CreatePart(id, create)
 	}

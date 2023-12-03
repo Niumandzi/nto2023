@@ -11,7 +11,7 @@ import (
 
 func (s EventPage) UpdateEvent(categoryName string, typeName string, event model.Event, window fyne.Window, onUpdate func()) {
 	nameEntry := component.EntryWithDataWidget("Название", event.Name)
-	dateEntry := component.EntryWithDataWidget("дд.мм.гггг", event.Date)
+	dateEntry := component.EntryWithDataWidget("гггг-мм-дд", event.Date)
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", event.Description)
 
 	details, err := s.detailsServ.GetDetails(categoryName, true)

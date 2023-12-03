@@ -13,7 +13,7 @@ import (
 func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Window, onUpdate func()) {
 	formData := model.Application{
 		Status:     "created",
-		CreateDate: time.Now().Format("02.01.2006"),
+		CreateDate: time.Now().Format("2006-01-02"),
 	}
 
 	statusLabel := widget.NewLabel("Черновик")
@@ -21,7 +21,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 	createDateLabel.Wrapping = fyne.TextWrapWord
 
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
-	dueDateEntry := component.EntryWidget("Дата выполнения (дд.мм.гггг)")
+	dueDateEntry := component.EntryWidget("Дата выполнения (гггг-мм-дд)")
 
 	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "", true)
 	if err != nil {

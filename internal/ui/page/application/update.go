@@ -14,7 +14,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 
 	descriptionEntry := component.EntryWithDataWidget("Описание", application.Description)
 	createDateLabel := widget.NewLabel(application.CreateDate)
-	dueDateEntry := component.EntryWithDataWidget("Дата выполнения (дд.мм.гггг)", application.DueDate)
+	dueDateEntry := component.EntryWithDataWidget("Дата выполнения (гггг-мм-дд)", application.DueDate)
 
 	switch application.Status {
 	case "created":

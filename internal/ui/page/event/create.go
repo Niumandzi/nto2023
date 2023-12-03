@@ -13,7 +13,7 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate
 	formData := model.Event{}
 
 	nameEntry := component.EntryWidget("Название")
-	dateEntry := component.EntryWidget("дд.мм.гггг")
+	dateEntry := component.EntryWidget("гггг-мм-дд")
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 
 	details, err := s.detailsServ.GetDetails(categoryName, true)

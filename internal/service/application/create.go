@@ -2,7 +2,6 @@ package application
 
 import (
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/niumandzi/nto2023/internal/validations"
 	"github.com/niumandzi/nto2023/model"
 	"golang.org/x/net/context"
 )
@@ -13,8 +12,8 @@ func (s ApplicationService) CreateApplication(application model.Application) (in
 
 	err := validation.ValidateStruct(&application,
 		validation.Field(&application.Description, validation.Required),
-		validation.Field(&application.CreateDate, validation.Required, validation.By(validations.ValidateDate)),
-		validation.Field(&application.DueDate, validation.Required, validation.By(validations.ValidateDate)),
+		validation.Field(&application.CreateDate, validation.Required, validation.Date("2006-01-02")),
+		validation.Field(&application.DueDate, validation.Required, validation.Date("2006-01-02")),
 		validation.Field(&application.Status, validation.Required, validation.In("created")),
 		validation.Field(&application.EventId, validation.Required, validation.Min(1).Error("Не выбрано мероприятие")),
 		validation.Field(&application.WorkTypeId, validation.Required, validation.Min(1).Error("Не выбрано помещение")),
