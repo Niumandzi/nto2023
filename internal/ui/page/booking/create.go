@@ -110,6 +110,10 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 				dialog.ShowError(err, window)
 			}
 
+			for key, _ := range facilityNames {
+				delete(facilityNames, key)
+			}
+
 			for _, facility := range facilities {
 				partsDescription := ""
 				for _, part := range facility.Parts {
@@ -118,7 +122,6 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 					}
 					partsDescription += part.Name
 				}
-
 				if facility.HaveParts && partsDescription != "" {
 					facilityNames[facility.Name+" Части: "+partsDescription] = facility.ID
 				} else {
