@@ -58,3 +58,10 @@ type PartRepository interface {
 	Update(ctx context.Context, update map[int]string) error
 	Delete(ctx context.Context, delete map[int]bool) error
 }
+
+// get parts - get partIds
+type BookingPartRepository interface {
+	Create(ctx context.Context, bookingId int, partId int) error
+	GetParts(ctx context.Context, bookingId int) ([]int, error)
+	Delete(ctx context.Context, bookingId int, partId int) error
+}

@@ -47,7 +47,7 @@ type ApplicationService interface {
 type BookingService interface {
 	CreateBooking(booking model.Booking) (int, error)
 	GetBookings(startDate string, endDate string, eventID int, categoryName string) ([]model.BookingWithFacility, error)
-	UpdateBooking(bookingUpd model.Booking) error
+	UpdateBooking(bookingUpd model.BookingWithFacility) error
 	DeleteBooking(bookingId int) error
 }
 
