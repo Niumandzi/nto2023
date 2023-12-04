@@ -202,7 +202,8 @@ func (f FacilityRepository) GetByDate(ctx context.Context, startDate string, end
 	LEFT JOIN booking b ON (bp.booking_id = b.id AND ((b.start_date <= $1 AND b.end_date >= $1) OR (b.start_date <= $2 AND b.end_date >= $2) OR (b.start_date >= $1 AND b.end_date <= $2)))
 	WHERE facility.is_active = TRUE
 	GROUP BY facility.id
-	HAVING (facility.have_parts = FALSE AND COUNT(DISTINCT b.id) = 0) OR (facility.have_parts = TRUE AND COUNT(DISTINCT CASE WHEN b.id IS NOT NULL THEN b.id END) < COUNT(DISTINCT part.id))
+	HAVING (facility.have_parts = FALSE AND COUNT(DISTINCT b.id) = 0) 
+    	OR (facility.have_parts = TRUE AND COUNT(DISTINCT part.id) > COUNT(DISTINCT CASE WHEN b.id IS NOT NULL THEN part.id END))
     `
 
 	rows, err := f.db.QueryContext(ctx, query, startDate, endDate)

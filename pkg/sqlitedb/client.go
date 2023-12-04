@@ -44,7 +44,7 @@ func CreateTables(db *sql.DB) error {
 
 		CREATE TABLE IF NOT EXISTS facility (
 			id INTEGER PRIMARY KEY,
-			name VARCHAR(255) NOT NULL,
+			name VARCHAR(255) NOT NULL UNIQUE,
 		    have_parts BOOLEAN NOT NULL,
 		    is_active BOOLEAN NOT NULL DEFAULT TRUE
 		);

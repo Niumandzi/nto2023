@@ -1,7 +1,6 @@
 package facility
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -38,7 +37,6 @@ func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Part, wi
 		partEntry := component.EntryWidget("Часть помещения")
 		partEntry.SetText(part.Name)
 		partEntry.Resize(fyne.NewSize(100, 36))
-		fmt.Printf("partEntry size: %v\n", partEntry.Size())
 
 		deleteButton := widget.NewButtonWithIcon("", nil, nil)
 		if isActive {

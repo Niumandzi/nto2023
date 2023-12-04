@@ -30,30 +30,30 @@ func (b BookingRepository) Create(ctx context.Context, booking model.Booking) (i
 		err := errors.New("no booking facilityID nor partIDs provided")
 		b.logger.Logger.Errorf("error %v", err.Error())
 		return 0, err
-	} else if len(booking.PartIDs) > 0 && booking.FacilityID != 0 {
-		err := errors.New("expected facilityID or partIDs got both instead")
-		b.logger.Logger.Errorf("error %v", err.Error())
-		return 0, err
 	}
+	//else if len(booking.PartIDs) > 0 && booking.FacilityID != 0 {
+	//	err := errors.New("expected facilityID or partIDs got both instead")
+	//	b.logger.Logger.Errorf("error %v", err.Error())
+	//	return 0, err
+	//}
 
 	tx, err := b.db.BeginTx(ctx, nil)
 	if err != nil {
-		b.logger.Logger.Errorf("error %v", err.Error())
+		b.logger.Logger.Error("error ", err.Error())
 		tx.Rollback()
 		return 0, err
 	}
 
+	res, err := tx.ExecContext(ctx, `INSERT INTO booking (description, create_date, start_date, end_date, event_id, facility_id) 
+												VALUES ($1, $2, $3, $4, $5, $6);`, booking.Description, booking.CreateDate, booking.StartDate, booking.EndDate, booking.EventID, booking.FacilityID)
+	if err != nil {
+		b.logger.Error("error: ", err.Error())
+		tx.Rollback()
+		return 0, err
+	}
+
+	bookingId, err = res.LastInsertId()
 	if len(booking.PartIDs) > 0 {
-		res, err := tx.ExecContext(ctx, `INSERT INTO booking (description, create_date, start_date, end_date, event_id, facility_id) 
-												VALUES ($1, $2, $3, $4, $5, $6);`, booking.Description, booking.CreateDate, booking.StartDate, booking.EndDate, booking.EventID, 0)
-		if err != nil {
-			b.logger.Errorf("error: %v", err.Error())
-			tx.Rollback()
-			return 0, err
-		}
-
-		bookingId, err := res.LastInsertId()
-
 		if err != nil {
 			b.logger.Errorf("error: %v", err.Error())
 			tx.Rollback()
@@ -67,23 +67,8 @@ func (b BookingRepository) Create(ctx context.Context, booking model.Booking) (i
 				return 0, err
 			}
 		}
-	} else {
-		res, err := tx.ExecContext(ctx, `INSERT INTO booking (description, create_date, start_date, end_date, event_id, facility_id) 
-												VALUES ($1, $2, $3, $4, $5, $6);`, booking.Description, booking.CreateDate, booking.StartDate, booking.EndDate, booking.EventID, booking.FacilityID)
-		if err != nil {
-			b.logger.Errorf("error: %v", err.Error())
-			tx.Rollback()
-			return 0, err
-		}
-
-		bookingId, err = res.LastInsertId()
-
-		if err != nil {
-			b.logger.Errorf("error: %v", err.Error())
-			tx.Rollback()
-			return 0, err
-		}
 	}
+
 	err = tx.Commit()
 	if err != nil {
 		b.logger.Errorf("error: %v", err.Error())

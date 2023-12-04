@@ -40,10 +40,42 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	startDateEntry := component.EntryWidget("Дата начала (гггг-мм-дд)")
 	endDateEntry := component.EntryWidget("Дата окончания (гггг-мм-дд)")
 
+	var selectedParts []int
+
+	var partsBox *fyne.Container
+	partsBox = container.NewVBox()
+	vbox.Add(partsBox)
+
+	updateParts := func() {
+		newPartsBox := container.NewVBox()
+		for partID, partName := range facilityParts[selectedFacilityID] {
+			localPartID := partID
+			checkBox := widget.NewCheck(partName, func(checked bool) {
+				if checked {
+					if !contains(selectedParts, localPartID) {
+						selectedParts = append(selectedParts, localPartID)
+					}
+				} else {
+					for i, id := range selectedParts {
+						if id == localPartID {
+							selectedParts = append(selectedParts[:i], selectedParts[i+1:]...)
+							break
+						}
+					}
+				}
+			})
+			newPartsBox.Add(checkBox)
+		}
+
+		vbox.Remove(partsBox)
+		vbox.Add(newPartsBox)
+		partsBox = newPartsBox
+		window.Canvas().Refresh(vbox)
+	}
+
 	var customPopUp *widget.PopUp
 
 	saveButton := widget.NewButton("            Создать            ", func() {
-		var parts []int
 
 		formData := model.Booking{
 			CreateDate:  time.Now().Format("2006-02-01"),
@@ -52,7 +84,7 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 			EndDate:     endDateEntry.Text,
 			EventID:     selectedEventID,
 			FacilityID:  selectedFacilityID,
-			PartIDs:     parts,
+			PartIDs:     selectedParts,
 		}
 
 		handleCreateBooking(formData, window, s.bookingServ, onUpdate, customPopUp)
@@ -84,7 +116,6 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 					if partsDescription != "" {
 						partsDescription += ", "
 					}
-
 					partsDescription += part.Name
 				}
 
@@ -105,13 +136,11 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 			}
 
 			if facilitySelect != nil {
-				//facilitySelect.Options = facilityNames
-				//facilitySelect.Refresh()
 				vbox.Remove(facilitySelect)
 				vbox.Remove(buttons)
 				facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
 					selectedFacilityID = id
-					println(id)
+					updateParts()
 				}, nil)
 				vbox.Add(facilitySelect)
 				vbox.Add(buttons)
@@ -125,7 +154,7 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 
 	facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
 		selectedFacilityID = id
-		println(id)
+		updateParts()
 	}, nil)
 
 	vbox.Add(facilitySelect)
@@ -137,7 +166,17 @@ func (s BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	customPopUp.Show()
 }
 
+func contains(slice []int, item int) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}
+
 func handleCreateBooking(appData model.Booking, window fyne.Window, bookingServ service.BookingService, onUpdate func(), popUp *widget.PopUp) {
+
 	_, err := bookingServ.CreateBooking(appData)
 
 	popUp.Hide()
