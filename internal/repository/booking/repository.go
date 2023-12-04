@@ -27,15 +27,10 @@ func (b BookingRepository) Create(ctx context.Context, booking model.Booking) (i
 	var bookingId int64
 
 	if len(booking.PartIDs) == 0 && booking.FacilityID == 0 {
-		err := errors.New("no booking facilityID nor partIDs provided")
+		err := errors.New("no booking facilityID no partIDs provided")
 		b.logger.Logger.Errorf("error %v", err.Error())
 		return 0, err
 	}
-	//else if len(booking.PartIDs) > 0 && booking.FacilityID != 0 {
-	//	err := errors.New("expected facilityID or partIDs got both instead")
-	//	b.logger.Logger.Errorf("error %v", err.Error())
-	//	return 0, err
-	//}
 
 	tx, err := b.db.BeginTx(ctx, nil)
 	if err != nil {

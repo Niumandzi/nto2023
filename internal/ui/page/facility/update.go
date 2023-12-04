@@ -19,8 +19,7 @@ func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Part, wi
 	deleteData := make(map[int]bool)
 
 	vbox := container.NewVBox()
-	nameEntry := component.EntryWidget("Помещение")
-	nameEntry.SetText(name)
+	nameEntry := component.EntryWidgetWithData("Помещение", name)
 	vbox.Add(nameEntry)
 
 	partsVBox := container.NewVBox()
@@ -34,8 +33,7 @@ func (s FacilityPage) UpdateFacility(id int, name string, parts []model.Part, wi
 		partID := part.ID
 		isActive := part.IsActive
 
-		partEntry := component.EntryWidget("Часть помещения")
-		partEntry.SetText(part.Name)
+		partEntry := component.EntryWidgetWithData("Часть помещения", part.Name)
 		partEntry.Resize(fyne.NewSize(100, 36))
 
 		deleteButton := widget.NewButtonWithIcon("", nil, nil)

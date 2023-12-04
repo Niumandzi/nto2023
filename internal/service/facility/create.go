@@ -10,14 +10,12 @@ func (s FacilityService) CreateFacility(name string, parts []string) (int, error
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 	defer cancel()
 
-	// Валидация основного поля 'name'
 	err := validation.Validate(name, validation.Required)
 	if err != nil {
 		s.logger.Error("error: %v", err)
 		return 0, err
 	}
 
-	// Валидация дополнительных полей 'parts'
 	for _, part := range parts {
 		err = validation.Validate(part, validation.Required)
 		if err != nil {

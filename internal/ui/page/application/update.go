@@ -12,9 +12,9 @@ import (
 func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName string, facilityName string, eventName string, application model.Application, window fyne.Window, onUpdate func()) {
 	var status string
 
-	descriptionEntry := component.EntryWithDataWidget("Описание", application.Description)
+	descriptionEntry := component.EntryWidgetWithData("Описание", application.Description)
 	createDateLabel := widget.NewLabel(application.CreateDate)
-	dueDateEntry := component.EntryWithDataWidget("Дата выполнения (гггг-мм-дд)", application.DueDate)
+	dueDateEntry := component.EntryWidgetWithData("Дата выполнения (гггг-мм-дд)", application.DueDate)
 
 	switch application.Status {
 	case "created":

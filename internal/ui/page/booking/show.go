@@ -39,17 +39,18 @@ func (s BookingPage) createBookingCard(booking model.BookingWithFacility, catego
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		//bookingToUpdate := model.Booking{
-		//	ID:          booking.ID,
-		//	Description: booking.Description,
-		//	CreateDate:  booking.CreateDate,
-		//	StartDate:   booking.StartDate,
-		//	EndDate:     booking.EndDate,
-		//	EventID:     booking.Event.ID,
-		//	FacilityID:  booking.Facility.ID,
-		//	//PartIDs:     booking.,
-		//}
-		//s.UpdateBooking(booking.Details.Category, booking.Details.TypeName, bookingToUpdate, window, onUpdate)
+		bookingToUpdate := model.BookingWithFacility{
+			ID:          booking.ID,
+			Description: booking.Description,
+			CreateDate:  booking.CreateDate,
+			StartDate:   booking.StartDate,
+			EndDate:     booking.EndDate,
+			Event:       booking.Event,
+			Facility:    booking.Facility,
+			Parts:       booking.Parts,
+		}
+		fmt.Print(bookingToUpdate)
+		s.UpdateBooking(categoryName, bookingToUpdate, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {

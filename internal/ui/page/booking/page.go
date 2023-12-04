@@ -25,13 +25,13 @@ func NewBookingPage(book service.BookingService, event service.EventService, fac
 	}
 }
 
-func (s BookingPage) IndexBooking(categoryName string, window fyne.Window) fyne.CanvasObject {
+func (b BookingPage) IndexBooking(categoryName string, window fyne.Window) fyne.CanvasObject {
 	bookingContainer := container.NewStack()
 	bookingList := func(startDate string, endDate string, eventID int, categoryName string) {
-		s.ShowBooking(startDate, endDate, eventID, categoryName, window, bookingContainer)
+		b.ShowBooking(startDate, endDate, eventID, categoryName, window, bookingContainer)
 	}
 
-	//details, err := s.detailsServ.GetDetails(categoryName, true)
+	//details, err := b.detailsServ.GetDetails(categoryName, true)
 	//if err != nil {
 	//	dialog.ShowError(err, window)
 	//}
@@ -48,7 +48,7 @@ func (s BookingPage) IndexBooking(categoryName string, window fyne.Window) fyne.
 	)
 
 	createBookingButton := widget.NewButton("Создать бронь", func() {
-		s.CreateBooking(categoryName, window, func() {
+		b.CreateBooking(categoryName, window, func() {
 			bookingList("", "", 0, categoryName)
 		})
 	})
@@ -59,4 +59,13 @@ func (s BookingPage) IndexBooking(categoryName string, window fyne.Window) fyne.
 	bookingList("", "", 0, categoryName)
 
 	return content
+}
+
+func contains(slice []int, item int) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
 }

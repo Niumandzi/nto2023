@@ -10,8 +10,8 @@ import (
 )
 
 func (s EventPage) UpdateEvent(categoryName string, typeName string, event model.Event, window fyne.Window, onUpdate func()) {
-	nameEntry := component.EntryWithDataWidget("Название", event.Name)
-	dateEntry := component.EntryWithDataWidget("гггг-мм-дд", event.Date)
+	nameEntry := component.EntryWidgetWithData("Название", event.Name)
+	dateEntry := component.EntryWidgetWithData("гггг-мм-дд", event.Date)
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", event.Description)
 
 	details, err := s.detailsServ.GetActiveDetails(categoryName)
@@ -26,9 +26,7 @@ func (s EventPage) UpdateEvent(categoryName string, typeName string, event model
 
 	detailsSelect := component.SelectorWidget(typeName, typeNames, func(id int) {
 		event.DetailsID = id
-	},
-		nil,
-	)
+	}, nil)
 
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("", detailsSelect),

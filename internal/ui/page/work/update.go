@@ -10,7 +10,7 @@ import (
 
 func (s WorkTypePage) UpdateWorkType(id int, name string, window fyne.Window, onUpdate func()) {
 
-	nameEntry := component.EntryWithDataWidget("Тип работы", name)
+	nameEntry := component.EntryWidgetWithData("Тип работы", name)
 
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("", nameEntry),

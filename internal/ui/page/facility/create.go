@@ -64,7 +64,6 @@ func (s FacilityPage) CreateFacility(window fyne.Window, onUpdate func()) {
 func handleCreateFacility(name string, parts []string, window fyne.Window, facilityServ service.FacilityService, onUpdate func(), popUp *widget.PopUp) {
 	_, err := facilityServ.CreateFacility(name, parts)
 
-	// Сначала закрываем всплывающее окно
 	popUp.Hide()
 
 	if err != nil {

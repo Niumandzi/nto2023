@@ -12,7 +12,6 @@ func (s BookingService) CreateBooking(booking model.Booking) (int, error) {
 	defer cancel()
 
 	err := validation.ValidateStruct(&booking,
-		validation.Field(&booking.Description, validation.Required),
 		validation.Field(&booking.CreateDate, validation.Required, validation.Date("2006-01-02")),
 		validation.Field(&booking.StartDate, validation.Required, validation.Date("2006-01-02")),
 		validation.Field(&booking.EndDate, validation.Required, validation.Date("2006-01-02")),
