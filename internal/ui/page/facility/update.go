@@ -123,11 +123,10 @@ func handleUpdateFacility(id int, name string, update map[int]string, delete map
 		_, err = partServ.CreatePart(id, create)
 	}
 
-	popUp.Hide()
-
 	if err != nil {
 		dialog.ShowError(err, window)
 	} else {
+		popUp.Hide()
 		dialog.ShowInformation("Помещение обновлено", "Помещение успешно обновлено!", window)
 		onUpdate()
 	}

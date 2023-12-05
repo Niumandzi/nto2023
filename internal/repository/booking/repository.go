@@ -39,8 +39,8 @@ func (b BookingRepository) Create(ctx context.Context, booking model.Booking) (i
 		return 0, err
 	}
 
-	res, err := tx.ExecContext(ctx, `INSERT INTO booking (description, create_date, start_date, end_date, event_id, facility_id) 
-												VALUES ($1, $2, $3, $4, $5, $6);`, booking.Description, booking.CreateDate, booking.StartDate, booking.EndDate, booking.EventID, booking.FacilityID)
+	res, err := tx.ExecContext(ctx, `INSERT INTO booking (description, create_date, start_date, start_time, end_date, end_time, event_id, facility_id) 
+												VALUES ($1, $2, $3, $4, $5, $6, $7, $8);`, booking.Description, booking.CreateDate, booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.EventID, booking.FacilityID)
 	if err != nil {
 		b.logger.Error("error: ", err.Error())
 		tx.Rollback()
@@ -82,7 +82,9 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
                 booking.description, 
                 booking.create_date, 
                 booking.start_date, 
+                booking.start_time,
                 booking.end_date,
+                booking.end_time,
                 booking.facility_id,
                 facility.name, 
                 facility.have_parts,
@@ -143,7 +145,9 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
 			&booking.Description,
 			&booking.CreateDate,
 			&booking.StartDate,
+			&booking.StartTime,
 			&booking.EndDate,
+			&booking.EndTime,
 			&booking.Facility.ID,
 			&booking.Facility.Name,
 			&booking.Facility.HaveParts,
@@ -196,12 +200,14 @@ func (b BookingRepository) Update(ctx context.Context, bookingUpd model.Booking)
 												description = ?,
 												create_date = ?,
 												start_date = ?,
+												start_time = ?,
 												end_date = ?,
+												start_time = ?,
 												event_id = ?,
 												facility_id = ?
 											WHERE
-											    id = ?`, bookingUpd.Description, bookingUpd.CreateDate,
-		bookingUpd.EndDate, bookingUpd.EventID, bookingUpd.FacilityID,
+											    id = ?`, bookingUpd.Description, bookingUpd.CreateDate, bookingUpd.StartDate, bookingUpd.StartTime,
+		bookingUpd.EndDate, bookingUpd.EndTime, bookingUpd.EventID, bookingUpd.FacilityID,
 		bookingUpd.ID)
 	rowCount, err := res.RowsAffected()
 	if err != nil {

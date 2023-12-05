@@ -22,7 +22,7 @@ func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Win
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
 	for _, event := range events {
-		card := s.createEventCard(event, window, func() {
+		card := s.createEventCard(categoryName, event, window, func() {
 			s.ShowEvent(categoryName, detailsID, window, eventContainer)
 		})
 		grid.Add(card)
@@ -32,7 +32,7 @@ func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Win
 	eventContainer.Refresh()
 }
 
-func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+func (s EventPage) createEventCard(categoryName string, event model.EventWithDetails, window fyne.Window, onUpdate func()) fyne.CanvasObject {
 	cardText, isActive := card(event)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
@@ -72,7 +72,7 @@ func (s EventPage) createEventCard(event model.EventWithDetails, window fyne.Win
 	})
 
 	bookingButton := widget.NewButtonWithIcon("", theme.FileIcon(), func() {
-
+		s.CreateBooking(event.ID, event.Name, categoryName, window, onUpdate)
 	})
 
 	deleteButton.Importance = widget.LowImportance

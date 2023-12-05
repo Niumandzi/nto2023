@@ -7,6 +7,7 @@ import (
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/internal/ui/component"
 	"github.com/niumandzi/nto2023/pkg/logging"
+	"time"
 )
 
 type BookingPage struct {
@@ -68,4 +69,13 @@ func contains(slice []int, item int) bool {
 		}
 	}
 	return false
+}
+func validateDate(dateStr string) bool {
+	_, err := time.Parse("2006-01-02", dateStr)
+	return err == nil
+}
+
+func validateTime(timeStr string) bool {
+	_, err := time.Parse("15:04", timeStr)
+	return err == nil
 }

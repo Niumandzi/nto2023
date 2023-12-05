@@ -8,7 +8,6 @@ import (
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/internal/ui/component"
 	"github.com/niumandzi/nto2023/model"
-	"time"
 )
 
 func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWithFacility, window fyne.Window, onUpdate func()) {
@@ -19,6 +18,26 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	var facilityNames map[string]int
 	var facilityParts map[int]map[int]string
 	var facilitySelect *widget.Select
+	var partsBox *fyne.Container
+	var customPopUp *widget.PopUp
+	var selectedParts []int
+
+	facilities, err := b.facilityServ.GetFacilitiesByDate(booking.StartDate, "", booking.EndDate, "")
+	if err != nil {
+		dialog.ShowError(err, window)
+		return
+	}
+
+	facilityNames = make(map[string]int)
+	facilityParts = make(map[int]map[int]string)
+	for _, facility := range facilities {
+		facilityNames[facility.Name] = facility.ID
+		partMap := make(map[int]string)
+		for _, part := range facility.Parts {
+			partMap[part.ID] = part.Name
+		}
+		facilityParts[facility.ID] = partMap
+	}
 
 	events, err := b.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
@@ -38,15 +57,14 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	createDateLabel := widget.NewLabel(booking.CreateDate)
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", booking.Description)
 	startDateEntry := component.EntryWidgetWithData("Дата начала (гггг-мм-дд)", booking.StartDate)
+	startTimeEntry := component.EntryWidgetWithData("Время начала (чч:мм)", booking.StartTime)
 	endDateEntry := component.EntryWidgetWithData("Дата окончания (гггг-мм-дд)", booking.EndDate)
+	endTimeEntry := component.EntryWidgetWithData("Время начала (чч:мм)", booking.EndTime)
 
-	var selectedParts []int
+	selectedFacilityID = booking.Facility.ID
 
-	var partsBox *fyne.Container
 	partsBox = container.NewVBox()
 	vbox.Add(partsBox)
-
-	var customPopUp *widget.PopUp
 
 	saveButton := widget.NewButton("            Создать            ", func() {
 
@@ -55,7 +73,9 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 			CreateDate:  booking.CreateDate,
 			Description: descriptionEntry.Text,
 			StartDate:   startDateEntry.Text,
+			StartTime:   startTimeEntry.Text,
 			EndDate:     endDateEntry.Text,
+			EndTime:     endTimeEntry.Text,
 			EventID:     selectedEventID,
 			FacilityID:  selectedFacilityID,
 			PartIDs:     selectedParts,
@@ -101,17 +121,14 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	vbox.Add(createDateLabel)
 	vbox.Add(descriptionEntry)
 	vbox.Add(startDateEntry)
+	vbox.Add(startTimeEntry)
 	vbox.Add(endDateEntry)
-
-	isValidDate := func(dateStr string) bool {
-		_, err = time.Parse("2006-01-02", dateStr)
-		return err == nil
-	}
+	vbox.Add(endTimeEntry)
 
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
-		if isValidDate(startDateEntry.Text) && isValidDate(endDateEntry.Text) {
-			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, endDateEntry.Text)
+		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
+			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}
@@ -135,7 +152,6 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 				}
 			}
 
-			facilityParts = make(map[int]map[int]string)
 			for _, facility := range facilities {
 				parts := make(map[int]string)
 				for _, part := range facility.Parts {
@@ -158,8 +174,12 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 		}
 	}
 
+	updateFacilities()
+
 	startDateEntry.OnChanged = func(string) { updateFacilities() }
+	startTimeEntry.OnChanged = func(string) { updateFacilities() }
 	endDateEntry.OnChanged = func(string) { updateFacilities() }
+	endTimeEntry.OnChanged = func(string) { updateFacilities() }
 
 	facilitySelect = component.SelectorWidget(booking.Facility.Name, facilityNames, func(id int) {
 		selectedFacilityID = id

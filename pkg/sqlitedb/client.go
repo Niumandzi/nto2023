@@ -20,7 +20,7 @@ func CreateTables(db *sql.DB) error {
 		PRAGMA foreign_keys = ON;
         CREATE TABLE IF NOT EXISTS details (
 			id INTEGER PRIMARY KEY,
-			type_name VARCHAR(255) NOT NULL,
+			type_name VARCHAR(255) NOT NULL UNIQUE,
 			category TEXT NOT NULL CHECK (category IN ('entertainment', 'enlightenment', 'education')),
 			is_active BOOLEAN NOT NULL DEFAULT TRUE,
 		    UNIQUE(type_name, category)
@@ -28,7 +28,7 @@ func CreateTables(db *sql.DB) error {
 	
 		CREATE TABLE IF NOT EXISTS events (
 		  	id INTEGER PRIMARY KEY,
-		  	name VARCHAR(255) NOT NULL,
+		  	name VARCHAR(255) NOT NULL UNIQUE,
 		  	description TEXT,
 		  	date TEXT NOT NULL,
 		  	details_id INT NOT NULL,
@@ -38,7 +38,7 @@ func CreateTables(db *sql.DB) error {
 
 		CREATE TABLE IF NOT EXISTS work_type (
 			id INTEGER PRIMARY KEY,
-			name VARCHAR(255) NOT NULL,
+			name VARCHAR(255) NOT NULL UNIQUE,
 			is_active BOOLEAN NOT NULL DEFAULT TRUE        
 		);
 
@@ -76,7 +76,9 @@ func CreateTables(db *sql.DB) error {
 			description TEXT NOT NULL,
 			create_date TEXT NOT NULL,
 			start_date TEXT NOT NULL,
+			start_time TEXT NOT NULL,
 			end_date TEXT NOT NULL,
+			end_time TEXT NOT NULL,
 			event_id INT NOT NULL,
 			facility_id INT, 
 			FOREIGN KEY (facility_id) REFERENCES facility(id)

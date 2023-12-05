@@ -2,7 +2,6 @@ package booking
 
 import (
 	"context"
-	"fmt"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/niumandzi/nto2023/model"
 )
@@ -14,7 +13,9 @@ func (s BookingService) CreateBooking(booking model.Booking) (int, error) {
 	err := validation.ValidateStruct(&booking,
 		validation.Field(&booking.CreateDate, validation.Required, validation.Date("2006-01-02")),
 		validation.Field(&booking.StartDate, validation.Required, validation.Date("2006-01-02")),
+		validation.Field(&booking.StartTime, validation.Required),
 		validation.Field(&booking.EndDate, validation.Required, validation.Date("2006-01-02")),
+		validation.Field(&booking.EndTime, validation.Required),
 		validation.Field(&booking.EventID, validation.Required),
 		validation.Field(&booking.FacilityID, validation.Required),
 	)
@@ -27,12 +28,13 @@ func (s BookingService) CreateBooking(booking model.Booking) (int, error) {
 		Description: booking.Description,
 		CreateDate:  booking.CreateDate,
 		StartDate:   booking.StartDate,
+		StartTime:   booking.StartTime,
 		EndDate:     booking.EndDate,
+		EndTime:     booking.EndTime,
 		EventID:     booking.EventID,
 		FacilityID:  booking.FacilityID,
 		PartIDs:     booking.PartIDs,
 	}
-	fmt.Print(bookingDB.PartIDs)
 
 	id, err := s.bookingRepo.Create(ctx, bookingDB)
 	if err != nil {

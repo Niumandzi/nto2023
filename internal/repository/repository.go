@@ -34,7 +34,7 @@ type FacilityRepository interface {
 	Create(ctx context.Context, name string, parts []string) (int, error)
 	Get(ctx context.Context) ([]model.FacilityWithParts, error)
 	GetActive(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
-	GetByDate(ctx context.Context, startDate string, endDate string) ([]model.FacilityWithParts, error)
+	GetByDate(ctx context.Context, startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error)
 	Update(ctx context.Context, idOld int, nameUpd string) error
 	Delete(ctx context.Context, facilityID int, isActive bool) error
 }

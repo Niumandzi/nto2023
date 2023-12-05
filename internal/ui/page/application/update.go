@@ -30,8 +30,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		nil,
 		func(selectedStatus string) {
 			application.Status = selectedStatus
-		},
-	)
+		})
 
 	workTypes, err := s.workTypeServ.GetActiveWorkTypes("", 0, "")
 	if err != nil {
@@ -44,12 +43,9 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		workNames[work.Name] = work.ID
 	}
 
-	workSelect := component.SelectorWidget(workTypeName, workNames,
-		func(id int) {
-			application.WorkTypeId = id
-		},
-		nil,
-	)
+	workSelect := component.SelectorWidget(workTypeName, workNames, func(id int) {
+		application.WorkTypeId = id
+	}, nil)
 
 	facilities, err := s.facilityServ.GetActiveFacilities("", 0, "")
 	if err != nil {

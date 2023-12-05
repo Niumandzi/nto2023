@@ -49,7 +49,6 @@ func (s BookingPage) createBookingCard(booking model.BookingWithFacility, catego
 			Facility:    booking.Facility,
 			Parts:       booking.Parts,
 		}
-		fmt.Print(bookingToUpdate)
 		s.UpdateBooking(categoryName, bookingToUpdate, window, onUpdate)
 	})
 

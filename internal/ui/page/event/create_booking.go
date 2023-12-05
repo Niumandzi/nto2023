@@ -1,4 +1,4 @@
-package booking
+package event
 
 import (
 	"fyne.io/fyne/v2"
@@ -11,10 +11,9 @@ import (
 	"time"
 )
 
-func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUpdate func()) {
+func (b EventPage) CreateBooking(selectedEventID int, eventName string, categoryName string, window fyne.Window, onUpdate func()) {
 	vbox := container.NewVBox()
 
-	var selectedEventID int
 	var selectedFacilityID int
 	var facilityNames map[string]int
 	var facilityParts map[int]map[int]string
@@ -30,9 +29,7 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 		eventNames[event.Name] = event.ID
 	}
 
-	eventSelect := component.SelectorWidget("Мероприятие", eventNames, func(id int) {
-		selectedEventID = id
-	}, nil)
+	eventSelect := widget.NewLabel(eventName)
 	vbox.Add(eventSelect)
 
 	createDateLabel := widget.NewLabel(time.Now().Format("2006-02-01"))
@@ -110,7 +107,7 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
-		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
+		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(endDateEntry.Text) && validateTime(endTimeEntry.Text) {
 			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
 			if err != nil {
 				dialog.ShowError(err, window)
@@ -162,7 +159,6 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	startTimeEntry.OnChanged = func(string) { updateFacilities() }
 	endDateEntry.OnChanged = func(string) { updateFacilities() }
 	endTimeEntry.OnChanged = func(string) { updateFacilities() }
-
 	facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
 		selectedFacilityID = id
 		updateParts()
@@ -181,10 +177,11 @@ func handleCreateBooking(appData model.Booking, window fyne.Window, bookingServ 
 
 	_, err := bookingServ.CreateBooking(appData)
 
+	popUp.Hide()
+
 	if err != nil {
 		dialog.ShowError(err, window)
 	} else {
-		popUp.Hide()
 		dialog.ShowInformation("Бронирование создано", "Бронирование успешно создано!", window)
 		onUpdate()
 	}
