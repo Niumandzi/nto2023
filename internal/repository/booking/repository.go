@@ -202,7 +202,7 @@ func (b BookingRepository) Update(ctx context.Context, bookingUpd model.Booking)
 												start_date = ?,
 												start_time = ?,
 												end_date = ?,
-												start_time = ?,
+												end_time = ?,
 												event_id = ?,
 												facility_id = ?
 											WHERE
@@ -215,6 +215,7 @@ func (b BookingRepository) Update(ctx context.Context, bookingUpd model.Booking)
 		tx.Rollback()
 		return err
 	}
+
 	if rowCount != 1 {
 		err = errcode.NewRowCountError("booking repo update", int(rowCount))
 		b.logger.Errorf("error: %v", err.Error())
@@ -222,24 +223,30 @@ func (b BookingRepository) Update(ctx context.Context, bookingUpd model.Booking)
 		return err
 	}
 
-	for _, bookingPartID := range bookingUpd.PartIDs {
-		res, err = tx.ExecContext(ctx, `UPDATE 
-    											booking_part
-											SET
-											    part_id = ?
-											WHERE booking_id = ?`, bookingPartID, bookingUpd.ID)
+	_, err = tx.ExecContext(ctx, `DELETE FROM booking_part WHERE booking_id = ?`, bookingUpd.ID)
+	if err != nil {
+		b.logger.Errorf("error: %v", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	for _, partID := range bookingUpd.PartIDs {
+		_, err = tx.ExecContext(ctx, `INSERT INTO booking_part (booking_id, part_id) VALUES (?, ?)`, bookingUpd.ID, partID)
 		if err != nil {
 			b.logger.Errorf("error: %v", err.Error())
+			tx.Rollback()
 			return err
 		}
 	}
 
+	// Commit the transaction
 	err = tx.Commit()
 	if err != nil {
 		b.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err
 	}
+
 	return nil
 }
 

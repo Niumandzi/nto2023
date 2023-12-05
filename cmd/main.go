@@ -8,7 +8,6 @@ import (
 
 	applicationRepository "github.com/niumandzi/nto2023/internal/repository/application"
 	bookingRepository "github.com/niumandzi/nto2023/internal/repository/booking"
-	bookingPartRepository "github.com/niumandzi/nto2023/internal/repository/booking_part"
 	detailsRepository "github.com/niumandzi/nto2023/internal/repository/details"
 	eventRepository "github.com/niumandzi/nto2023/internal/repository/event"
 	facilityRepository "github.com/niumandzi/nto2023/internal/repository/facility"
@@ -77,7 +76,6 @@ func main() {
 	workTypeRepo := workTypeRepository.NewWorkTypeRepository(db, logger)
 	applicationRepo := applicationRepository.NewApplicationRepository(db, logger)
 	bookingRepo := bookingRepository.NewBookingRepository(db, logger)
-	bookingPartRepo := bookingPartRepository.NewBookingPartRepository(db, logger)
 	partRepo := partRepository.NewPartRepository(db, logger)
 
 	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
@@ -85,7 +83,7 @@ func main() {
 	facilityServ := facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
 	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 	applicationServ := applicationService.NewApplicationService(applicationRepo, timeoutContext, logger, ctx)
-	bookingServ := bookingService.NewBookingService(bookingRepo, bookingPartRepo, timeoutContext, logger, ctx)
+	bookingServ := bookingService.NewBookingService(bookingRepo, timeoutContext, logger, ctx)
 	partServ := partService.NewPartService(partRepo, timeoutContext, logger, ctx)
 
 	event := eventPage.NewEventPage(facilityServ, bookingServ, eventServ, detailsServ, logger)

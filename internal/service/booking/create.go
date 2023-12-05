@@ -31,7 +31,7 @@ func (s BookingService) CreateBooking(booking model.Booking) (int, error) {
 
 	if start.After(end) {
 		err := errors.New("start date and time must be earlier than or equal to end date and time")
-		s.logger.Error("Date and time range error: %v", err)
+		s.logger.Error("Date and time range error: ", err)
 		return 0, err
 	}
 

@@ -8,19 +8,17 @@ import (
 )
 
 type BookingService struct {
-	bookingRepo     repository.BookingRepository
-	bookingPartRepo repository.BookingPartRepository
-	contextTimeout  time.Duration
-	logger          logging.Logger
-	ctx             context.Context
+	bookingRepo    repository.BookingRepository
+	contextTimeout time.Duration
+	logger         logging.Logger
+	ctx            context.Context
 }
 
-func NewBookingService(book repository.BookingRepository, bookPart repository.BookingPartRepository, timeout time.Duration, logger logging.Logger, ctx context.Context) BookingService {
+func NewBookingService(book repository.BookingRepository, timeout time.Duration, logger logging.Logger, ctx context.Context) BookingService {
 	return BookingService{
-		bookingRepo:     book,
-		bookingPartRepo: bookPart,
-		contextTimeout:  timeout,
-		logger:          logger,
-		ctx:             ctx,
+		bookingRepo:    book,
+		contextTimeout: timeout,
+		logger:         logger,
+		ctx:            ctx,
 	}
 }

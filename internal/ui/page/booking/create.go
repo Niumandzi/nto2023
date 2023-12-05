@@ -1,6 +1,7 @@
 package booking
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -51,6 +52,9 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	var customPopUp *widget.PopUp
 
 	saveButton := widget.NewButton("            Создать            ", func() {
+		if facilityParts[selectedFacilityID] != nil && len(facilityParts[selectedFacilityID]) > 0 && len(selectedParts) == 0 {
+			dialog.ShowError(fmt.Errorf("для выбранного помещения необходимо выбрать хотя бы одну часть"), window)
+		}
 
 		formData := model.Booking{
 			CreateDate:  time.Now().Format("2006-02-01"),
@@ -64,7 +68,13 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 			PartIDs:     selectedParts,
 		}
 
-		handleCreateBooking(formData, window, b.bookingServ, onUpdate, customPopUp)
+		if len(selectedParts) < len(facilityParts[selectedFacilityID]) {
+			infoDialog := dialog.NewCustom("Частичное бронирование", "OK", widget.NewLabel("Зал будет забронирован частично, так как не все доступные части выбраны."), window)
+			infoDialog.SetOnClosed(func() {
+				handleCreateBooking(formData, window, b.bookingServ, onUpdate, customPopUp)
+			})
+			infoDialog.Show()
+		}
 	})
 	cancelButton := widget.NewButton("            Отмена            ", func() {
 		customPopUp.Hide()
@@ -111,7 +121,7 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
 		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
+			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text, 0, 0)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}

@@ -1,6 +1,7 @@
 package event
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-func (b EventPage) CreateBooking(selectedEventID int, eventName string, categoryName string, window fyne.Window, onUpdate func()) {
+func (e EventPage) CreateBooking(selectedEventID int, eventName string, categoryName string, window fyne.Window, onUpdate func()) {
 	vbox := container.NewVBox()
 
 	var selectedFacilityID int
@@ -19,7 +20,7 @@ func (b EventPage) CreateBooking(selectedEventID int, eventName string, category
 	var facilityParts map[int]map[int]string
 	var facilitySelect *widget.Select
 
-	events, err := b.eventServ.GetActiveEvents(categoryName)
+	events, err := e.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -49,6 +50,10 @@ func (b EventPage) CreateBooking(selectedEventID int, eventName string, category
 
 	saveButton := widget.NewButton("            Создать            ", func() {
 
+		if facilityParts[selectedFacilityID] != nil && len(facilityParts[selectedFacilityID]) > 0 && len(selectedParts) == 0 {
+			dialog.ShowError(fmt.Errorf("для выбранного помещения необходимо выбрать хотя бы одну часть"), window)
+		}
+
 		formData := model.Booking{
 			CreateDate:  time.Now().Format("2006-02-01"),
 			Description: descriptionEntry.Text,
@@ -61,7 +66,13 @@ func (b EventPage) CreateBooking(selectedEventID int, eventName string, category
 			PartIDs:     selectedParts,
 		}
 
-		handleCreateBooking(formData, window, b.bookingServ, onUpdate, customPopUp)
+		if len(selectedParts) < len(facilityParts[selectedFacilityID]) {
+			infoDialog := dialog.NewCustom("Частичное бронирование", "OK", widget.NewLabel("Зал будет забронирован частично, так как не все доступные части выбраны."), window)
+			infoDialog.SetOnClosed(func() {
+				handleCreateBooking(formData, window, e.bookingServ, onUpdate, customPopUp)
+			})
+			infoDialog.Show()
+		}
 	})
 	cancelButton := widget.NewButton("            Отмена            ", func() {
 		customPopUp.Hide()
@@ -108,7 +119,7 @@ func (b EventPage) CreateBooking(selectedEventID int, eventName string, category
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
 		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(endDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
+			facilities, err := e.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text, 0, 0)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}

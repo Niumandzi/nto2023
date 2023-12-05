@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-func (s BookingPage) ShowBooking(startDate string, endDate string, eventID int, categoryName string, window fyne.Window, bookingContainer *fyne.Container) {
-	bookings, err := s.bookingServ.GetBookings(startDate, endDate, eventID, categoryName)
+func (b BookingPage) ShowBooking(startDate string, endDate string, eventID int, categoryName string, window fyne.Window, bookingContainer *fyne.Container) {
+	bookings, err := b.bookingServ.GetBookings(startDate, endDate, eventID, categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -23,8 +23,8 @@ func (s BookingPage) ShowBooking(startDate string, endDate string, eventID int, 
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
 	for _, booking := range bookings {
-		card := s.createBookingCard(booking, categoryName, window, func() {
-			s.ShowBooking(startDate, endDate, eventID, categoryName, window, bookingContainer)
+		card := b.createBookingCard(booking, categoryName, window, func() {
+			b.ShowBooking(startDate, endDate, eventID, categoryName, window, bookingContainer)
 		})
 		grid.Add(card)
 	}
@@ -33,7 +33,7 @@ func (s BookingPage) ShowBooking(startDate string, endDate string, eventID int, 
 	bookingContainer.Refresh()
 }
 
-func (s BookingPage) createBookingCard(booking model.BookingWithFacility, categoryName string, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+func (b BookingPage) createBookingCard(booking model.BookingWithFacility, categoryName string, window fyne.Window, onUpdate func()) fyne.CanvasObject {
 	cardText := combineCards(booking, categoryName)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
@@ -51,11 +51,11 @@ func (s BookingPage) createBookingCard(booking model.BookingWithFacility, catego
 			Facility:    booking.Facility,
 			Parts:       booking.Parts,
 		}
-		s.UpdateBooking(categoryName, bookingToUpdate, window, onUpdate)
+		b.UpdateBooking(categoryName, bookingToUpdate, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.bookingServ.DeleteBooking(booking.ID)
+		err := b.bookingServ.DeleteBooking(booking.ID)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {

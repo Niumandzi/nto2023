@@ -11,8 +11,8 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Window, eventContainer *fyne.Container) {
-	events, err := s.eventServ.GetEvents(categoryName, detailsID)
+func (e EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Window, eventContainer *fyne.Container) {
+	events, err := e.eventServ.GetEvents(categoryName, detailsID)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -22,8 +22,8 @@ func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Win
 
 	grid := container.New(layout.NewGridLayoutWithColumns(3))
 	for _, event := range events {
-		card := s.createEventCard(categoryName, event, window, func() {
-			s.ShowEvent(categoryName, detailsID, window, eventContainer)
+		card := e.createEventCard(categoryName, event, window, func() {
+			e.ShowEvent(categoryName, detailsID, window, eventContainer)
 		})
 		grid.Add(card)
 	}
@@ -32,7 +32,7 @@ func (s EventPage) ShowEvent(categoryName string, detailsID int, window fyne.Win
 	eventContainer.Refresh()
 }
 
-func (s EventPage) createEventCard(categoryName string, event model.EventWithDetails, window fyne.Window, onUpdate func()) fyne.CanvasObject {
+func (e EventPage) createEventCard(categoryName string, event model.EventWithDetails, window fyne.Window, onUpdate func()) fyne.CanvasObject {
 	cardText, isActive := card(event)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
@@ -45,7 +45,7 @@ func (s EventPage) createEventCard(categoryName string, event model.EventWithDet
 			Description: event.Description,
 			DetailsID:   event.Details.ID,
 		}
-		s.UpdateEvent(event.Details.Category, event.Details.TypeName, eventToUpdate, window, onUpdate)
+		e.UpdateEvent(event.Details.Category, event.Details.TypeName, eventToUpdate, window, onUpdate)
 	})
 
 	var icon fyne.Resource
@@ -62,7 +62,7 @@ func (s EventPage) createEventCard(categoryName string, event model.EventWithDet
 	}
 
 	deleteButton := widget.NewButtonWithIcon("", icon, func() {
-		err := s.eventServ.DeleteRestoreEvent(event.ID, !isActive)
+		err := e.eventServ.DeleteRestoreEvent(event.ID, !isActive)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
@@ -72,7 +72,7 @@ func (s EventPage) createEventCard(categoryName string, event model.EventWithDet
 	})
 
 	bookingButton := widget.NewButtonWithIcon("", theme.FileIcon(), func() {
-		s.CreateBooking(event.ID, event.Name, categoryName, window, onUpdate)
+		e.CreateBooking(event.ID, event.Name, categoryName, window, onUpdate)
 	})
 
 	deleteButton.Importance = widget.LowImportance

@@ -32,7 +32,7 @@ type FacilityService interface {
 	CreateFacility(name string, parts []string) (int, error)
 	GetFacilities() ([]model.FacilityWithParts, error)
 	GetActiveFacilities(categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
-	GetFacilitiesByDate(startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error)
+	GetFacilitiesByDate(startDate string, startTime string, endDate string, endTime string, facilityID int, bookingID int) ([]model.FacilityWithParts, error)
 	UpdateFacility(facilityId int, name string) error
 	DeleteRestoreFacility(id int, isActive bool) error
 }
@@ -47,7 +47,7 @@ type ApplicationService interface {
 type BookingService interface {
 	CreateBooking(booking model.Booking) (int, error)
 	GetBookings(startDate string, endDate string, eventID int, categoryName string) ([]model.BookingWithFacility, error)
-	UpdateBooking(bookingUpd model.BookingWithFacility) error
+	UpdateBooking(bookingUpd model.Booking) error
 	DeleteBooking(bookingId int) error
 }
 

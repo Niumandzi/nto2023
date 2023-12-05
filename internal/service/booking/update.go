@@ -2,18 +2,37 @@ package booking
 
 import (
 	"context"
+	"errors"
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/niumandzi/nto2023/model"
+	"time"
 )
 
-func (s BookingService) UpdateBooking(bookingWithFacilityUpd model.BookingWithFacility) error {
+func (s BookingService) UpdateBooking(bookingWithFacilityUpd model.Booking) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 	defer cancel()
 
-	partIDs := make([]int, 0, len(bookingWithFacilityUpd.Parts))
+	err := validation.ValidateStruct(&bookingWithFacilityUpd,
+		validation.Field(&bookingWithFacilityUpd.CreateDate, validation.Required, validation.Date("2006-01-02")),
+		validation.Field(&bookingWithFacilityUpd.StartDate, validation.Required, validation.Date("2006-01-02")),
+		validation.Field(&bookingWithFacilityUpd.StartTime, validation.Required),
+		validation.Field(&bookingWithFacilityUpd.EndDate, validation.Required, validation.Date("2006-01-02")),
+		validation.Field(&bookingWithFacilityUpd.EndTime, validation.Required),
+		validation.Field(&bookingWithFacilityUpd.EventID, validation.Required),
+		validation.Field(&bookingWithFacilityUpd.FacilityID, validation.Required),
+	)
+	if err != nil {
+		s.logger.Error("error: %v", err.Error())
+		return err
+	}
 
-	for _, part := range bookingWithFacilityUpd.Parts {
-		partID := part.ID
-		partIDs = append(partIDs, partID)
+	start, _ := time.Parse("2006-01-02 15:04", bookingWithFacilityUpd.StartDate+" "+bookingWithFacilityUpd.StartTime)
+	end, _ := time.Parse("2006-01-02 15:04", bookingWithFacilityUpd.EndDate+" "+bookingWithFacilityUpd.EndTime)
+
+	if start.After(end) {
+		err := errors.New("start date and time must be earlier than or equal to end date and time")
+		s.logger.Error("Date and time range error: ", err)
+		return err
 	}
 
 	bookingUpd := model.Booking{
@@ -21,38 +40,17 @@ func (s BookingService) UpdateBooking(bookingWithFacilityUpd model.BookingWithFa
 		Description: bookingWithFacilityUpd.Description,
 		CreateDate:  bookingWithFacilityUpd.CreateDate,
 		StartDate:   bookingWithFacilityUpd.StartDate,
+		StartTime:   bookingWithFacilityUpd.StartTime,
 		EndDate:     bookingWithFacilityUpd.EndDate,
-		EventID:     bookingWithFacilityUpd.Event.ID,
-		FacilityID:  bookingWithFacilityUpd.Facility.ID,
-		PartIDs:     partIDs,
+		EndTime:     bookingWithFacilityUpd.EndTime,
+		EventID:     bookingWithFacilityUpd.EventID,
+		FacilityID:  bookingWithFacilityUpd.FacilityID,
+		PartIDs:     bookingWithFacilityUpd.PartIDs,
 	}
 
-	err := s.bookingRepo.Update(ctx, bookingUpd)
+	err = s.bookingRepo.Update(ctx, bookingUpd)
 	if err != nil {
-		s.logger.Error(err.Error())
 		return err
-	}
-	// получаем айди старых партов, которые нужно удалить
-	oldPartIDs, err := s.bookingPartRepo.GetParts(ctx, bookingUpd.ID)
-	if err != nil {
-		s.logger.Error(err.Error())
-		return err
-	}
-
-	for _, oldPartID := range oldPartIDs {
-		err = s.bookingPartRepo.Delete(ctx, bookingUpd.ID, oldPartID)
-		if err != nil {
-			s.logger.Errorf("error on oldPartID: %v, error: %v", oldPartID, err.Error())
-			return err
-		}
-	}
-
-	for _, partID := range partIDs {
-		err = s.bookingPartRepo.Create(ctx, bookingUpd.ID, partID)
-		if err != nil {
-			s.logger.Errorf("error on partID: %v, error: %v", partID, err.Error())
-			return err
-		}
 	}
 
 	return nil

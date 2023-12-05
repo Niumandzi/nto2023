@@ -1,6 +1,7 @@
 package booking
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -22,7 +23,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	var customPopUp *widget.PopUp
 	var selectedParts []int
 
-	facilities, err := b.facilityServ.GetFacilitiesByDate(booking.StartDate, "", booking.EndDate, "")
+	facilities, err := b.facilityServ.GetFacilitiesByDate(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.Facility.ID, booking.ID)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -39,6 +40,44 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 		facilityParts[facility.ID] = partMap
 	}
 
+	bookingPartIDs := make(map[int]bool)
+	for _, part := range booking.Parts {
+		bookingPartIDs[part.ID] = true
+	}
+
+	selectedParts = []int{}
+	for partID := range bookingPartIDs {
+		selectedParts = append(selectedParts, partID)
+	}
+
+	newPartsBox := container.NewVBox()
+	for partID, partName := range facilityParts[booking.Facility.ID] {
+		localPartID := partID
+
+		isChecked := bookingPartIDs[localPartID]
+
+		checkBox := widget.NewCheck(partName, nil)
+		checkBox.Checked = isChecked
+		checkBox.Refresh()
+
+		checkBox.OnChanged = func(checked bool) {
+			if checked {
+				if !contains(selectedParts, localPartID) {
+					selectedParts = append(selectedParts, localPartID)
+					fmt.Print(selectedParts)
+				}
+			} else {
+				for i, id := range selectedParts {
+					if id == localPartID {
+						selectedParts = append(selectedParts[:i], selectedParts[i+1:]...)
+						break
+					}
+				}
+			}
+		}
+		newPartsBox.Add(checkBox)
+	}
+
 	events, err := b.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
@@ -49,6 +88,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 		eventNames[event.Name] = event.ID
 	}
 
+	selectedEventID = booking.Event.ID
 	eventSelect := component.SelectorWidget(booking.Event.Name, eventNames, func(id int) {
 		selectedEventID = id
 	}, nil)
@@ -61,12 +101,11 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	endDateEntry := component.EntryWidgetWithData("Дата окончания (гггг-мм-дд)", booking.EndDate)
 	endTimeEntry := component.EntryWidgetWithData("Время начала (чч:мм)", booking.EndTime)
 
-	selectedFacilityID = booking.Facility.ID
-
-	partsBox = container.NewVBox()
-	vbox.Add(partsBox)
-
 	saveButton := widget.NewButton("            Создать            ", func() {
+		if facilityParts[selectedFacilityID] != nil && len(facilityParts[selectedFacilityID]) > 0 && len(selectedParts) == 0 {
+			dialog.ShowError(fmt.Errorf("Для выбранного помещения необходимо выбрать хотя бы одну часть"), window)
+			return
+		}
 
 		formData := model.Booking{
 			ID:          booking.ID,
@@ -128,7 +167,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
 		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
+			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text, booking.Facility.ID, booking.ID)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}
@@ -181,12 +220,15 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	endDateEntry.OnChanged = func(string) { updateFacilities() }
 	endTimeEntry.OnChanged = func(string) { updateFacilities() }
 
+	selectedFacilityID = booking.Facility.ID
 	facilitySelect = component.SelectorWidget(booking.Facility.Name, facilityNames, func(id int) {
 		selectedFacilityID = id
 		updateParts()
 	}, nil)
 
 	vbox.Add(facilitySelect)
+	partsBox = newPartsBox
+	vbox.Add(partsBox)
 
 	vbox.Add(buttons)
 
@@ -196,15 +238,13 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 }
 
 func handleUpdateBooking(formDate model.Booking, window fyne.Window, bookingServ service.BookingService, onUpdate func(), popUp *widget.PopUp) {
+	err := bookingServ.UpdateBooking(formDate)
 
-	//_, err := bookingServ.UpdateBooking(formDate)
-
-	popUp.Hide()
-
-	//if err != nil {
-	//	dialog.ShowError(err, window)
-	//} else {
-	//	dialog.ShowInformation("Бронирование создано", "Бронирование успешно создано!", window)
-	//	onUpdate()
-	//}
+	if err != nil {
+		dialog.ShowError(err, window)
+	} else {
+		popUp.Hide()
+		dialog.ShowInformation("Бронирование создано", "Бронирование успешно создано!", window)
+		onUpdate()
+	}
 }

@@ -34,7 +34,7 @@ type FacilityRepository interface {
 	Create(ctx context.Context, name string, parts []string) (int, error)
 	Get(ctx context.Context) ([]model.FacilityWithParts, error)
 	GetActive(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
-	GetByDate(ctx context.Context, startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error)
+	GetByDate(ctx context.Context, startDate string, startTime string, endDate string, endTime string, facilityID int, bookingID int) ([]model.FacilityWithParts, error)
 	Update(ctx context.Context, idOld int, nameUpd string) error
 	Delete(ctx context.Context, facilityID int, isActive bool) error
 }
@@ -57,11 +57,4 @@ type PartRepository interface {
 	Create(ctx context.Context, facilityID int, partNames []string) (int, error)
 	Update(ctx context.Context, update map[int]string) error
 	Delete(ctx context.Context, delete map[int]bool) error
-}
-
-// get parts - get partIds
-type BookingPartRepository interface {
-	Create(ctx context.Context, bookingId int, partId int) error
-	GetParts(ctx context.Context, bookingId int) ([]int, error)
-	Delete(ctx context.Context, bookingId int, partId int) error
 }

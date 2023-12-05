@@ -29,13 +29,13 @@ func NewEventPage(fac service.FacilityService, book service.BookingService, even
 	}
 }
 
-func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject {
+func (e EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject {
 	eventContainer := container.NewStack()
 	eventList := func(eventType string, id int) {
-		s.ShowEvent(categoryName, id, window, eventContainer)
+		e.ShowEvent(categoryName, id, window, eventContainer)
 	}
 
-	details, err := s.detailsServ.GetDetails(categoryName)
+	details, err := e.detailsServ.GetDetails(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -52,7 +52,7 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 	)
 
 	createEventButton := widget.NewButton("Создать событие", func() {
-		s.CreateEvent(categoryName, window, func() {
+		e.CreateEvent(categoryName, window, func() {
 			eventList("", 0)
 		})
 	})

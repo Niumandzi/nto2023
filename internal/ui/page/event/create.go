@@ -9,14 +9,14 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate func()) {
+func (e EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate func()) {
 	formData := model.Event{}
 
 	nameEntry := component.EntryWidget("Название")
 	dateEntry := component.EntryWidget("гггг-мм-дд")
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 
-	details, err := s.detailsServ.GetActiveDetails(categoryName)
+	details, err := e.detailsServ.GetActiveDetails(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -45,7 +45,7 @@ func (s EventPage) CreateEvent(categoryName string, window fyne.Window, onUpdate
 			formData.Date = dateEntry.Text
 			formData.Description = descriptionEntry.Text
 
-			handleCreateEvent(formData, window, s.eventServ, onUpdate)
+			handleCreateEvent(formData, window, e.eventServ, onUpdate)
 		}
 	}, window)
 }
