@@ -101,7 +101,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	endDateEntry := component.EntryWidgetWithData("Дата окончания (гггг-мм-дд)", booking.EndDate)
 	endTimeEntry := component.EntryWidgetWithData("Время начала (чч:мм)", booking.EndTime)
 
-	saveButton := widget.NewButton("            Создать            ", func() {
+	saveButton := widget.NewButton("            Сохранить            ", func() {
 		if facilityParts[selectedFacilityID] != nil && len(facilityParts[selectedFacilityID]) > 0 && len(selectedParts) == 0 {
 			dialog.ShowError(fmt.Errorf("Для выбранного помещения необходимо выбрать хотя бы одну часть"), window)
 			return
@@ -244,7 +244,7 @@ func handleUpdateBooking(formDate model.Booking, window fyne.Window, bookingServ
 		dialog.ShowError(err, window)
 	} else {
 		popUp.Hide()
-		dialog.ShowInformation("Бронирование создано", "Бронирование успешно создано!", window)
+		dialog.ShowInformation("Бронирование сохранено", "Бронирование успешно сохранено!", window)
 		onUpdate()
 	}
 }
