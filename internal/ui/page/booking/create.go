@@ -75,6 +75,8 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 			})
 			infoDialog.Show()
 		}
+		handleCreateBooking(formData, window, b.bookingServ, onUpdate, customPopUp)
+
 	})
 	cancelButton := widget.NewButton("            Отмена            ", func() {
 		customPopUp.Hide()

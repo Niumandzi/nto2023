@@ -49,7 +49,6 @@ func (e EventPage) CreateBooking(selectedEventID int, eventName string, category
 	var customPopUp *widget.PopUp
 
 	saveButton := widget.NewButton("            Создать            ", func() {
-
 		if facilityParts[selectedFacilityID] != nil && len(facilityParts[selectedFacilityID]) > 0 && len(selectedParts) == 0 {
 			dialog.ShowError(fmt.Errorf("для выбранного помещения необходимо выбрать хотя бы одну часть"), window)
 		}
@@ -73,6 +72,7 @@ func (e EventPage) CreateBooking(selectedEventID int, eventName string, category
 			})
 			infoDialog.Show()
 		}
+		handleCreateBooking(formData, window, e.bookingServ, onUpdate, customPopUp)
 	})
 	cancelButton := widget.NewButton("            Отмена            ", func() {
 		customPopUp.Hide()
