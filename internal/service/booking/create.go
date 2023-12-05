@@ -2,8 +2,10 @@ package booking
 
 import (
 	"context"
+	"errors"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/niumandzi/nto2023/model"
+	"time"
 )
 
 func (s BookingService) CreateBooking(booking model.Booking) (int, error) {
@@ -21,6 +23,15 @@ func (s BookingService) CreateBooking(booking model.Booking) (int, error) {
 	)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
+		return 0, err
+	}
+
+	start, _ := time.Parse("2006-01-02 15:04", booking.StartDate+" "+booking.StartTime)
+	end, _ := time.Parse("2006-01-02 15:04", booking.EndDate+" "+booking.EndTime)
+
+	if start.After(end) {
+		err := errors.New("start date and time must be earlier than or equal to end date and time")
+		s.logger.Error("Date and time range error: %v", err)
 		return 0, err
 	}
 

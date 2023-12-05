@@ -118,6 +118,6 @@ func facilityCard(booking model.BookingWithFacility) string {
 }
 
 func bookingСard(booking model.BookingWithFacility) string {
-	return fmt.Sprintf("Описание: %s\nДата создания: %s\nДата начала: %s\nДата окончания: %s",
-		booking.Description, booking.CreateDate, booking.StartDate, booking.EndDate)
+	return fmt.Sprintf("Описание: %s\nДата создания: %s\nНачало: %s %s\nОкончание: %s %s",
+		booking.Description, booking.CreateDate, booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime)
 }
