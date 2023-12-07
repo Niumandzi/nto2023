@@ -5,7 +5,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/dialog"
-	teacherPage "github.com/niumandzi/nto2023/internal/ui/page/teacher"
 
 	applicationRepository "github.com/niumandzi/nto2023/internal/repository/application"
 	bookingRepository "github.com/niumandzi/nto2023/internal/repository/booking"
@@ -14,6 +13,7 @@ import (
 	facilityRepository "github.com/niumandzi/nto2023/internal/repository/facility"
 	mugTypeRepository "github.com/niumandzi/nto2023/internal/repository/mug"
 	partRepository "github.com/niumandzi/nto2023/internal/repository/part"
+	registrationRepository "github.com/niumandzi/nto2023/internal/repository/registration"
 	teacherRepository "github.com/niumandzi/nto2023/internal/repository/teacher"
 	workTypeRepository "github.com/niumandzi/nto2023/internal/repository/work"
 
@@ -24,6 +24,7 @@ import (
 	facilityService "github.com/niumandzi/nto2023/internal/service/facility"
 	mugTypeService "github.com/niumandzi/nto2023/internal/service/mug"
 	partService "github.com/niumandzi/nto2023/internal/service/part"
+	registrationService "github.com/niumandzi/nto2023/internal/service/registration"
 	teacherService "github.com/niumandzi/nto2023/internal/service/teacher"
 	workTypeService "github.com/niumandzi/nto2023/internal/service/work"
 
@@ -35,6 +36,8 @@ import (
 	eventPage "github.com/niumandzi/nto2023/internal/ui/page/event"
 	facilityPage "github.com/niumandzi/nto2023/internal/ui/page/facility"
 	mugPage "github.com/niumandzi/nto2023/internal/ui/page/mug"
+	registrationPage "github.com/niumandzi/nto2023/internal/ui/page/registration"
+	teacherPage "github.com/niumandzi/nto2023/internal/ui/page/teacher"
 	workPage "github.com/niumandzi/nto2023/internal/ui/page/work"
 
 	"github.com/niumandzi/nto2023/pkg/logging"
@@ -83,6 +86,7 @@ func main() {
 	facilityRepo := facilityRepository.NewFacilityRepository(db, logger)
 	mugTypeRepo := mugTypeRepository.NemMugTypeRepository(db, logger)
 	partRepo := partRepository.NewPartRepository(db, logger)
+	registrationRepo := registrationRepository.NewRegistrationRepository(db, logger)
 	teacherRepo := teacherRepository.NewTeacherRepository(db, logger)
 	workTypeRepo := workTypeRepository.NewWorkTypeRepository(db, logger)
 
@@ -93,6 +97,7 @@ func main() {
 	facilityServ := facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
 	mugTypeServ := mugTypeService.NewMugTypeService(mugTypeRepo, timeoutContext, logger, ctx)
 	partServ := partService.NewPartService(partRepo, timeoutContext, logger, ctx)
+	registrationServ := registrationService.NewRegistrationService(registrationRepo, timeoutContext, logger, ctx)
 	teacherServ := teacherService.NewTeacherService(teacherRepo, timeoutContext, logger, ctx)
 	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 
@@ -103,8 +108,9 @@ func main() {
 	facility := facilityPage.NewFacilityPage(facilityServ, partServ, logger)
 	mugType := mugPage.NewMugTypePage(mugTypeServ, logger)
 	teacher := teacherPage.NewTeacherPage(teacherServ, logger)
+	registration := registrationPage.NewRegistrationPage(registrationServ, logger)
 	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 
 	gui := ui.NewGUI(a, w)
-	ui.SetupUI(gui, application, booking, details, event, facility, mugType, teacher, workType)
+	ui.SetupUI(gui, application, booking, details, event, facility, mugType, teacher, registration, workType)
 }
