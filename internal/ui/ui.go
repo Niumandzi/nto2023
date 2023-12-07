@@ -12,6 +12,7 @@ import (
 	"github.com/niumandzi/nto2023/internal/ui/page/facility"
 	"github.com/niumandzi/nto2023/internal/ui/page/index"
 	"github.com/niumandzi/nto2023/internal/ui/page/mug"
+	"github.com/niumandzi/nto2023/internal/ui/page/registration"
 	"github.com/niumandzi/nto2023/internal/ui/page/teacher"
 	"github.com/niumandzi/nto2023/internal/ui/page/work"
 )
@@ -28,13 +29,13 @@ func NewGUI(app fyne.App, window fyne.Window) GUI {
 	}
 }
 
-func SetupUI(gui GUI, application application.ApplicationPage, booking booking.BookingPage, details details.DetailsPage, event event.EventPage, facility facility.FacilityPage, mugType mug.MugTypePage, teacher teacher.TeacherPage, workType work.WorkTypePage) {
+func SetupUI(gui GUI, application application.ApplicationPage, booking booking.BookingPage, details details.DetailsPage, event event.EventPage, facility facility.FacilityPage, mugType mug.MugTypePage, teacher teacher.TeacherPage, registration registration.RegistrationPage, workType work.WorkTypePage) {
 	w := gui.Window
 
 	mainContent := container.NewStack()
 	mainContent.Add(index.ShowIndex())
 
-	navBar := NavigationBar(application, booking, details, event, facility, mugType, teacher, workType, w, mainContent)
+	navBar := NavigationBar(application, booking, details, event, facility, mugType, teacher, registration, workType, w, mainContent)
 
 	split := container.NewHSplit(navBar, mainContent)
 	split.Offset = 0.2
@@ -43,7 +44,7 @@ func SetupUI(gui GUI, application application.ApplicationPage, booking booking.B
 	w.ShowAndRun()
 }
 
-func NavigationBar(application application.ApplicationPage, booking booking.BookingPage, details details.DetailsPage, event event.EventPage, facility facility.FacilityPage, mugType mug.MugTypePage, teacher teacher.TeacherPage, workType work.WorkTypePage, window fyne.Window, mainContent *fyne.Container) *widget.Tree {
+func NavigationBar(application application.ApplicationPage, booking booking.BookingPage, details details.DetailsPage, event event.EventPage, facility facility.FacilityPage, mugType mug.MugTypePage, teacher teacher.TeacherPage, registration registration.RegistrationPage, workType work.WorkTypePage, window fyne.Window, mainContent *fyne.Container) *widget.Tree {
 	treeData := map[string][]string{
 		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
 		"развлечения":  {"типы развлечений", "работы развлечения", "бронь развлечения"},
@@ -83,6 +84,8 @@ func NavigationBar(application application.ApplicationPage, booking booking.Book
 			content = teacher.IndexTeacher(window)
 		case "типы кружка":
 			content = mugType.IndexMugType(window)
+		case "регистрация кружка":
+			content = registration.IndexRegistration(window)
 		default:
 			content = error2.ShowErrorPage()
 		}

@@ -105,7 +105,7 @@ func facilityCard(booking model.BookingWithFacility) string {
 	result := fmt.Sprintf("Помещение: %s", booking.Facility.Name)
 
 	if len(booking.Parts) > 0 {
-		partsInfo := []string{}
+		var partsInfo []string
 		for _, part := range booking.Parts {
 			partsInfo = append(partsInfo, fmt.Sprintf("Часть: %s", part.Name))
 		}

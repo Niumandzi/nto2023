@@ -35,19 +35,7 @@ func (s BookingService) CreateBooking(booking model.Booking) (int, error) {
 		return 0, err
 	}
 
-	bookingDB := model.Booking{
-		Description: booking.Description,
-		CreateDate:  booking.CreateDate,
-		StartDate:   booking.StartDate,
-		StartTime:   booking.StartTime,
-		EndDate:     booking.EndDate,
-		EndTime:     booking.EndTime,
-		EventID:     booking.EventID,
-		FacilityID:  booking.FacilityID,
-		PartIDs:     booking.PartIDs,
-	}
-
-	id, err := s.bookingRepo.Create(ctx, bookingDB)
+	id, err := s.bookingRepo.Create(ctx, booking)
 	if err != nil {
 		return 0, err
 	}
