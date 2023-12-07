@@ -35,6 +35,7 @@ type FacilityRepository interface {
 	Get(ctx context.Context) ([]model.FacilityWithParts, error)
 	GetActive(ctx context.Context, categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
 	GetByDate(ctx context.Context, startDate string, startTime string, endDate string, endTime string, facilityID int, bookingID int) ([]model.FacilityWithParts, error)
+	GetByDateTime(ctx context.Context, startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error)
 	Update(ctx context.Context, idOld int, nameUpd string) error
 	Delete(ctx context.Context, facilityID int, isActive bool) error
 }
@@ -57,4 +58,20 @@ type PartRepository interface {
 	Create(ctx context.Context, facilityID int, partNames []string) (int, error)
 	Update(ctx context.Context, update map[int]string) error
 	Delete(ctx context.Context, delete map[int]bool) error
+}
+
+type MugTypeRepository interface {
+	Create(ctx context.Context, name string) (int, error)
+	Get(ctx context.Context) ([]model.MugType, error)
+	GetActive(ctx context.Context, facilityID int, teacherID int) ([]model.MugType, error)
+	Update(ctx context.Context, idOld int, nameUpd string) error
+	Delete(ctx context.Context, workTypeID int, isActive bool) error
+}
+
+type TeacherRepository interface {
+	Create(ctx context.Context, name string) (int, error)
+	Get(ctx context.Context) ([]model.Teacher, error)
+	GetActive(ctx context.Context, facilityID int, mugTypeID int) ([]model.Teacher, error)
+	Update(ctx context.Context, idOld int, nameUpd string) error
+	Delete(ctx context.Context, teacherID int, isActive bool) error
 }

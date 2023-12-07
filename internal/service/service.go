@@ -33,6 +33,7 @@ type FacilityService interface {
 	GetFacilities() ([]model.FacilityWithParts, error)
 	GetActiveFacilities(categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
 	GetFacilitiesByDate(startDate string, startTime string, endDate string, endTime string, facilityID int, bookingID int) ([]model.FacilityWithParts, error)
+	GetFacilitiesByDateTime(startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error)
 	UpdateFacility(facilityId int, name string) error
 	DeleteRestoreFacility(id int, isActive bool) error
 }
@@ -55,4 +56,20 @@ type PartService interface {
 	CreatePart(facilityID int, partNames []string) (int, error)
 	UpdatePart(update map[int]string) error
 	DeletePart(delete map[int]bool) error
+}
+
+type MugTypeService interface {
+	CreateMugType(name string) (int, error)
+	GetMugTypes() ([]model.MugType, error)
+	GetActiveMugTypes(facilityID int, teacherID int) ([]model.MugType, error)
+	UpdateMugType(mugTypeId int, name string) error
+	DeleteRestoreMugType(id int, isActive bool) error
+}
+
+type TeacherService interface {
+	CreateTeacher(name string) (int, error)
+	GetTeachers() ([]model.Teacher, error)
+	GetActiveTeachers(facilityID int, mugTypeID int) ([]model.Teacher, error)
+	UpdateTeacher(teacherId int, name string) error
+	DeleteRestoreTeacher(id int, isActive bool) error
 }

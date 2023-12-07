@@ -293,7 +293,7 @@ func (f FacilityRepository) GetByDate(ctx context.Context, startDate string, sta
 		facilities = append(facilities, fwp)
 	}
 
-	if facilityID != 0 || bookingID != 0 {
+	if facilityID != 0 && bookingID != 0 {
 		additionalQuery := `SELECT 
 			facility.id, 
 			facility.name, 
@@ -346,6 +346,63 @@ func (f FacilityRepository) GetByDate(ctx context.Context, startDate string, sta
 
 			facilities = append(facilities, fwp)
 		}
+	}
+
+	return facilities, nil
+}
+
+func (f FacilityRepository) GetByDateTime(ctx context.Context, startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error) {
+	query := `
+    SELECT 
+		facility.id, 
+		facility.name, 
+		facility.have_parts,
+		COALESCE(GROUP_CONCAT(DISTINCT CASE WHEN b.id IS NULL THEN part.id END), '') AS part_ids,
+		COALESCE(GROUP_CONCAT(DISTINCT CASE WHEN b.id IS NULL THEN part.name END), '') AS part_names
+	FROM facility
+	LEFT JOIN part ON facility.id = part.facility_id AND part.is_active = TRUE
+	LEFT JOIN booking_part bp ON part.id = bp.part_id
+	LEFT JOIN booking b ON bp.booking_id = b.id 
+		AND (
+			(datetime(b.start_date || ' ' || b.start_time) <= datetime($1 || ' ' || $2) AND datetime(b.end_date || ' ' || b.end_time) >= datetime($1 || ' ' || $2)) 
+			OR (datetime(b.start_date || ' ' || b.start_time) <= datetime($3 || ' ' || $4) AND datetime(b.end_date || ' ' || b.end_time) >= datetime($3 || ' ' || $4)) 
+			OR (datetime(b.start_date || ' ' || b.start_time) >= datetime($1 || ' ' || $2) AND datetime(b.end_date || ' ' || b.end_time) <= datetime($3 || ' ' || $4))
+		)
+	WHERE facility.is_active = TRUE
+	GROUP BY facility.id
+	HAVING (facility.have_parts = FALSE AND COUNT(DISTINCT b.id) = 0) 
+		OR (facility.have_parts = TRUE AND COUNT(DISTINCT part.id) > COUNT(DISTINCT CASE WHEN b.id IS NOT NULL THEN part.id END))
+    `
+
+	rows, err := f.db.QueryContext(ctx, query, startDate, startTime, endDate, endTime)
+	if err != nil {
+		f.logger.Errorf("error: %v", err.Error())
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var facilities []model.FacilityWithParts
+	for rows.Next() {
+		var fwp model.FacilityWithParts
+		var partIDs, partNames string
+
+		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames)
+		if err != nil {
+			f.logger.Errorf("error: %v", err.Error())
+			return nil, err
+		}
+
+		if partIDs != "" {
+			ids := strings.Split(partIDs, ",")
+			names := strings.Split(partNames, ",")
+			for i, idStr := range ids {
+				id, _ := strconv.Atoi(idStr)
+				fwp.Parts = append(fwp.Parts, model.Part{ID: id, Name: names[i]})
+			}
+		}
+
+		facilities = append(facilities, fwp)
 	}
 
 	return facilities, nil

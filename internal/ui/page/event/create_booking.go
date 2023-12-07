@@ -119,7 +119,7 @@ func (e EventPage) CreateBooking(selectedEventID int, eventName string, category
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
 		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(endDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err := e.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text, 0, 0)
+			facilities, err := e.facilityServ.GetFacilitiesByDateTime(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}

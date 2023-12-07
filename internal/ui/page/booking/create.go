@@ -123,7 +123,7 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
 		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text, 0, 0)
+			facilities, err := b.facilityServ.GetFacilitiesByDateTime(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}

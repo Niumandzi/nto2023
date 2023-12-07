@@ -29,7 +29,7 @@ func CreateTables(db *sql.DB) error {
 		CREATE TABLE IF NOT EXISTS events (
 		  	id INTEGER PRIMARY KEY,
 		  	name VARCHAR(255) NOT NULL UNIQUE,
-		  	description TEXT,
+		  	description TEXT NOT NULL ,
 		  	date TEXT NOT NULL,
 		  	details_id INT NOT NULL,
 		  	is_active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -89,6 +89,18 @@ func CreateTables(db *sql.DB) error {
 			part_id INT NOT NULL,
 			FOREIGN KEY (booking_id) REFERENCES booking(id) ON DELETE CASCADE,
 			FOREIGN KEY (part_id) REFERENCES part(id)
+		);
+		
+		CREATE TABLE IF NOT EXISTS mug_type (
+			id INTEGER PRIMARY KEY,
+			name VARCHAR(255) NOT NULL UNIQUE,
+			is_active BOOLEAN NOT NULL DEFAULT TRUE        
+		);
+				
+		CREATE TABLE IF NOT EXISTS teacher (
+			id INTEGER PRIMARY KEY,
+			name VARCHAR(255) NOT NULL UNIQUE,
+			is_active BOOLEAN NOT NULL DEFAULT TRUE        
 		);
 	`)
 	if err != nil {

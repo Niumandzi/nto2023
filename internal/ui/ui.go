@@ -11,6 +11,8 @@ import (
 	"github.com/niumandzi/nto2023/internal/ui/page/event"
 	"github.com/niumandzi/nto2023/internal/ui/page/facility"
 	"github.com/niumandzi/nto2023/internal/ui/page/index"
+	"github.com/niumandzi/nto2023/internal/ui/page/mug"
+	"github.com/niumandzi/nto2023/internal/ui/page/teacher"
 	"github.com/niumandzi/nto2023/internal/ui/page/work"
 )
 
@@ -26,14 +28,13 @@ func NewGUI(app fyne.App, window fyne.Window) GUI {
 	}
 }
 
-func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage, booking booking.BookingPage) {
+func SetupUI(gui GUI, application application.ApplicationPage, booking booking.BookingPage, details details.DetailsPage, event event.EventPage, facility facility.FacilityPage, mugType mug.MugTypePage, teacher teacher.TeacherPage, workType work.WorkTypePage) {
 	w := gui.Window
 
 	mainContent := container.NewStack()
-
 	mainContent.Add(index.ShowIndex())
 
-	navBar := NavigationBar(event, details, application, facility, workType, booking, mainContent, w)
+	navBar := NavigationBar(application, booking, details, event, facility, mugType, teacher, workType, w, mainContent)
 
 	split := container.NewHSplit(navBar, mainContent)
 	split.Offset = 0.2
@@ -42,12 +43,12 @@ func SetupUI(gui GUI, event event.EventPage, details details.DetailsPage, applic
 	w.ShowAndRun()
 }
 
-func NavigationBar(event event.EventPage, details details.DetailsPage, application application.ApplicationPage, facility facility.FacilityPage, workType work.WorkTypePage, booking booking.BookingPage, mainContent *fyne.Container, window fyne.Window) *widget.Tree {
+func NavigationBar(application application.ApplicationPage, booking booking.BookingPage, details details.DetailsPage, event event.EventPage, facility facility.FacilityPage, mugType mug.MugTypePage, teacher teacher.TeacherPage, workType work.WorkTypePage, window fyne.Window, mainContent *fyne.Container) *widget.Tree {
 	treeData := map[string][]string{
 		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
 		"развлечения":  {"типы развлечений", "работы развлечения", "бронь развлечения"},
 		"просвещение":  {"типы просвещения", "работы просвещение", "бронь просвещение"},
-		"образование":  {"типы образования", "работы образование", "бронь образование"},
+		"образование":  {"типы кружка", "преподаватели", "регистрация кружка"},
 		"рабочий стол": {"помещения", "типы работ"},
 	}
 
@@ -78,6 +79,10 @@ func NavigationBar(event event.EventPage, details details.DetailsPage, applicati
 			content = facility.IndexFacility(window)
 		case "типы работ":
 			content = workType.IndexWorkType(window)
+		case "преподаватели":
+			content = teacher.IndexTeacher(window)
+		case "типы кружка":
+			content = mugType.IndexMugType(window)
 		default:
 			content = error2.ShowErrorPage()
 		}
