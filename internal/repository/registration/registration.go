@@ -138,11 +138,11 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
                 COALESCE(GROUP_CONCAT(part.name), '') AS part_names
 			FROM registration
 			INNER JOIN facility ON registration.facility_id = facility.id
-			INNER JOIN schedule ON registration.id = schedule.registration_id
+			LEFT JOIN schedule ON registration.id = schedule.registration_id
 			INNER JOIN mug_type ON registration.mug_type_id = mug_type.id
 			INNER JOIN teacher ON registration.teacher_id = teacher.id
-			INNER JOIN registration_part ON registration.id = registration_part.registration_id
-            INNER JOIN part ON registration_part.part_id = part.id`
+			LEFT JOIN registration_part ON registration.id = registration_part.registration_id
+            LEFT JOIN part ON registration_part.part_id = part.id`
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -153,7 +153,7 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 
 	for rows.Next() {
 		var registration model.RegistrationWithDetails
-		var scheduleIDs, scheduleNames, scheduleStartTime, scheduleEndTime, partIDs, partNames string
+		var scheduleIDs, scheduleDays, scheduleStartTime, scheduleEndTime, partIDs, partNames string
 
 		err = rows.Scan(
 			&registration.ID,
@@ -168,7 +168,7 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 			&registration.Teacher.ID,
 			&registration.Teacher.Name,
 			&scheduleIDs,
-			&scheduleNames,
+			&scheduleDays,
 			&scheduleStartTime,
 			&scheduleEndTime,
 			&partIDs,
@@ -180,10 +180,10 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 		}
 
 		ids := strings.Split(scheduleIDs, ",")
-		days := strings.Split(scheduleNames, ",")
+		days := strings.Split(scheduleDays, ",")
 		start := strings.Split(scheduleStartTime, ",")
 		end := strings.Split(scheduleEndTime, ",")
-		fmt.Println(ids, days, start, end)
+		fmt.Println(scheduleIDs, scheduleDays, scheduleStartTime, scheduleEndTime)
 		for i := 0; i < registration.NumberOfDays; i++ {
 			var schedule model.Schedule
 			schedule.ID, err = strconv.Atoi(ids[i])
