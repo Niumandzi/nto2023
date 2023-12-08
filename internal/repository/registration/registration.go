@@ -120,29 +120,43 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 	args := make([]interface{}, 0)
 
 	query := `SELECT registration.id,
-				registration.name,
-				registration.start_date,
-				registration.number_of_days,
-				registration.facility_id,
-				facility.name, 
-                facility.have_parts,
-                registration.mug_type_id,
-                mug_type.name,
-                registration.teacher_id,
-                teacher.name,
-                COALESCE(GROUP_CONCAT(schedule.id), '') AS schedule_ids,
-                COALESCE(GROUP_CONCAT(schedule.day), '') AS schedule_days,
-                COALESCE(GROUP_CONCAT(schedule.start_time), '') AS schedule_start_times,
-                COALESCE(GROUP_CONCAT(schedule.end_time), '') AS schedule_end_times,
-                COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
-                COALESCE(GROUP_CONCAT(part.name), '') AS part_names
-			FROM registration
-			INNER JOIN facility ON registration.facility_id = facility.id
-			LEFT JOIN schedule ON registration.id = schedule.registration_id
-			INNER JOIN mug_type ON registration.mug_type_id = mug_type.id
-			INNER JOIN teacher ON registration.teacher_id = teacher.id
-			LEFT JOIN registration_part ON registration.id = registration_part.registration_id
-            LEFT JOIN part ON registration_part.part_id = part.id`
+			   registration.name,
+			   registration.start_date,
+			   registration.number_of_days,
+			   registration.facility_id,
+			   facility.name, 
+			   facility.have_parts,
+			   registration.mug_type_id,
+			   mug_type.name,
+			   registration.teacher_id,
+			   teacher.name,
+			   schedule_aggregate.schedule_ids,
+			   schedule_aggregate.schedule_days,
+			   schedule_aggregate.schedule_start_times,
+			   schedule_aggregate.schedule_end_times,
+			   part_aggregate.part_ids,
+			   part_aggregate.part_names
+		FROM registration
+		INNER JOIN facility ON registration.facility_id = facility.id
+		INNER JOIN mug_type ON registration.mug_type_id = mug_type.id
+		INNER JOIN teacher ON registration.teacher_id = teacher.id
+		LEFT JOIN (
+			SELECT registration_id,
+				   GROUP_CONCAT(id) AS schedule_ids,
+				   GROUP_CONCAT(day) AS schedule_days,
+				   GROUP_CONCAT(start_time) AS schedule_start_times,
+				   GROUP_CONCAT(end_time) AS schedule_end_times
+			FROM schedule
+			GROUP BY registration_id
+		) AS schedule_aggregate ON registration.id = schedule_aggregate.registration_id
+		LEFT JOIN (
+			SELECT registration_part.registration_id,
+				   GROUP_CONCAT(part.id) AS part_ids,
+				   GROUP_CONCAT(part.name) AS part_names
+			FROM registration_part
+			INNER JOIN part ON registration_part.part_id = part.id
+			GROUP BY registration_part.registration_id
+		) AS part_aggregate ON registration.id = part_aggregate.registration_id`
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -196,7 +210,6 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 			schedule.EndTime = end[i]
 			schedule.RegistrationID = registration.ID
 			registration.Schedule = append(registration.Schedule, schedule)
-			//fmt.Println(registration.Schedule)
 		}
 
 		if registration.Facility.HaveParts && partIDs != "" {
@@ -214,7 +227,6 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 				part.FacilityID = registration.Facility.ID
 				registration.Parts = append(registration.Parts, part)
 			}
-			//fmt.Println(registration.Parts)
 		}
 		registrations = append(registrations, registration)
 	}
