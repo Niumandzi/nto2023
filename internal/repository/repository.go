@@ -78,4 +78,5 @@ type TeacherRepository interface {
 type RegistrationRepository interface {
 	Get(ctx context.Context, facilityID int, mugID int, teacherID int) ([]model.RegistrationWithDetails, error)
 	Create(ctx context.Context, registration model.Registration) (int, error)
+	Delete(ctx context.Context, registrationID int) error
 }

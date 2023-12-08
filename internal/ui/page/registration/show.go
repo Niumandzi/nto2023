@@ -55,13 +55,13 @@ func (r RegistrationPage) createRegistrationCard(registration model.Registration
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		//err := r.registrationServ.DeleteBooking(booking.ID)
-		//if err != nil {
-		//	dialog.ShowError(err, window)
-		//} else {
-		//	dialog.ShowInformation("Бронирование удалено", "Бронирование успешно удалено!", window)
-		//	onUpdate()
-		//}
+		err := r.registrationServ.DeleteRegistration(registration.ID)
+		if err != nil {
+			dialog.ShowError(err, window)
+		} else {
+			dialog.ShowInformation("Бронирование удалено", "Бронирование успешно удалено!", window)
+			onUpdate()
+		}
 	})
 
 	deleteButton.Importance = widget.LowImportance

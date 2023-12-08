@@ -233,3 +233,12 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 
 	return registrations, nil
 }
+
+func (r RegistrationRepository) Delete(ctx context.Context, registrationID int) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM registration WHERE registration.id = ?`, registrationID)
+	if err != nil {
+		r.logger.Errorf("error: %v", err.Error())
+		return err
+	}
+	return nil
+}
