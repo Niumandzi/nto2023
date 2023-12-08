@@ -4,8 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
+	"strconv"
+	"strings"
 )
 
 type RegistrationRepository struct {
@@ -65,10 +68,10 @@ func (r RegistrationRepository) Create(ctx context.Context, registration model.R
 			return 0, err
 		}
 		for _, schedule := range registration.Schedule {
-			_, err = tx.ExecContext(ctx, `INSERT INTO schedule (registration_id, name, start_time, end_time) 
+			_, err = tx.ExecContext(ctx, `INSERT INTO schedule (registration_id, day, start_time, end_time) 
 													VALUES ($1, $2, $3, $4);`,
 				registrationID,
-				schedule.Name,
+				schedule.Day,
 				schedule.StartTime,
 				schedule.EndTime)
 			if err != nil {
@@ -113,5 +116,108 @@ func (r RegistrationRepository) Create(ctx context.Context, registration model.R
 }
 
 func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID int, teacherID int) ([]model.RegistrationWithDetails, error) {
-	return nil, nil
+	var registrations []model.RegistrationWithDetails
+	args := make([]interface{}, 0)
+
+	query := `SELECT registration.id,
+				registration.name,
+				registration.start_date,
+				registration.number_of_days,
+				registration.facility_id,
+				facility.name, 
+                facility.have_parts,
+                registration.mug_type_id,
+                mug_type.name,
+                registration.teacher_id,
+                teacher.name,
+                COALESCE(GROUP_CONCAT(schedule.id), '') AS schedule_ids,
+                COALESCE(GROUP_CONCAT(schedule.day), '') AS schedule_days,
+                COALESCE(GROUP_CONCAT(schedule.start_time), '') AS schedule_start_times,
+                COALESCE(GROUP_CONCAT(schedule.end_time), '') AS schedule_end_times,
+                COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
+                COALESCE(GROUP_CONCAT(part.name), '') AS part_names
+			FROM registration
+			INNER JOIN facility ON registration.facility_id = facility.id
+			INNER JOIN schedule ON registration.id = schedule.registration_id
+			INNER JOIN mug_type ON registration.mug_type_id = mug_type.id
+			INNER JOIN teacher ON registration.teacher_id = teacher.id
+			INNER JOIN registration_part ON registration.id = registration_part.registration_id
+            INNER JOIN part ON registration_part.part_id = part.id`
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		r.logger.Errorf("error: %v", err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var registration model.RegistrationWithDetails
+		var scheduleIDs, scheduleNames, scheduleStartTime, scheduleEndTime, partIDs, partNames string
+
+		err = rows.Scan(
+			&registration.ID,
+			&registration.Name,
+			&registration.StartDate,
+			&registration.NumberOfDays,
+			&registration.Facility.ID,
+			&registration.Facility.Name,
+			&registration.Facility.HaveParts,
+			&registration.MugType.ID,
+			&registration.MugType.Name,
+			&registration.Teacher.ID,
+			&registration.Teacher.Name,
+			&scheduleIDs,
+			&scheduleNames,
+			&scheduleStartTime,
+			&scheduleEndTime,
+			&partIDs,
+			&partNames,
+		)
+		if err != nil {
+			r.logger.Errorf("error scanning registration: %v", err.Error())
+			return nil, err
+		}
+
+		ids := strings.Split(scheduleIDs, ",")
+		days := strings.Split(scheduleNames, ",")
+		start := strings.Split(scheduleStartTime, ",")
+		end := strings.Split(scheduleEndTime, ",")
+		fmt.Println(ids, days, start, end)
+		for i := 0; i < registration.NumberOfDays; i++ {
+			var schedule model.Schedule
+			schedule.ID, err = strconv.Atoi(ids[i])
+			if err != nil {
+				r.logger.Errorf("error converting schedule ID to integer: %v", err.Error())
+				continue
+			}
+			schedule.Day = days[i]
+			schedule.StartTime = start[i]
+			schedule.EndTime = end[i]
+			schedule.RegistrationID = registration.ID
+			registration.Schedule = append(registration.Schedule, schedule)
+			//fmt.Println(registration.Schedule)
+		}
+
+		if registration.Facility.HaveParts && partIDs != "" {
+			ids = strings.Split(partIDs, ",")
+			names := strings.Split(partNames, ",")
+			fmt.Println(ids, names)
+			for i, idStr := range ids {
+				var part model.Part
+				part.ID, err = strconv.Atoi(idStr)
+				if err != nil {
+					r.logger.Errorf("error converting part ID to integer: %v", err.Error())
+					continue
+				}
+				part.Name = names[i]
+				part.FacilityID = registration.Facility.ID
+				registration.Parts = append(registration.Parts, part)
+			}
+			//fmt.Println(registration.Parts)
+		}
+		registrations = append(registrations, registration)
+	}
+
+	return registrations, nil
 }

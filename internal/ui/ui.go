@@ -49,7 +49,7 @@ func NavigationBar(application application.ApplicationPage, booking booking.Book
 		"":             {"развлечения", "просвещение", "образование", "рабочий стол"},
 		"развлечения":  {"типы развлечений", "работы развлечения", "бронь развлечения"},
 		"просвещение":  {"типы просвещения", "работы просвещение", "бронь просвещение"},
-		"образование":  {"типы кружка", "преподаватели", "регистрация кружка"},
+		"образование":  {"типы кружка", "преподаватели"},
 		"рабочий стол": {"помещения", "типы работ"},
 	}
 
@@ -84,7 +84,7 @@ func NavigationBar(application application.ApplicationPage, booking booking.Book
 			content = teacher.IndexTeacher(window)
 		case "типы кружка":
 			content = mugType.IndexMugType(window)
-		case "регистрация кружка":
+		case "образование":
 			content = registration.IndexRegistration(window)
 		default:
 			content = error2.ShowErrorPage()

@@ -104,10 +104,11 @@ func CreateTables(db *sql.DB) error {
 		);
 
 		CREATE TABLE IF NOT EXISTS schedule (
-			registration_id INT NOT NULL,
-			name TEXT NOT NULL CHECK (name IN ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')),
+		    id INTEGER PRIMARY KEY,
+			day TEXT NOT NULL CHECK (day IN ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')),
 			start_time TEXT NOT NULL,
 			end_time TEXT NOT NULL,
+			registration_id INT NOT NULL,
 			FOREIGN KEY (registration_id) REFERENCES registration(id) ON DELETE CASCADE
 		);
 

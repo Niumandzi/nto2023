@@ -13,10 +13,11 @@ type Teacher struct {
 }
 
 type Schedule struct {
-	ID        int
-	Name      int
-	StartTime string
-	EndTime   string
+	ID             int
+	Day            string
+	StartTime      string
+	EndTime        string
+	RegistrationID int
 }
 
 type Registration struct {
@@ -35,7 +36,7 @@ type RegistrationWithDetails struct {
 	ID           int
 	Name         string
 	StartDate    string
-	NumberOfDays string
+	NumberOfDays int
 	Facility     Facility
 	MugType      MugType
 	Teacher      Teacher
