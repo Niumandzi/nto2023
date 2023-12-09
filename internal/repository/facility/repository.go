@@ -360,13 +360,15 @@ func (f FacilityRepository) GetByDateTime(ctx context.Context, startDate string,
 
 	rows, err := f.db.QueryContext(ctx, `SELECT facility.id, facility.name, facility.have_parts, facility.is_active
 												FROM facility
-												LEFT JOIN booking on facility.id = booking.facility_id
-												--если нет букинга на этот фасилити, то мы его тоже гетаем
-												WHERE booking.facility_id IS NULL 
-													OR --попадание в нужную дату
-												    	(booking.start_date > $2 OR booking.end_date < $1)
-													AND -- попадание в нужное время
-												    	(booking.start_time > $4 OR booking.end_time < $3);`, startDate, endDate, startTime, endTime)
+												WHERE NOT EXISTS(SELECT 1 
+												                 FROM booking 
+												                 WHERE booking.id IS NOT NULL AND booking.facility_id = facility.id 
+												                	AND 
+												                     (
+												                     	(booking.start_date || ' ' || booking.start_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
+												                 	OR	(booking.end_date || ' ' || booking.end_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
+												                     )
+												                     );`, startDate, startTime, endDate, endTime)
 
 	if err != nil {
 		f.logger.Errorf(err.Error())
@@ -387,18 +389,19 @@ func (f FacilityRepository) GetByDateTime(ctx context.Context, startDate string,
 
 			rows, err = f.db.QueryContext(ctx, `SELECT part.id, part.name, part.facility_id, part.is_active 
 													FROM part 
-													LEFT JOIN booking_part ON part.id = booking_part.part_id
-													LEFT JOIN booking ON booking_part.booking_id = booking.id
-													--абсолютно аналогичный WHERE, но с добавлением того, что мы ищем только парты по фасили ИД
-													--если нет букинга на этот парт, то мы его тоже гетаем
 													WHERE 
-													    	part.facility_id = $1 
-													  	AND
-													    	(booking.facility_id IS NULL 
-														OR --попадание в нужную дату
-												    		booking.start_date > $2 AND booking.end_date < $1 
-												   		OR -- попадание в нужное время
-												    		CAST(booking.start_time AS TIME) > $4 OR CAST(booking.end_time AS TIME) < $3);`, facility.ID)
+													    part.facility_id = $5 
+													  AND 
+													    NOT EXISTS(SELECT 1 
+												                 FROM booking_part 
+												                 INNER JOIN booking ON booking_part.booking_id = booking.id
+												                 WHERE booking_part.part_id = part.id 
+												                	AND 
+												                     (
+												                     	(booking.start_date || ' ' || booking.start_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
+												                 	OR	(booking.end_date || ' ' || booking.end_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
+												                     )
+												                     );`, startDate, startTime, endDate, endTime, facility.ID)
 			if err != nil {
 				f.logger.Errorf(err.Error())
 				return []model.FacilityWithParts{}, nil
