@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/internal/ui/component"
@@ -95,11 +96,13 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	vbox.Add(eventSelect)
 
 	createDateLabel := widget.NewLabel(booking.CreateDate)
+	startLabel := widget.NewLabel("Дата/Время начала")
+	endLabel := widget.NewLabel("Дата/Время окончания")
 	descriptionEntry := component.MultiLineEntryWidgetWithData("Описание", booking.Description)
-	startDateEntry := component.EntryWidgetWithData("Дата начала (гггг-мм-дд)", booking.StartDate)
-	startTimeEntry := component.EntryWidgetWithData("Время начала (чч:мм)", booking.StartTime)
-	endDateEntry := component.EntryWidgetWithData("Дата окончания (гггг-мм-дд)", booking.EndDate)
-	endTimeEntry := component.EntryWidgetWithData("Время начала (чч:мм)", booking.EndTime)
+	startDateEntry := component.EntryWidgetWithData("гггг-мм-дд", booking.StartDate)
+	startTimeEntry := component.EntryWidgetWithData("чч:мм", booking.StartTime)
+	endDateEntry := component.EntryWidgetWithData("гггг-мм-дд", booking.EndDate)
+	endTimeEntry := component.EntryWidgetWithData("чч:мм", booking.EndTime)
 
 	saveButton := widget.NewButton("            Сохранить            ", func() {
 		if facilityParts[selectedFacilityID] != nil && len(facilityParts[selectedFacilityID]) > 0 && len(selectedParts) == 0 {
@@ -159,10 +162,12 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 
 	vbox.Add(createDateLabel)
 	vbox.Add(descriptionEntry)
-	vbox.Add(startDateEntry)
-	vbox.Add(startTimeEntry)
-	vbox.Add(endDateEntry)
-	vbox.Add(endTimeEntry)
+	startContainer := container.New(layout.NewGridLayoutWithColumns(2), startDateEntry, startTimeEntry)
+	vbox.Add(startLabel)
+	vbox.Add(startContainer)
+	endContainer := container.New(layout.NewGridLayoutWithColumns(2), endDateEntry, endTimeEntry)
+	vbox.Add(endLabel)
+	vbox.Add(endContainer)
 
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {

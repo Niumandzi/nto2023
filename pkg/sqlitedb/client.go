@@ -104,29 +104,12 @@ func CreateTables(db *sql.DB) error {
 		);
 
 		CREATE TABLE IF NOT EXISTS schedule (
-			id INTEGER PRIMARY KEY,
-			number_of_days INT NOT NULL UNIQUE CHECK (number_of_days IN (1, 2, 3)),
-			monday BOOLEAN NOT NULL DEFAULT FALSE,
-			monday_start_time TEXT,
-			monday_end_time TEXT,
-			tuesday BOOLEAN NOT NULL DEFAULT FALSE,
-			tuesday_start_time TEXT,
-			tuesday_end_time TEXT,
-			wednesday BOOLEAN NOT NULL DEFAULT FALSE,
-			wednesday_start_time TEXT,
-			wednesday_end_time TEXT,			
-			thursday BOOLEAN NOT NULL DEFAULT FALSE,
-			thursday_start_time TEXT,
-			thursday_end_time TEXT,			
-			friday BOOLEAN NOT NULL DEFAULT FALSE,
-			friday_start_time TEXT,
-			friday_end_time TEXT,
-			saturday BOOLEAN NOT NULL DEFAULT FALSE,
-			saturday_start_time TEXT,
-			saturday_end_time TEXT,
-			sunday BOOLEAN NOT NULL DEFAULT FALSE,
-			sunday_start_time TEXT,
-			sunday_end_time TEXT
+		    id INTEGER PRIMARY KEY,
+			day TEXT NOT NULL CHECK (day IN ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')),
+			start_time TEXT NOT NULL,
+			end_time TEXT NOT NULL,
+			registration_id INT NOT NULL,
+			FOREIGN KEY (registration_id) REFERENCES registration(id) ON DELETE CASCADE
 		);
 
 		CREATE TABLE IF NOT EXISTS registration_part (
@@ -140,11 +123,10 @@ func CreateTables(db *sql.DB) error {
 			id INTEGER PRIMARY KEY,
 			name VARCHAR(255) NOT NULL UNIQUE, 
 			start_date TEXT NOT NULL,
-			schedule_id INT NOT NULL,
+			number_of_days INT NOT NULL CHECK (number_of_days IN (1, 2, 3)),
 			facility_id INT NOT NULL,
 			mug_type_id INT NOT NULL,
 			teacher_id INT NOT NULL,
-			FOREIGN KEY (schedule_id) REFERENCES schedule(id) ON DELETE CASCADE,
 			FOREIGN KEY (facility_id) REFERENCES facility(id),
 			FOREIGN KEY (mug_type_id) REFERENCES mug_type(id),
 			FOREIGN KEY (teacher_id) REFERENCES teacher(id)

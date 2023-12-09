@@ -76,8 +76,8 @@ func (b BookingPage) createBookingCard(booking model.BookingWithFacility, catego
 
 func combineCards(booking model.BookingWithFacility, categoryName string) string {
 	return eventCard(booking, categoryName) + "\n\n" +
-		facilityCard(booking) + "\n\n" +
-		bookingСard(booking)
+		bookingСard(booking) + "\n\n" +
+		facilityCard(booking)
 }
 
 func eventCard(booking model.BookingWithFacility, categoryName string) string {
@@ -105,7 +105,7 @@ func facilityCard(booking model.BookingWithFacility) string {
 	result := fmt.Sprintf("Помещение: %s", booking.Facility.Name)
 
 	if len(booking.Parts) > 0 {
-		partsInfo := []string{}
+		var partsInfo []string
 		for _, part := range booking.Parts {
 			partsInfo = append(partsInfo, fmt.Sprintf("Часть: %s", part.Name))
 		}

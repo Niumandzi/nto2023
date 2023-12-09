@@ -57,7 +57,7 @@ func (f FacilityRepository) Create(ctx context.Context, name string, parts []str
 
 	err = tx.Commit()
 	if err != nil {
-		f.logger.Errorf("error: %v", err.Error())
+		f.logger.Errorf("error: ", err.Error())
 		tx.Rollback()
 		return 0, err
 	}

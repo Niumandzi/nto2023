@@ -73,3 +73,9 @@ type TeacherService interface {
 	UpdateTeacher(teacherId int, name string) error
 	DeleteRestoreTeacher(id int, isActive bool) error
 }
+
+type RegistrationService interface {
+	GetRegistrations(facilityID int, mugID int, teacherID int) ([]model.RegistrationWithDetails, error)
+	CreateRegistration(registration model.Registration) (int, error)
+	DeleteRegistration(registrationID int) error
+}

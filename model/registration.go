@@ -13,33 +13,33 @@ type Teacher struct {
 }
 
 type Schedule struct {
-	ID           int
-	NumberOfDays int
-	Monday       bool
-	Tuesday      bool
-	Wednesday    bool
-	Thursday     bool
-	Friday       bool
-	Saturday     bool
-	Sunday       bool
+	ID             int
+	Day            string
+	StartTime      string
+	EndTime        string
+	RegistrationID int
 }
 
 type Registration struct {
-	ID         int
-	Name       WorkType
-	StartDate  Facility
-	ScheduleID string
-	FacilityID string
-	MugTypeID  string
-	TeacherID  string
+	ID           int
+	Name         string
+	StartDate    string
+	NumberOfDays int
+	FacilityID   int
+	MugTypeID    int
+	TeacherID    int
+	Schedule     []Schedule
+	PartIDs      []int
 }
 
 type RegistrationWithDetails struct {
-	ID        int
-	Name      WorkType
-	StartDate Facility
-	Schedule  Schedule
-	Facility  FacilityWithParts
-	MugType   MugType
-	Teacher   Teacher
+	ID           int
+	Name         string
+	StartDate    string
+	NumberOfDays int
+	Facility     Facility
+	MugType      MugType
+	Teacher      Teacher
+	Schedule     []Schedule
+	Parts        []Part
 }
