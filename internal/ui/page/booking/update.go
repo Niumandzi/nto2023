@@ -24,7 +24,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	var customPopUp *widget.PopUp
 	var selectedParts []int
 
-	facilities, err := b.facilityServ.GetFacilitiesByDate(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.Facility.ID, booking.ID)
+	facilities, err := b.facilityServ.GetFacilitiesByDateTimeAndID(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.ID, booking.Facility.ID)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -172,7 +172,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
 		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err := b.facilityServ.GetFacilitiesByDate(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text, booking.Facility.ID, booking.ID)
+			facilities, err = b.facilityServ.GetFacilitiesByDateTimeAndID(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.ID, booking.Facility.ID)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}

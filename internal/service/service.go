@@ -32,8 +32,8 @@ type FacilityService interface {
 	CreateFacility(name string, parts []string) (int, error)
 	GetFacilities() ([]model.FacilityWithParts, error)
 	GetActiveFacilities(categoryName string, workTypeID int, status string) ([]model.FacilityWithParts, error)
-	GetFacilitiesByDate(startDate string, startTime string, endDate string, endTime string, facilityID int, bookingID int) ([]model.FacilityWithParts, error)
 	GetFacilitiesByDateTime(startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error)
+	GetFacilitiesByDateTimeAndID(startDate string, startTime string, endDate string, endTime string, facilityID, bookingID int) ([]model.FacilityWithParts, error)
 	UpdateFacility(facilityId int, name string) error
 	DeleteRestoreFacility(id int, isActive bool) error
 }
