@@ -76,8 +76,8 @@ func (b BookingPage) createBookingCard(booking model.BookingWithFacility, catego
 
 func combineCards(booking model.BookingWithFacility, categoryName string) string {
 	return eventCard(booking, categoryName) + "\n\n" +
-		facilityCard(booking) + "\n\n" +
-		bookingСard(booking)
+		bookingСard(booking) + "\n\n" +
+		facilityCard(booking)
 }
 
 func eventCard(booking model.BookingWithFacility, categoryName string) string {

@@ -96,18 +96,12 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
                 details.type_name,
                 COALESCE(GROUP_CONCAT(part.id), '') AS part_ids,
                 COALESCE(GROUP_CONCAT(part.name), '') AS part_names
-            FROM
-                booking
-            INNER JOIN 
-                events ON booking.event_id = events.id
-            INNER JOIN 
-                details ON events.details_id = details.id
-            INNER JOIN
-                facility ON booking.facility_id = facility.id
-            LEFT JOIN
-                booking_part ON booking.id = booking_part.booking_id
-            LEFT JOIN
-                part ON booking_part.part_id = part.id`
+            FROM booking
+            INNER JOIN events ON booking.event_id = events.id
+            INNER JOIN details ON events.details_id = details.id
+            INNER JOIN facility ON booking.facility_id = facility.id
+            LEFT JOIN booking_part ON booking.id = booking_part.booking_id
+            LEFT JOIN part ON booking_part.part_id = part.id`
 
 	var whereClauses []string
 	if startDate != "" && endDate != "" {
@@ -160,6 +154,7 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
 			&partIds,
 			&partNames,
 		)
+
 		if err != nil {
 			b.logger.Errorf("error scanning booking: %v", err.Error())
 			return nil, err
