@@ -179,7 +179,6 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 			schedule.EndTime = end[i]
 			schedule.RegistrationID = registration.ID
 			registration.Schedule = append(registration.Schedule, schedule)
-			fmt.Print(registration.Schedule)
 		}
 
 		if registration.Facility.HaveParts && partIDs != "" {

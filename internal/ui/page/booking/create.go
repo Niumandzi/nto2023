@@ -5,6 +5,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/internal/ui/component"
@@ -38,10 +39,12 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 
 	createDateLabel := widget.NewLabel(time.Now().Format("2006-02-01"))
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
-	startDateEntry := component.EntryWidget("Дата начала (гггг-мм-дд)")
-	startTimeEntry := component.EntryWidget("Время начала (чч:мм)")
-	endDateEntry := component.EntryWidget("Дата окончания (гггг-мм-дд)")
-	endTimeEntry := component.EntryWidget("Время начала (чч:мм)")
+	startLabel := widget.NewLabel("Дата/Время начала")
+	endLabel := widget.NewLabel("Дата/Время окончания")
+	startDateEntry := component.EntryWidget("гггг-мм-дд")
+	startTimeEntry := component.EntryWidget("чч:мм")
+	endDateEntry := component.EntryWidget("гггг-мм-дд")
+	endTimeEntry := component.EntryWidget("чч:мм")
 
 	var selectedParts []int
 
@@ -115,10 +118,12 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 
 	vbox.Add(createDateLabel)
 	vbox.Add(descriptionEntry)
-	vbox.Add(startDateEntry)
-	vbox.Add(startTimeEntry)
-	vbox.Add(endDateEntry)
-	vbox.Add(endTimeEntry)
+	startContainer := container.New(layout.NewGridLayoutWithColumns(2), startDateEntry, startTimeEntry)
+	vbox.Add(startLabel)
+	vbox.Add(startContainer)
+	endContainer := container.New(layout.NewGridLayoutWithColumns(2), endDateEntry, endTimeEntry)
+	vbox.Add(endLabel)
+	vbox.Add(endContainer)
 
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {

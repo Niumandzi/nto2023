@@ -1,9 +1,11 @@
 package registration
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/internal/ui/component"
@@ -56,74 +58,25 @@ func (r RegistrationPage) CreateRegistration(window fyne.Window, onUpdate func()
 	}
 
 	daysOfWeek := map[string]bool{"Понедельник": false, "Вторник": false, "Среда": false,
-		"Четверг": false, "friday": false, "Суббота": false, "Воскресенье": false}
+		"Четверг": false, "Пятница": false, "Суббота": false, "Воскресенье": false}
 
 	dayTimeEntries := make(map[string][2]*widget.Entry)
 	daysBox := container.NewVBox()
 
 	dayContainers := make(map[string]*fyne.Container)
 
-	var schedule []model.Schedule
-
-	for day := range daysOfWeek {
-		localDay := day
-
-		updateSchedule := func() {
-			for i, scheduleRecord := range schedule {
-				if scheduleRecord.Day == localDay {
-					entryPair, exists := dayTimeEntries[localDay]
-					if exists {
-						schedule[i].StartTime = entryPair[0].Text
-						schedule[i].EndTime = entryPair[1].Text
-					}
-					break
-				}
-			}
-		}
-
-		dayCheck := widget.NewCheck(localDay, func(checked bool) {
-			daysOfWeek[localDay] = checked
-			if checked {
-				startTimeEntry := widget.NewEntry()
-				startTimeEntry.OnChanged = func(string) { updateSchedule() }
-				endTimeEntry := widget.NewEntry()
-				endTimeEntry.OnChanged = func(string) { updateSchedule() }
-
-				dayTimeEntries[localDay] = [2]*widget.Entry{startTimeEntry, endTimeEntry}
-				dayContainer := container.NewHBox(widget.NewLabel(localDay), startTimeEntry, endTimeEntry)
-				dayContainers[localDay] = dayContainer
-				daysBox.Add(dayContainer)
-
-				schedule = append(schedule, model.Schedule{
-					Day:       "friday",
-					StartTime: "15:00",
-					EndTime:   "18:00",
-				})
-			} else {
-				if dayContainer, exists := dayContainers[localDay]; exists {
-					daysBox.Remove(dayContainer)
-					delete(dayTimeEntries, localDay)
-					delete(dayContainers, localDay)
-
-					for i, scheduleRecord := range schedule {
-						if scheduleRecord.Day == localDay {
-							schedule = append(schedule[:i], schedule[i+1:]...)
-							break
-						}
-					}
-				}
-			}
-			window.Canvas().Refresh(vbox)
-		})
-
-		daysBox.Add(dayCheck)
+	dayTranslations := map[string]string{
+		"Понедельник": "monday",
+		"Вторник":     "tuesday",
+		"Среда":       "wednesday",
+		"Четверг":     "thursday",
+		"Пятница":     "friday",
+		"Суббота":     "saturday",
+		"Воскресенье": "sunday",
 	}
 
-	numberOfDaysSelect := component.SelectorWidget("Количество занятий в неделю", numberOfDays, func(id int) {
-		selectedNumberOfDays = id
-		vbox.Add(daysBox)
-		window.Canvas().Refresh(vbox)
-	}, nil)
+	var schedule []model.Schedule
+
 	nameEntry := component.EntryWidget("Название")
 	startDateEntry := component.EntryWidget("Дата начала (гггг-мм-дд)")
 
@@ -136,6 +89,10 @@ func (r RegistrationPage) CreateRegistration(window fyne.Window, onUpdate func()
 	var customPopUp *widget.PopUp
 
 	saveButton := widget.NewButton("            Создать            ", func() {
+		if len(schedule) != selectedNumberOfDays {
+			dialog.ShowInformation("Предупреждение", "Количество выбранных дней не соответствует выбранному количеству занятий в неделю.", window)
+			return
+		}
 
 		formData := model.Registration{
 			Name:         nameEntry.Text,
@@ -155,6 +112,74 @@ func (r RegistrationPage) CreateRegistration(window fyne.Window, onUpdate func()
 	})
 
 	buttons := container.NewHBox(saveButton, cancelButton)
+
+	updateDaysBox := func() {
+		daysBox.RemoveAll()
+		schedule = nil
+		for day := range daysOfWeek {
+			localDay := day
+			englishDay := dayTranslations[localDay]
+			timeContainer := container.New(layout.NewGridLayout(2))
+			dayContainers[englishDay] = timeContainer
+
+			updateSchedule := func() {
+				for i, scheduleRecord := range schedule {
+					if scheduleRecord.Day == englishDay {
+						entryPair, exists := dayTimeEntries[englishDay]
+						if exists {
+							schedule[i].StartTime = entryPair[0].Text
+							schedule[i].EndTime = entryPair[1].Text
+						}
+						break
+					}
+				}
+			}
+
+			dayCheck := widget.NewCheck(localDay, func(checked bool) {
+				daysOfWeek[localDay] = checked
+				if checked {
+					startTimeEntry := component.EntryWidget("Дата начала")
+					startTimeEntry.OnChanged = func(string) { updateSchedule() }
+					endTimeEntry := component.EntryWidget("Дата окончания")
+					endTimeEntry.OnChanged = func(string) { updateSchedule() }
+
+					dayTimeEntries[englishDay] = [2]*widget.Entry{startTimeEntry, endTimeEntry}
+					timeContainer.Add(startTimeEntry)
+					timeContainer.Add(endTimeEntry)
+
+					schedule = append(schedule, model.Schedule{
+						Day:       englishDay,
+						StartTime: startTimeEntry.Text,
+						EndTime:   endTimeEntry.Text,
+					})
+				} else {
+					timeContainer.RemoveAll()
+					delete(dayTimeEntries, englishDay)
+					delete(dayContainers, englishDay)
+
+					for i, scheduleRecord := range schedule {
+						if scheduleRecord.Day == englishDay {
+							schedule = append(schedule[:i], schedule[i+1:]...)
+							break
+						}
+					}
+				}
+				window.Canvas().Refresh(vbox)
+			})
+			fmt.Println(schedule)
+
+			dayBox := container.NewVBox(dayCheck, timeContainer)
+			daysBox.Add(dayBox)
+
+			vbox.Remove(buttons)
+			vbox.Remove(daysBox)
+			vbox.Remove(facilitySelect)
+			vbox.Add(daysBox)
+			vbox.Add(facilitySelect)
+			vbox.Add(buttons)
+			window.Canvas().Refresh(vbox)
+		}
+	}
 
 	updateParts := func() {
 		newPartsBox := container.NewVBox()
@@ -184,6 +209,11 @@ func (r RegistrationPage) CreateRegistration(window fyne.Window, onUpdate func()
 		vbox.Add(buttons)
 		window.Canvas().Refresh(vbox)
 	}
+
+	numberOfDaysSelect := component.SelectorWidget("Количество занятий в неделю", numberOfDays, func(numberOfDays int) {
+		selectedNumberOfDays = numberOfDays
+		updateDaysBox()
+	}, nil)
 
 	vbox.Add(nameEntry)
 	vbox.Add(mugTypeSelect)
@@ -227,13 +257,11 @@ func (r RegistrationPage) CreateRegistration(window fyne.Window, onUpdate func()
 
 	if facilitySelect != nil {
 		vbox.Remove(partsBox)
-		vbox.Remove(facilitySelect)
 		vbox.Remove(buttons)
 		facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
 			selectedFacilityID = id
 			updateParts()
 		}, nil)
-		vbox.Add(facilitySelect)
 		vbox.Add(buttons)
 	}
 
@@ -243,14 +271,12 @@ func (r RegistrationPage) CreateRegistration(window fyne.Window, onUpdate func()
 	}, nil)
 
 	vbox.Add(facilitySelect)
-
 	vbox.Add(buttons)
 
 	customPopUp = widget.NewModalPopUp(vbox, window.Canvas())
 	customPopUp.Resize(fyne.NewSize(300, 200))
 	customPopUp.Show()
 }
-
 func handleCreateRegistration(appData model.Registration, window fyne.Window, registrationServ service.RegistrationService, onUpdate func(), popUp *widget.PopUp) {
 
 	_, err := registrationServ.CreateRegistration(appData)
