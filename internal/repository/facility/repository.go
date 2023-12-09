@@ -356,29 +356,36 @@ func (f FacilityRepository) GetByDateTime(ctx context.Context, startDate string,
 	//startTime += ":00"
 	//endTime += ":00"
 
+	ctx = context.Background()
+
 	var facilities []model.FacilityWithParts
 
-	rows, err := f.db.QueryContext(ctx, `SELECT facility.id, facility.name, facility.have_parts, facility.is_active
+	facilityRows, err := f.db.QueryContext(ctx, `SELECT facility.id, facility.name, facility.have_parts, facility.is_active
 												FROM facility
-												WHERE NOT EXISTS(SELECT 1 
-												                 FROM booking 
-												                 WHERE booking.id IS NOT NULL AND booking.facility_id = facility.id 
+												WHERE NOT EXISTS(SELECT 1
+												                 FROM booking
+												                 LEFT JOIN booking_part  on booking.id = booking_part.booking_id
+												                 WHERE 
+												                     booking.facility_id = facility.id
 												                	AND 
 												                     (
 												                     	(booking.start_date || ' ' || booking.start_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
 												                 	OR	(booking.end_date || ' ' || booking.end_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
 												                     )
-												                     );`, startDate, startTime, endDate, endTime)
+												                 GROUP BY booking.id
+												                 HAVING COUNT(booking_part.booking_id) = 0);`, startDate, startTime, endDate, endTime)
 
 	if err != nil {
 		f.logger.Errorf(err.Error())
-		return []model.FacilityWithParts{}, nil
+		return []model.FacilityWithParts{}, err
 	}
 
-	for rows.Next() {
+	defer facilityRows.Close()
+
+	for facilityRows.Next() {
 		var facility model.FacilityWithParts
 
-		err = rows.Scan(&facility.ID,
+		err = facilityRows.Scan(&facility.ID,
 			&facility.Name,
 			&facility.HaveParts,
 			&facility.IsActive,
@@ -387,38 +394,40 @@ func (f FacilityRepository) GetByDateTime(ctx context.Context, startDate string,
 		if facility.HaveParts {
 			var parts []model.Part
 
-			rows, err = f.db.QueryContext(ctx, `SELECT part.id, part.name, part.facility_id, part.is_active 
+			partRows, err := f.db.QueryContext(ctx, `SELECT part.id, part.name, part.facility_id, part.is_active 
 													FROM part 
 													WHERE 
-													    part.facility_id = $5 
-													  AND 
+													    part.facility_id = $1 
+													AND
 													    NOT EXISTS(SELECT 1 
 												                 FROM booking_part 
 												                 INNER JOIN booking ON booking_part.booking_id = booking.id
-												                 WHERE booking_part.part_id = part.id 
+												                 WHERE booking_part.part_id = part.id  
 												                	AND 
 												                     (
-												                     	(booking.start_date || ' ' || booking.start_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
-												                 	OR	(booking.end_date || ' ' || booking.end_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
+												                     	(booking.start_date || ' ' || booking.start_time) BETWEEN $2 || ' ' || $3 AND $4 || ' ' || $5
+												                 	OR	(booking.end_date || ' ' || booking.end_time) BETWEEN $2 || ' ' || $3 AND $4 || ' ' || $5
 												                     )
-												                     );`, startDate, startTime, endDate, endTime, facility.ID)
+												                     );`, facility.ID, startDate, startTime, endDate, endTime)
 			if err != nil {
 				f.logger.Errorf(err.Error())
-				return []model.FacilityWithParts{}, nil
+				return []model.FacilityWithParts{}, err
 			}
 
-			for rows.Next() {
+			defer partRows.Close()
+
+			for partRows.Next() {
 				var part model.Part
 
-				err = rows.Scan(&part.ID,
+				err = partRows.Scan(&part.ID,
 					&part.Name,
 					&part.FacilityID,
-					part.IsActive,
+					&part.IsActive,
 				)
 
 				if err != nil {
 					f.logger.Errorf(err.Error())
-					return []model.FacilityWithParts{}, nil
+					return []model.FacilityWithParts{}, err
 				}
 				parts = append(parts, part)
 			}
