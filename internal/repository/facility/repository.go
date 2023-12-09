@@ -351,58 +351,85 @@ func (f FacilityRepository) GetByDate(ctx context.Context, startDate string, sta
 	return facilities, nil
 }
 
+// time format should be HH:MM:SS
 func (f FacilityRepository) GetByDateTime(ctx context.Context, startDate string, startTime string, endDate string, endTime string) ([]model.FacilityWithParts, error) {
-	query := `
-    SELECT 
-		facility.id, 
-		facility.name, 
-		facility.have_parts,
-		COALESCE(GROUP_CONCAT(DISTINCT CASE WHEN b.id IS NULL THEN part.id END), '') AS part_ids,
-		COALESCE(GROUP_CONCAT(DISTINCT CASE WHEN b.id IS NULL THEN part.name END), '') AS part_names
-	FROM facility
-	LEFT JOIN part ON facility.id = part.facility_id AND part.is_active = TRUE
-	LEFT JOIN booking_part bp ON part.id = bp.part_id
-	LEFT JOIN booking b ON bp.booking_id = b.id 
-		AND (
-			(datetime(b.start_date || ' ' || b.start_time) <= datetime($1 || ' ' || $2) AND datetime(b.end_date || ' ' || b.end_time) >= datetime($1 || ' ' || $2)) 
-			OR (datetime(b.start_date || ' ' || b.start_time) <= datetime($3 || ' ' || $4) AND datetime(b.end_date || ' ' || b.end_time) >= datetime($3 || ' ' || $4)) 
-			OR (datetime(b.start_date || ' ' || b.start_time) >= datetime($1 || ' ' || $2) AND datetime(b.end_date || ' ' || b.end_time) <= datetime($3 || ' ' || $4))
-		)
-	WHERE facility.is_active = TRUE
-	GROUP BY facility.id
-	HAVING (facility.have_parts = FALSE AND COUNT(DISTINCT b.id) = 0) 
-		OR (facility.have_parts = TRUE AND COUNT(DISTINCT part.id) > COUNT(DISTINCT CASE WHEN b.id IS NOT NULL THEN part.id END))
-    `
-
-	rows, err := f.db.QueryContext(ctx, query, startDate, startTime, endDate, endTime)
-	if err != nil {
-		f.logger.Errorf("error: %v", err.Error())
-		return nil, err
-	}
-
-	defer rows.Close()
+	//startTime += ":00"
+	//endTime += ":00"
 
 	var facilities []model.FacilityWithParts
+
+	rows, err := f.db.QueryContext(ctx, `SELECT facility.id, facility.name, facility.have_parts, facility.is_active
+												FROM facility
+												LEFT JOIN booking on facility.id = booking.facility_id
+												--если нет букинга на этот фасилити, то мы его тоже гетаем
+												WHERE booking.facility_id IS NULL 
+													OR --попадание в нужную дату
+												    	(booking.start_date > $2 OR booking.end_date < $1)
+													AND -- попадание в нужное время
+												    	(booking.start_time > $4 OR booking.end_time < $3);`, startDate, endDate, startTime, endTime)
+
+	if err != nil {
+		f.logger.Errorf(err.Error())
+		return []model.FacilityWithParts{}, nil
+	}
+
 	for rows.Next() {
-		var fwp model.FacilityWithParts
-		var partIDs, partNames string
+		var facility model.FacilityWithParts
 
-		err = rows.Scan(&fwp.ID, &fwp.Name, &fwp.HaveParts, &partIDs, &partNames)
-		if err != nil {
-			f.logger.Errorf("error: %v", err.Error())
-			return nil, err
-		}
+		err = rows.Scan(&facility.ID,
+			&facility.Name,
+			&facility.HaveParts,
+			&facility.IsActive,
+		)
 
-		if partIDs != "" {
-			ids := strings.Split(partIDs, ",")
-			names := strings.Split(partNames, ",")
-			for i, idStr := range ids {
-				id, _ := strconv.Atoi(idStr)
-				fwp.Parts = append(fwp.Parts, model.Part{ID: id, Name: names[i]})
+		if facility.HaveParts {
+			var parts []model.Part
+
+			rows, err = f.db.QueryContext(ctx, `SELECT part.id, part.name, part.facility_id, part.is_active 
+													FROM part 
+													LEFT JOIN booking_part ON part.id = booking_part.part_id
+													LEFT JOIN booking ON booking_part.booking_id = booking.id
+													--абсолютно аналогичный WHERE, но с добавлением того, что мы ищем только парты по фасили ИД
+													--если нет букинга на этот парт, то мы его тоже гетаем
+													WHERE 
+													    	part.facility_id = $1 
+													  	AND
+													    	(booking.facility_id IS NULL 
+														OR --попадание в нужную дату
+												    		booking.start_date > $2 AND booking.end_date < $1 
+												   		OR -- попадание в нужное время
+												    		CAST(booking.start_time AS TIME) > $4 OR CAST(booking.end_time AS TIME) < $3);`, facility.ID)
+			if err != nil {
+				f.logger.Errorf(err.Error())
+				return []model.FacilityWithParts{}, nil
 			}
-		}
 
-		facilities = append(facilities, fwp)
+			for rows.Next() {
+				var part model.Part
+
+				err = rows.Scan(&part.ID,
+					&part.Name,
+					&part.FacilityID,
+					part.IsActive,
+				)
+
+				if err != nil {
+					f.logger.Errorf(err.Error())
+					return []model.FacilityWithParts{}, nil
+				}
+				parts = append(parts, part)
+			}
+			if len(parts) != 0 {
+				facility.Parts = parts
+				facilities = append(facilities, facility)
+			} else {
+				// не добавляем facility, у которого have parts True, но все part заняты
+				_ = facility
+			}
+		} else {
+			// если у facility have parts False, то добавляем естественно I love hot dogs
+			facilities = append(facilities, facility)
+		}
 	}
 
 	return facilities, nil
