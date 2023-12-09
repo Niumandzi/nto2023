@@ -108,7 +108,7 @@ func main() {
 	facility := facilityPage.NewFacilityPage(facilityServ, partServ, logger)
 	mugType := mugPage.NewMugTypePage(mugTypeServ, logger)
 	teacher := teacherPage.NewTeacherPage(teacherServ, logger)
-	registration := registrationPage.NewRegistrationPage(registrationServ, logger)
+	registration := registrationPage.NewRegistrationPage(registrationServ, facilityServ, teacherServ, mugTypeServ, logger)
 	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 
 	gui := ui.NewGUI(a, w)

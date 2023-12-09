@@ -119,7 +119,6 @@ func (t TeacherRepository) GetActive(ctx context.Context, facilityID int, mugTyp
 
 		teachers = append(teachers, teacher)
 	}
-
 	return teachers, nil
 }
 

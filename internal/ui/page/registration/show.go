@@ -59,7 +59,7 @@ func (r RegistrationPage) createRegistrationCard(registration model.Registration
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Бронирование удалено", "Бронирование успешно удалено!", window)
+			dialog.ShowInformation("Кружок удален", "Кружок успешно удален!", window)
 			onUpdate()
 		}
 	})

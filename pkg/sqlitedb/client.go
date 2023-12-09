@@ -123,7 +123,7 @@ func CreateTables(db *sql.DB) error {
 			id INTEGER PRIMARY KEY,
 			name VARCHAR(255) NOT NULL UNIQUE, 
 			start_date TEXT NOT NULL,
-			number_of_days INT NOT NULL UNIQUE CHECK (number_of_days IN (1, 2, 3)),
+			number_of_days INT NOT NULL CHECK (number_of_days IN (1, 2, 3)),
 			facility_id INT NOT NULL,
 			mug_type_id INT NOT NULL,
 			teacher_id INT NOT NULL,

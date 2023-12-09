@@ -6,7 +6,7 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (r RegistrationService) Create(registration model.Registration) (int, error) {
+func (r RegistrationService) CreateRegistration(registration model.Registration) (int, error) {
 	ctx, cancel := context.WithTimeout(r.ctx, r.contextTimeout)
 	defer cancel()
 

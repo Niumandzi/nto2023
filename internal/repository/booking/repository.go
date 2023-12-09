@@ -180,7 +180,6 @@ func (b BookingRepository) Get(ctx context.Context, startDate string, endDate st
 				booking.Parts = append(booking.Parts, part)
 			}
 		}
-
 		bookings = append(bookings, booking)
 	}
 

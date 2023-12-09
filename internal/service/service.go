@@ -76,6 +76,6 @@ type TeacherService interface {
 
 type RegistrationService interface {
 	GetRegistrations(facilityID int, mugID int, teacherID int) ([]model.RegistrationWithDetails, error)
-	Create(registration model.Registration) (int, error)
+	CreateRegistration(registration model.Registration) (int, error)
 	DeleteRegistration(registrationID int) error
 }

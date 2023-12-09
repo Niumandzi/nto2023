@@ -10,12 +10,18 @@ import (
 
 type RegistrationPage struct {
 	registrationServ service.RegistrationService
+	facilityServ     service.FacilityService
+	teacherServ      service.TeacherService
+	mugTypeServ      service.MugTypeService
 	logger           logging.Logger
 }
 
-func NewRegistrationPage(reg service.RegistrationService, logger logging.Logger) RegistrationPage {
+func NewRegistrationPage(reg service.RegistrationService, fac service.FacilityService, teach service.TeacherService, mug service.MugTypeService, logger logging.Logger) RegistrationPage {
 	return RegistrationPage{
 		registrationServ: reg,
+		facilityServ:     fac,
+		teacherServ:      teach,
+		mugTypeServ:      mug,
 		logger:           logger,
 	}
 }
@@ -33,9 +39,9 @@ func (r RegistrationPage) IndexRegistration(window fyne.Window) fyne.CanvasObjec
 	//)
 
 	createBookingButton := widget.NewButton("Создать бронь", func() {
-		//r.CreateRegistration(window, func() {
-		//	registrationList(0, 0, 0)
-		//})
+		r.CreateRegistration(window, func() {
+			registrationList(0, 0, 0)
+		})
 	})
 	createButtons := container.NewHBox(createBookingButton)
 
@@ -44,4 +50,13 @@ func (r RegistrationPage) IndexRegistration(window fyne.Window) fyne.CanvasObjec
 	registrationList(0, 0, 0)
 
 	return content
+}
+
+func contains(slice []int, item int) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
 }

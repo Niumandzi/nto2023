@@ -25,8 +25,9 @@ func NewRegistrationRepository(db *sql.DB, logger logging.Logger) RegistrationRe
 
 func (r RegistrationRepository) Create(ctx context.Context, registration model.Registration) (int, error) {
 	var registrationID int64
+	fmt.Print(registration)
 
-	if len(registration.PartIDs) == 0 && registration.FacilityID == 0 || registration.FacilityID == 0 {
+	if len(registration.PartIDs) == 0 && registration.FacilityID == 0 {
 		err := errors.New("no booking facilityID no partIDs provided")
 		r.logger.Logger.Error("error ", err.Error())
 		return 0, err
@@ -35,9 +36,15 @@ func (r RegistrationRepository) Create(ctx context.Context, registration model.R
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		r.logger.Logger.Error("error ", err.Error())
-		tx.Rollback()
 		return 0, err
 	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			r.logger.Logger.Error("Transaction rolled back due to error: ", err.Error())
+		}
+	}()
 
 	res, err := tx.ExecContext(ctx, `INSERT INTO registration (name, start_date, number_of_days, facility_id, mug_type_id, teacher_id) 
 												VALUES ($1, $2, $3, $4, $5, $6);`,
@@ -48,25 +55,17 @@ func (r RegistrationRepository) Create(ctx context.Context, registration model.R
 		registration.MugTypeID,
 		registration.TeacherID)
 	if err != nil {
-		r.logger.Error("error: ", err.Error())
-		tx.Rollback()
+		r.logger.Error("registration error: ", err.Error())
 		return 0, err
 	}
 
 	registrationID, err = res.LastInsertId()
-	err = tx.Commit()
 	if err != nil {
-		r.logger.Error("error: ", err.Error())
-		tx.Rollback()
 		return 0, err
 	}
 
+	fmt.Print(registration.Schedule)
 	if len(registration.Schedule) > 0 {
-		if err != nil {
-			r.logger.Error("error: ", err.Error())
-			tx.Rollback()
-			return 0, err
-		}
 		for _, schedule := range registration.Schedule {
 			_, err = tx.ExecContext(ctx, `INSERT INTO schedule (registration_id, day, start_time, end_time) 
 													VALUES ($1, $2, $3, $4);`,
@@ -75,40 +74,24 @@ func (r RegistrationRepository) Create(ctx context.Context, registration model.R
 				schedule.StartTime,
 				schedule.EndTime)
 			if err != nil {
-				r.logger.Error("error: ", err.Error())
-				tx.Rollback()
+				r.logger.Error("schedule error: ", err.Error())
 				return 0, err
 			}
 		}
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		r.logger.Error("error: ", err.Error())
-		tx.Rollback()
-		return 0, err
 	}
 
 	if len(registration.PartIDs) > 0 {
-		if err != nil {
-			r.logger.Error("error: ", err.Error())
-			tx.Rollback()
-			return 0, err
-		}
 		for _, partID := range registration.PartIDs {
 			_, err = tx.ExecContext(ctx, `INSERT INTO registration_part (registration_id, part_id) VALUES ($1, $2);`, registrationID, partID)
 			if err != nil {
-				r.logger.Error("error: ", err.Error())
-				tx.Rollback()
+				r.logger.Error("part error: ", err.Error())
 				return 0, err
 			}
 		}
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		r.logger.Error("error: ", err.Error())
-		tx.Rollback()
+	if err = tx.Commit(); err != nil {
+		r.logger.Logger.Error("error: ", err.Error())
 		return 0, err
 	}
 
@@ -150,12 +133,12 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 			GROUP BY registration_id
 		) AS schedule_aggregate ON registration.id = schedule_aggregate.registration_id
 		LEFT JOIN (
-			SELECT registration_part.registration_id,
+			SELECT registration_id,
 				   GROUP_CONCAT(part.id) AS part_ids,
 				   GROUP_CONCAT(part.name) AS part_names
 			FROM registration_part
 			INNER JOIN part ON registration_part.part_id = part.id
-			GROUP BY registration_part.registration_id
+			GROUP BY registration_id
 		) AS part_aggregate ON registration.id = part_aggregate.registration_id`
 
 	rows, err := r.db.QueryContext(ctx, query, args...)
@@ -197,7 +180,6 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 		days := strings.Split(scheduleDays, ",")
 		start := strings.Split(scheduleStartTime, ",")
 		end := strings.Split(scheduleEndTime, ",")
-		fmt.Println(scheduleIDs, scheduleDays, scheduleStartTime, scheduleEndTime)
 		for i := 0; i < registration.NumberOfDays; i++ {
 			var schedule model.Schedule
 			schedule.ID, err = strconv.Atoi(ids[i])
@@ -215,7 +197,6 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 		if registration.Facility.HaveParts && partIDs != "" {
 			ids = strings.Split(partIDs, ",")
 			names := strings.Split(partNames, ",")
-			fmt.Println(ids, names)
 			for i, idStr := range ids {
 				var part model.Part
 				part.ID, err = strconv.Atoi(idStr)
@@ -232,6 +213,10 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 	}
 
 	return registrations, nil
+}
+
+func (r RegistrationRepository) Update(ctx context.Context, registration model.Registration) error {
+	return nil
 }
 
 func (r RegistrationRepository) Delete(ctx context.Context, registrationID int) error {
