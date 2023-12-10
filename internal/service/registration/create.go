@@ -12,7 +12,13 @@ func (r RegistrationService) CreateRegistration(registration model.Registration)
 	ctx, cancel := context.WithTimeout(r.ctx, r.contextTimeout)
 	defer cancel()
 
-	err := validation.ValidateStruct(&registration,
+	err := checkForDuplicateDays(registration.Schedule)
+	if err != nil {
+		r.logger.Error("error: %v", err.Error())
+		return 0, err
+	}
+
+	err = validation.ValidateStruct(&registration,
 		validation.Field(&registration.Name, validation.Required),
 		validation.Field(&registration.StartDate, validation.Required, validation.Date("2006-01-02")),
 		validation.Field(&registration.NumberOfDays, validation.Required, validation.In(1, 2, 3)),
@@ -32,6 +38,17 @@ func (r RegistrationService) CreateRegistration(registration model.Registration)
 	}
 
 	return id, nil
+}
+
+func checkForDuplicateDays(schedule []model.Schedule) error {
+	days := make(map[string]bool)
+	for _, s := range schedule {
+		if days[s.Day] {
+			return errors.New("duplicate day found in schedule")
+		}
+		days[s.Day] = true
+	}
+	return nil
 }
 
 func validateSchedule(value interface{}) error {

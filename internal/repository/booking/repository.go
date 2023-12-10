@@ -233,7 +233,6 @@ func (b BookingRepository) Update(ctx context.Context, bookingUpd model.Booking)
 		}
 	}
 
-	// Commit the transaction
 	err = tx.Commit()
 	if err != nil {
 		b.logger.Errorf("error: %v", err.Error())

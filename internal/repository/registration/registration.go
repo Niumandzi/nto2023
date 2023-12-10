@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	errcode "github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
 	"strconv"
@@ -202,7 +203,78 @@ func (r RegistrationRepository) Get(ctx context.Context, facilityID int, mugID i
 	return registrations, nil
 }
 
-func (r RegistrationRepository) Update(ctx context.Context, registration model.Registration) error {
+func (r RegistrationRepository) Update(ctx context.Context, registrationUpd model.Registration) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		r.logger.Errorf("error: %v", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	res, err := tx.ExecContext(ctx, `UPDATE registration
+											SET 
+												name = ?,
+												number_of_days = ?,
+												start_date = ?,
+												facility_id = ?,
+												mug_type_id = ?,
+												teacher_id = ?
+											WHERE
+											    id = ?`, registrationUpd.Name, registrationUpd.NumberOfDays, registrationUpd.StartDate, registrationUpd.FacilityID,
+		registrationUpd.MugTypeID, registrationUpd.TeacherID, registrationUpd.ID)
+	rowCount, err := res.RowsAffected()
+	if err != nil {
+		r.logger.Errorf("error: %v", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	if rowCount != 1 {
+		err = errcode.NewRowCountError("registration repo update", int(rowCount))
+		r.logger.Errorf("error: %v", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.ExecContext(ctx, `DELETE FROM schedule WHERE registration_id = ?`, registrationUpd.ID)
+	if err != nil {
+		r.logger.Errorf("error: %v", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	for _, schedule := range registrationUpd.Schedule {
+		_, err = tx.ExecContext(ctx, `INSERT INTO schedule (day, start_time, end_time, registration_id) VALUES (?, ?, ?, ?)`, schedule.Day, schedule.StartTime, schedule.EndTime, registrationUpd.ID)
+		if err != nil {
+			r.logger.Errorf("error: %v", err.Error())
+			tx.Rollback()
+			return err
+		}
+	}
+
+	_, err = tx.ExecContext(ctx, `DELETE FROM registration_part WHERE registration_id = ?`, registrationUpd.ID)
+	if err != nil {
+		r.logger.Errorf("error: %v", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	for _, partID := range registrationUpd.PartIDs {
+		_, err = tx.ExecContext(ctx, `INSERT INTO registration_part (registration_id, part_id) VALUES (?, ?)`, registrationUpd.ID, partID)
+		if err != nil {
+			r.logger.Errorf("error: %v", err.Error())
+			tx.Rollback()
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		r.logger.Errorf("error: %v", err.Error())
+		tx.Rollback()
+		return err
+	}
+
 	return nil
 }
 

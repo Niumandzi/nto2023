@@ -39,19 +39,18 @@ func (r RegistrationPage) createRegistrationCard(registration model.Registration
 	label.Wrapping = fyne.TextWrapWord
 
 	updateButton := widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), func() {
-		//bookingToUpdate := model.BookingWithFacility{
-		//	ID:          booking.ID,
-		//	Description: booking.Description,
-		//	CreateDate:  booking.CreateDate,
-		//	StartDate:   booking.StartDate,
-		//	StartTime:   booking.StartTime,
-		//	EndDate:     booking.EndDate,
-		//	EndTime:     booking.EndTime,
-		//	Event:       booking.Event,
-		//	Facility:    booking.Facility,
-		//	Parts:       booking.Parts,
-		//}
-		//b.UpdateBooking(categoryName, bookingToUpdate, window, onUpdate)
+		registrationToUpdate := model.RegistrationWithDetails{
+			ID:           registration.ID,
+			Name:         registration.Name,
+			StartDate:    registration.StartDate,
+			NumberOfDays: registration.NumberOfDays,
+			Facility:     registration.Facility,
+			MugType:      registration.MugType,
+			Teacher:      registration.Teacher,
+			Schedule:     registration.Schedule,
+			Parts:        registration.Parts,
+		}
+		r.UpdateRegistration(registrationToUpdate, window, onUpdate)
 	})
 
 	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {

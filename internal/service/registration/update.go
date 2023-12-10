@@ -6,11 +6,17 @@ import (
 	"github.com/niumandzi/nto2023/model"
 )
 
-func (r RegistrationService) Update(registrationUpd model.Registration) (int, error) {
+func (r RegistrationService) UpdateRegistration(registrationUpd model.Registration) error {
 	ctx, cancel := context.WithTimeout(r.ctx, r.contextTimeout)
 	defer cancel()
 
-	err := validation.ValidateStruct(&registrationUpd,
+	err := checkForDuplicateDays(registrationUpd.Schedule)
+	if err != nil {
+		r.logger.Error("error: %v", err.Error())
+		return err
+	}
+
+	err = validation.ValidateStruct(&registrationUpd,
 		validation.Field(&registrationUpd.Name, validation.Required),
 		validation.Field(&registrationUpd.StartDate, validation.Required, validation.Date("2006-01-02")),
 		validation.Field(&registrationUpd.NumberOfDays, validation.Required, validation.In(1, 2, 3)),
@@ -21,13 +27,13 @@ func (r RegistrationService) Update(registrationUpd model.Registration) (int, er
 	)
 	if err != nil {
 		r.logger.Error("error: %v", err.Error())
-		return 0, err
+		return err
 	}
 
-	id, err := r.registrationRepo.Create(ctx, registrationUpd)
+	err = r.registrationRepo.Update(ctx, registrationUpd)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	return id, nil
+	return nil
 }

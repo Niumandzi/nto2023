@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/pkg/logging"
+	"time"
 )
 
 type RegistrationPage struct {
@@ -32,13 +33,7 @@ func (r RegistrationPage) IndexRegistration(window fyne.Window) fyne.CanvasObjec
 		r.ShowRegistration(facilityID, mugID, teacherID, window, registrationContainer)
 	}
 
-	//typeSelect := component.SelectorWidget("Тип мероприятия", typeNames, func(id int) {
-	//	bookingList("", "", 0, categoryName)
-	//},
-	//	nil,
-	//)
-
-	createBookingButton := widget.NewButton("Создать бронь", func() {
+	createBookingButton := widget.NewButton("Зарегестрировать кружок", func() {
 		r.CreateRegistration(window, func() {
 			registrationList(0, 0, 0)
 		})
@@ -59,4 +54,9 @@ func contains(slice []int, item int) bool {
 		}
 	}
 	return false
+}
+
+func isTimeFormatValid(timeStr string) bool {
+	_, err := time.Parse("15:04", timeStr)
+	return err == nil
 }
