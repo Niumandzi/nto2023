@@ -173,7 +173,7 @@ func (w WorkTypeRepository) Delete(ctx context.Context, workTypeId int, isActive
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE work_type SET is_active = $1 WHERE work_type.id = $2;`, isActive, workTypeId)
+	res, err := tx.ExecContext(ctx, `DELETE FROM work_type WHERE work_type.id = $1;`, workTypeId)
 	if err != nil {
 		w.logger.Error("error: ", err.Error())
 		tx.Rollback()

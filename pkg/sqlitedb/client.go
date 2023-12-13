@@ -54,7 +54,7 @@ func CreateTables(db *sql.DB) error {
 			name VARCHAR(255) NOT NULL,
 			facility_id INT NOT NULL,
 		    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-		    FOREIGN KEY (facility_id) REFERENCES facility(id)
+		    FOREIGN KEY (facility_id) REFERENCES facility(id) ON DELETE CASCADE
 		);
     	
 		CREATE TABLE IF NOT EXISTS application (
@@ -80,7 +80,7 @@ func CreateTables(db *sql.DB) error {
 			end_date TEXT NOT NULL,
 			end_time TEXT NOT NULL,
 			event_id INT NOT NULL,
-			facility_id INT, 
+			facility_id INT NOT NULL, 
 			FOREIGN KEY (facility_id) REFERENCES facility(id)
         );
 		

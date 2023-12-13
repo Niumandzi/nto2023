@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	errcode "github.com/niumandzi/nto2023/internal/errors"
 	"github.com/niumandzi/nto2023/model"
 	"github.com/niumandzi/nto2023/pkg/logging"
@@ -189,6 +190,8 @@ func (b BookingRepository) Update(ctx context.Context, bookingUpd model.Booking)
 		return err
 	}
 
+	fmt.Println(bookingUpd)
+
 	res, err := tx.ExecContext(ctx, `UPDATE booking
 											SET 
 												description = ?,
@@ -217,7 +220,7 @@ func (b BookingRepository) Update(ctx context.Context, bookingUpd model.Booking)
 		return err
 	}
 
-	_, err = tx.ExecContext(ctx, `DELETE FROM booking_part WHERE booking_id = ?`, bookingUpd.ID)
+	_, err = tx.ExecContext(ctx, `DELETE FROM booking_part WHERE booking_part.booking_id = ?`, bookingUpd.ID)
 	if err != nil {
 		b.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()

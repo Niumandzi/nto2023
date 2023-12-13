@@ -18,7 +18,7 @@ func (r RegistrationService) UpdateRegistration(registrationUpd model.Registrati
 
 	err = validation.ValidateStruct(&registrationUpd,
 		validation.Field(&registrationUpd.Name, validation.Required),
-		validation.Field(&registrationUpd.StartDate, validation.Required, validation.Date("2006-01-02")),
+		validation.Field(&registrationUpd.StartDate, validation.Required),
 		validation.Field(&registrationUpd.NumberOfDays, validation.Required, validation.In(1, 2, 3)),
 		validation.Field(&registrationUpd.FacilityID, validation.Required, validation.Min(1).Error("Не выбрано помещение")),
 		validation.Field(&registrationUpd.MugTypeID, validation.Required, validation.Min(1).Error("Не выбран тип кружка")),

@@ -20,19 +20,26 @@ func (s FacilityPage) CreateFacility(window fyne.Window, onUpdate func()) {
 	partsVBox := container.NewVBox()
 	vbox.Add(partsVBox)
 
-	addPartButton := widget.NewButton("     Добавить часть для помещения    ", func() {
-		newEntry := component.EntryWidget("Часть помещения")
-		partsEntries = append(partsEntries, newEntry)
-		partsVBox.Add(newEntry)
-		window.Canvas().Refresh(partsVBox)
+	addPartButton := widget.NewButton("     Добавить части для помещения    ", func() {
+		for i := 0; i < 2; i++ {
+			if len(partsEntries) >= 2 {
+				return
+			}
+			newEntry := component.EntryWidget("Часть помещения")
+			partsEntries = append(partsEntries, newEntry)
+			partsVBox.Add(newEntry)
+			window.Canvas().Refresh(partsVBox)
+		}
 	})
 
 	deleteLastPartButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		if len(partsEntries) > 0 {
-			lastIndex := len(partsEntries) - 1
-			partsVBox.Remove(partsEntries[lastIndex])
-			partsEntries = partsEntries[:lastIndex]
-			window.Canvas().Refresh(partsVBox)
+		for i := 0; i < 2; i++ {
+			if len(partsEntries) > 0 {
+				lastIndex := len(partsEntries) - 1
+				partsVBox.Remove(partsEntries[lastIndex])
+				partsEntries = partsEntries[:lastIndex]
+				window.Canvas().Refresh(partsVBox)
+			}
 		}
 	})
 

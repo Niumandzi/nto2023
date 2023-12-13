@@ -1,7 +1,6 @@
 package registration
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -71,7 +70,6 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 			if checked {
 				if !contains(selectedParts, localPartID) {
 					selectedParts = append(selectedParts, localPartID)
-					fmt.Print(selectedParts)
 				}
 			} else {
 				for i, id := range selectedParts {
@@ -176,7 +174,11 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 		"sunday":    "Воскресенье",
 	}
 
-	addDayButton := widget.NewButton("                 Добавить день недели                ", func() {
+	addDayButton := widget.NewButton("                 Добавить день недели                 ", func() {
+		if len(dayEntries) >= 3 {
+			return
+		}
+
 		newDaySelector := component.SelectorWidget("День недели", days, nil, nil)
 		newStartTimeEntry := component.EntryWidget("Дата начала")
 		newEndTimeEntry := component.EntryWidget("Дата окончания")
@@ -198,7 +200,6 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 					EndTime:   newEndTimeEntry.Text,
 				})
 			}
-			fmt.Println(schedule)
 		}
 
 		newStartTimeEntry.OnChanged = func(newTime string) {
@@ -206,7 +207,6 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 				schedule[len(schedule)-1].StartTime = newTime
 				newStartTimeEntry.Disable()
 			}
-			fmt.Println(schedule)
 		}
 
 		newEndTimeEntry.OnChanged = func(newTime string) {
@@ -214,7 +214,6 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 				schedule[len(schedule)-1].EndTime = newTime
 				newEndTimeEntry.Disable()
 			}
-			fmt.Println(schedule)
 		}
 
 		newTimeContainer := container.New(layout.NewGridLayout(2), newStartTimeEntry, newEndTimeEntry)
@@ -237,7 +236,6 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 			dayEntries = dayEntries[:lastIndex]
 			if len(schedule) > lastIndex {
 				schedule = schedule[:lastIndex]
-				fmt.Println(schedule)
 			}
 			selectedNumberOfDays -= 1
 			updateDaysVBox()
@@ -252,6 +250,10 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 		newStartTimeEntry := component.EntryWidgetWithData("Дата начала", startTime)
 		newEndTimeEntry := component.EntryWidgetWithData("Дата окончания", endTime)
 
+		newDaySelector.Disable()
+		newStartTimeEntry.Disable()
+		newEndTimeEntry.Disable()
+
 		newTimeContainer := container.New(layout.NewGridLayout(2), newStartTimeEntry, newEndTimeEntry)
 
 		return DayEntry{
@@ -264,7 +266,6 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 
 	for _, scheduleItem := range registration.Schedule {
 		day := daysForTranslate[scheduleItem.Day]
-		fmt.Println(day)
 		newEntry := createDayEntry(day, scheduleItem.StartTime, scheduleItem.EndTime)
 		dayEntries = append(dayEntries, newEntry)
 		schedule = append(schedule, model.Schedule{
@@ -272,7 +273,6 @@ func (r RegistrationPage) UpdateRegistration(registration model.RegistrationWith
 			StartTime: scheduleItem.StartTime,
 			EndTime:   scheduleItem.EndTime,
 		})
-		fmt.Println(schedule)
 	}
 	updateDaysVBox()
 

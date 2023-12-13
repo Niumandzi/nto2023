@@ -210,7 +210,7 @@ func (s EventRepository) Delete(ctx context.Context, eventId int, isActive bool)
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE events SET is_active = $1 WHERE id = $2;`, isActive, eventId)
+	res, err := tx.ExecContext(ctx, `DELETE FROM events WHERE id = $1;`, eventId)
 	if err != nil {
 		s.logger.Error("error: ", err.Error())
 		tx.Rollback()

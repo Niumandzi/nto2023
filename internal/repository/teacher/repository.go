@@ -166,7 +166,7 @@ func (t TeacherRepository) Delete(ctx context.Context, teacherID int, isActive b
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE teacher SET is_active = $1 WHERE teacher.id = $2;`, isActive, teacherID)
+	res, err := tx.ExecContext(ctx, `DELETE FROM teacher WHERE teacher.id = $1;`, teacherID)
 	if err != nil {
 		t.logger.Error("error: ", err.Error())
 		tx.Rollback()

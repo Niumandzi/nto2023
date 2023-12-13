@@ -37,7 +37,7 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 	}, nil)
 	vbox.Add(eventSelect)
 
-	createDateLabel := widget.NewLabel(time.Now().Format("2006-02-01"))
+	createDateLabel := widget.NewLabel(time.Now().Format("2006-01-02"))
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 	startLabel := widget.NewLabel("Дата/Время начала")
 	endLabel := widget.NewLabel("Дата/Время окончания")
@@ -77,9 +77,9 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 				handleCreateBooking(formData, window, b.bookingServ, onUpdate, customPopUp)
 			})
 			infoDialog.Show()
+		} else {
+			handleCreateBooking(formData, window, b.bookingServ, onUpdate, customPopUp)
 		}
-		handleCreateBooking(formData, window, b.bookingServ, onUpdate, customPopUp)
-
 	})
 	cancelButton := widget.NewButton("            Отмена            ", func() {
 		customPopUp.Hide()
@@ -127,7 +127,7 @@ func (b BookingPage) CreateBooking(categoryName string, window fyne.Window, onUp
 
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
-		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
+		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(endDateEntry.Text) && validateTime(endTimeEntry.Text) {
 			facilities, err := b.facilityServ.GetFacilitiesByDateTime(startDateEntry.Text, startTimeEntry.Text, endDateEntry.Text, endTimeEntry.Text)
 			if err != nil {
 				dialog.ShowError(err, window)

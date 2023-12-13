@@ -54,7 +54,7 @@ func (s FacilityService) GetFacilitiesByDateTime(startDate string, startTime str
 	return facilities, nil
 }
 
-func (s FacilityService) GetFacilitiesByDateTimeAndID(startDate string, startTime string, endDate string, endTime string, facilityID, bookingID int) ([]model.FacilityWithParts, error) {
+func (s FacilityService) GetFacilitiesByDateTimeAndID(startDate string, startTime string, endDate string, endTime string, facilityID int, bookingID int) ([]model.FacilityWithParts, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 	defer cancel()
 
@@ -67,7 +67,7 @@ func (s FacilityService) GetFacilitiesByDateTimeAndID(startDate string, startTim
 		return nil, err
 	}
 
-	facilities, err := s.facilityRepo.GetByDateTime(ctx, startDate, startTime, endDate, endTime)
+	facilities, err := s.facilityRepo.GetFacilitiesByDateTimeAndID(ctx, startDate, startTime, endDate, endTime, facilityID, bookingID)
 	if err != nil {
 		s.logger.Error("error: ", err.Error())
 		return nil, err

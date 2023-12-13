@@ -121,7 +121,6 @@ func (p PartRepository) Update(ctx context.Context, update map[int]string) error
 }
 
 func (p PartRepository) Delete(ctx context.Context, delete map[int]bool) error {
-	fmt.Print(delete)
 	tx, err := p.db.BeginTx(ctx, nil)
 	if err != nil {
 		p.logger.Errorf("error: %v", err.Error())
@@ -129,24 +128,15 @@ func (p PartRepository) Delete(ctx context.Context, delete map[int]bool) error {
 	}
 
 	var queryBuilder strings.Builder
-	queryBuilder.WriteString(`UPDATE part SET is_active = CASE id `)
+	queryBuilder.WriteString("DELETE FROM part WHERE id IN (")
 	var args []interface{}
-	var i int = 1
-	for id, isActive := range delete {
-		queryBuilder.WriteString(fmt.Sprintf("WHEN $%d THEN $%d ", i, i+1))
-		args = append(args, id, isActive)
-		i += 2
-	}
-	queryBuilder.WriteString("END WHERE id IN (")
 	first := true
-	j := 1
 	for id := range delete {
 		if !first {
 			queryBuilder.WriteString(", ")
 		}
-		queryBuilder.WriteString(fmt.Sprintf("$%d", i+j))
+		queryBuilder.WriteString(fmt.Sprintf("$%d", len(args)+1))
 		args = append(args, id)
-		j++
 		first = false
 	}
 	queryBuilder.WriteString(");")
@@ -166,7 +156,7 @@ func (p PartRepository) Delete(ctx context.Context, delete map[int]bool) error {
 	}
 
 	if rowsCount != int64(len(delete)) {
-		err = errors.NewRowCountError("expected to delete/update parts", len(delete))
+		err = errors.NewRowCountError("expected to delete parts", len(delete))
 		p.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()
 		return err

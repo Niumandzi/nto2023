@@ -24,7 +24,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	var customPopUp *widget.PopUp
 	var selectedParts []int
 
-	facilities, err := b.facilityServ.GetFacilitiesByDateTimeAndID(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.ID, booking.Facility.ID)
+	facilities, err := b.facilityServ.GetFacilitiesByDateTimeAndID(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.Facility.ID, booking.ID)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -106,7 +106,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 
 	saveButton := widget.NewButton("            Сохранить            ", func() {
 		if facilityParts[selectedFacilityID] != nil && len(facilityParts[selectedFacilityID]) > 0 && len(selectedParts) == 0 {
-			dialog.ShowError(fmt.Errorf("Для выбранного помещения необходимо выбрать хотя бы одну часть"), window)
+			dialog.ShowError(fmt.Errorf("Необходимо выбрать хотя бы одну часть"), window)
 			return
 		}
 
@@ -171,8 +171,8 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
-		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(startDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err = b.facilityServ.GetFacilitiesByDateTimeAndID(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.ID, booking.Facility.ID)
+		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(endDateEntry.Text) && validateTime(endTimeEntry.Text) {
+			facilities, err = b.facilityServ.GetFacilitiesByDateTimeAndID(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.Facility.ID, booking.ID)
 			if err != nil {
 				dialog.ShowError(err, window)
 			}
@@ -210,6 +210,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 				vbox.Remove(buttons)
 				facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
 					selectedFacilityID = id
+					selectedParts = []int{}
 					updateParts()
 				}, nil)
 				vbox.Add(facilitySelect)
@@ -228,6 +229,7 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 	selectedFacilityID = booking.Facility.ID
 	facilitySelect = component.SelectorWidget(booking.Facility.Name, facilityNames, func(id int) {
 		selectedFacilityID = id
+		selectedParts = []int{}
 		updateParts()
 	}, nil)
 

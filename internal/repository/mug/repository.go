@@ -167,7 +167,7 @@ func (m MugTypeRepository) Delete(ctx context.Context, mugTypeID int, isActive b
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `UPDATE mug_type SET is_active = $1 WHERE mug_type.id = $2;`, isActive, mugTypeID)
+	res, err := tx.ExecContext(ctx, `DELETE FROM mug_type WHERE mug_type.id = $2;`, isActive, mugTypeID)
 	if err != nil {
 		m.logger.Error("error: ", err.Error())
 		tx.Rollback()
