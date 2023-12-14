@@ -295,13 +295,12 @@ func (f FacilityRepository) GetFacilitiesByDateTimeAndID(ctx context.Context, st
 												                 	OR	(booking.end_date || ' ' || booking.end_time) BETWEEN $1 || ' ' || $2 AND $3 || ' ' || $4
 												                     )
 												                 GROUP BY booking.id
-												                 HAVING COUNT(booking_part.booking_id) = 0);`, startDate, startTime, endDate, endTime)
+												                 HAVING COUNT(booking_part.booking_id) = 0);`, startDate, startTime, endDate, endTime, bookingID)
 
 	if err != nil {
 		f.logger.Errorf(err.Error())
 		return []model.FacilityWithParts{}, err
 	}
-
 	defer facilityRows.Close()
 
 	for facilityRows.Next() {
@@ -318,26 +317,32 @@ func (f FacilityRepository) GetFacilitiesByDateTimeAndID(ctx context.Context, st
 
 			println(bookingID)
 			partRows, err := f.db.QueryContext(ctx, `SELECT part.id, part.name, part.facility_id, part.is_active 
-													FROM part 
-													WHERE 
-													    part.facility_id = $1 
-													AND
-													    NOT EXISTS(SELECT 1 
-												                 FROM booking_part 
-												                 INNER JOIN booking ON booking_part.booking_id = booking.id
-												                 WHERE booking_part.part_id = part.id  
-												                	AND 
-												                     (
-												                     	(booking.start_date || ' ' || booking.start_time) BETWEEN $2 || ' ' || $3 AND $4 || ' ' || $5
-												                 	OR	(booking.end_date || ' ' || booking.end_time) BETWEEN $2 || ' ' || $3 AND $4 || ' ' || $5
-												                     )
-												                     );`, facility.ID, startDate, startTime, endDate, endTime)
-
+												  FROM part 
+												  WHERE 
+													part.facility_id = $1 
+												  AND (
+													NOT EXISTS (
+													  SELECT 1 
+													  FROM booking_part 
+													  INNER JOIN booking ON booking_part.booking_id = booking.id
+													  WHERE booking_part.part_id = part.id 
+													  AND 
+													   (
+														(booking.start_date || ' ' || booking.start_time) BETWEEN $2 || ' ' || $3 AND $4 || ' ' || $5
+													  OR  (booking.end_date || ' ' || booking.end_time) BETWEEN $2 || ' ' || $3 AND $4 || ' ' || $5
+													   )
+													)
+													OR (
+													  SELECT 1
+													  FROM booking_part
+													   INNER JOIN booking ON booking_part.booking_id = booking.id
+													  WHERE booking_part.part_id = part.id
+													  AND booking_part.booking_id = $6
+													));`, facility.ID, startDate, startTime, endDate, endTime, bookingID)
 			if err != nil {
 				f.logger.Errorf(err.Error())
 				return []model.FacilityWithParts{}, err
 			}
-
 			defer partRows.Close()
 
 			for partRows.Next() {

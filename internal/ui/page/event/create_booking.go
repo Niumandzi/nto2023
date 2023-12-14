@@ -34,7 +34,7 @@ func (e EventPage) CreateBooking(selectedEventID int, eventName string, category
 	eventSelect := widget.NewLabel(eventName)
 	vbox.Add(eventSelect)
 
-	createDateLabel := widget.NewLabel(time.Now().Format("2006-02-01"))
+	createDateLabel := widget.NewLabel(time.Now().Format("2006-01-02"))
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
 	startLabel := widget.NewLabel("Дата/Время начала")
 	endLabel := widget.NewLabel("Дата/Время окончания")
@@ -74,8 +74,9 @@ func (e EventPage) CreateBooking(selectedEventID int, eventName string, category
 				handleCreateBooking(formData, window, e.bookingServ, onUpdate, customPopUp)
 			})
 			infoDialog.Show()
+		} else {
+			handleCreateBooking(formData, window, e.bookingServ, onUpdate, customPopUp)
 		}
-		handleCreateBooking(formData, window, e.bookingServ, onUpdate, customPopUp)
 	})
 	cancelButton := widget.NewButton("            Отмена            ", func() {
 		customPopUp.Hide()
@@ -175,6 +176,7 @@ func (e EventPage) CreateBooking(selectedEventID int, eventName string, category
 	startTimeEntry.OnChanged = func(string) { updateFacilities() }
 	endDateEntry.OnChanged = func(string) { updateFacilities() }
 	endTimeEntry.OnChanged = func(string) { updateFacilities() }
+
 	facilitySelect = component.SelectorWidget("Помещение", facilityNames, func(id int) {
 		selectedFacilityID = id
 		updateParts()

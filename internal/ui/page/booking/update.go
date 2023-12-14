@@ -171,8 +171,11 @@ func (b BookingPage) UpdateBooking(categoryName string, booking model.BookingWit
 
 	facilityNames = make(map[string]int)
 	updateFacilities := func() {
+		facilityParts = make(map[int]map[int]string)
+
 		if validateDate(startDateEntry.Text) && validateTime(startTimeEntry.Text) && validateDate(endDateEntry.Text) && validateTime(endTimeEntry.Text) {
-			facilities, err = b.facilityServ.GetFacilitiesByDateTimeAndID(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime, booking.Facility.ID, booking.ID)
+			facilities, err = b.facilityServ.GetFacilitiesByDateTime(booking.StartDate, booking.StartTime, booking.EndDate, booking.EndTime)
+
 			if err != nil {
 				dialog.ShowError(err, window)
 			}
