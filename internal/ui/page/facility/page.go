@@ -10,12 +10,14 @@ import (
 
 type FacilityPage struct {
 	facilityServ service.FacilityService
+	partServ     service.PartService
 	logger       logging.Logger
 }
 
-func NewFacilityPage(det service.FacilityService, logger logging.Logger) FacilityPage {
+func NewFacilityPage(fac service.FacilityService, part service.PartService, logger logging.Logger) FacilityPage {
 	return FacilityPage{
-		facilityServ: det,
+		facilityServ: fac,
+		partServ:     part,
 		logger:       logger,
 	}
 }

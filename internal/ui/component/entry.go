@@ -19,7 +19,7 @@ func MultiLineEntryWidget(placeholder string) *widget.Entry {
 	return entry
 }
 
-func EntryWithDataWidget(placeholder string, data string) *widget.Entry {
+func EntryWidgetWithData(placeholder string, data string) *widget.Entry {
 	dataBinding := binding.NewString()
 	_ = dataBinding.Set(data)
 

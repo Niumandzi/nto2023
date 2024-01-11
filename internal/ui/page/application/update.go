@@ -12,9 +12,9 @@ import (
 func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName string, facilityName string, eventName string, application model.Application, window fyne.Window, onUpdate func()) {
 	var status string
 
-	descriptionEntry := component.EntryWithDataWidget("Описание", application.Description)
+	descriptionEntry := component.EntryWidgetWithData("Описание", application.Description)
 	createDateLabel := widget.NewLabel(application.CreateDate)
-	dueDateEntry := component.EntryWithDataWidget("Дата выполнения (дд.мм.гггг)", application.DueDate)
+	dueDateEntry := component.EntryWidgetWithData("Дата выполнения (гггг-мм-дд)", application.DueDate)
 
 	switch application.Status {
 	case "created":
@@ -30,10 +30,9 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		nil,
 		func(selectedStatus string) {
 			application.Status = selectedStatus
-		},
-	)
+		})
 
-	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "")
+	workTypes, err := s.workTypeServ.GetActiveWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -44,14 +43,11 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		workNames[work.Name] = work.ID
 	}
 
-	workSelect := component.SelectorWidget(workTypeName, workNames,
-		func(id int) {
-			application.WorkTypeId = id
-		},
-		nil,
-	)
+	workSelect := component.SelectorWidget(workTypeName, workNames, func(id int) {
+		application.WorkTypeId = id
+	}, nil)
 
-	facilities, err := s.facilityServ.GetFacilities("", 0, "")
+	facilities, err := s.facilityServ.GetActiveFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 		return
@@ -69,7 +65,7 @@ func (s ApplicationPage) UpdateApplication(categoryName string, workTypeName str
 		nil,
 	)
 
-	events, err := s.eventServ.GetEvents(categoryName, 0)
+	events, err := s.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 		return

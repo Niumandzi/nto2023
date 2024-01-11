@@ -1,13 +1,9 @@
 package model
 
 type WorkType struct {
-	ID   int
-	Name string
-}
-
-type Facility struct {
-	ID   int
-	Name string
+	ID       int
+	Name     string
+	IsActive bool
 }
 
 type Application struct {

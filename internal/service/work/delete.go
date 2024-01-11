@@ -2,12 +2,11 @@ package work
 
 import "context"
 
-func (s WorkTypeService) DeleteWorkType(id int) error {
+func (s WorkTypeService) DeleteRestoreWorkType(workTypeID int, isActive bool) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
-
 	defer cancel()
 
-	err := s.workTypeRepo.Delete(ctx, id)
+	err := s.workTypeRepo.Delete(ctx, workTypeID, isActive)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

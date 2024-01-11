@@ -19,7 +19,7 @@ func (s DetailsPage) UpdateDetail(id int, category string, typeName string, wind
 	}
 
 	categoryLabel := widget.NewLabel(category)
-	typeNameEntry := component.EntryWithDataWidget("Тип события", typeName)
+	typeNameEntry := component.EntryWidgetWithData("Тип события", typeName)
 
 	formItems := []*widget.FormItem{
 		widget.NewFormItem("", categoryLabel),

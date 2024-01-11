@@ -7,23 +7,37 @@ import (
 	"fyne.io/fyne/v2/dialog"
 
 	applicationRepository "github.com/niumandzi/nto2023/internal/repository/application"
+	bookingRepository "github.com/niumandzi/nto2023/internal/repository/booking"
 	detailsRepository "github.com/niumandzi/nto2023/internal/repository/details"
 	eventRepository "github.com/niumandzi/nto2023/internal/repository/event"
 	facilityRepository "github.com/niumandzi/nto2023/internal/repository/facility"
+	mugTypeRepository "github.com/niumandzi/nto2023/internal/repository/mug"
+	partRepository "github.com/niumandzi/nto2023/internal/repository/part"
+	registrationRepository "github.com/niumandzi/nto2023/internal/repository/registration"
+	teacherRepository "github.com/niumandzi/nto2023/internal/repository/teacher"
 	workTypeRepository "github.com/niumandzi/nto2023/internal/repository/work"
 
 	applicationService "github.com/niumandzi/nto2023/internal/service/application"
+	bookingService "github.com/niumandzi/nto2023/internal/service/booking"
 	detailsService "github.com/niumandzi/nto2023/internal/service/details"
 	eventService "github.com/niumandzi/nto2023/internal/service/event"
 	facilityService "github.com/niumandzi/nto2023/internal/service/facility"
+	mugTypeService "github.com/niumandzi/nto2023/internal/service/mug"
+	partService "github.com/niumandzi/nto2023/internal/service/part"
+	registrationService "github.com/niumandzi/nto2023/internal/service/registration"
+	teacherService "github.com/niumandzi/nto2023/internal/service/teacher"
 	workTypeService "github.com/niumandzi/nto2023/internal/service/work"
 
 	"github.com/niumandzi/nto2023/internal/ui"
 
 	applicationPage "github.com/niumandzi/nto2023/internal/ui/page/application"
+	bookingPage "github.com/niumandzi/nto2023/internal/ui/page/booking"
 	detailsPage "github.com/niumandzi/nto2023/internal/ui/page/details"
 	eventPage "github.com/niumandzi/nto2023/internal/ui/page/event"
 	facilityPage "github.com/niumandzi/nto2023/internal/ui/page/facility"
+	mugPage "github.com/niumandzi/nto2023/internal/ui/page/mug"
+	registrationPage "github.com/niumandzi/nto2023/internal/ui/page/registration"
+	teacherPage "github.com/niumandzi/nto2023/internal/ui/page/teacher"
 	workPage "github.com/niumandzi/nto2023/internal/ui/page/work"
 
 	"github.com/niumandzi/nto2023/pkg/logging"
@@ -65,24 +79,38 @@ func main() {
 
 	timeoutContext := time.Duration(2) * time.Second
 
-	eventRepo := eventRepository.NewEventRepository(db, logger)
-	detailsRepo := detailsRepository.NewDetailsRepository(db, logger)
-	facilityRepo := facilityRepository.NewFacilityRepository(db, logger)
-	workTypeRepo := workTypeRepository.NewWorkTypeRepository(db, logger)
 	applicationRepo := applicationRepository.NewApplicationRepository(db, logger)
+	bookingRepo := bookingRepository.NewBookingRepository(db, logger)
+	detailsRepo := detailsRepository.NewDetailsRepository(db, logger)
+	eventRepo := eventRepository.NewEventRepository(db, logger)
+	facilityRepo := facilityRepository.NewFacilityRepository(db, logger)
+	mugTypeRepo := mugTypeRepository.NemMugTypeRepository(db, logger)
+	partRepo := partRepository.NewPartRepository(db, logger)
+	registrationRepo := registrationRepository.NewRegistrationRepository(db, logger)
+	teacherRepo := teacherRepository.NewTeacherRepository(db, logger)
+	workTypeRepo := workTypeRepository.NewWorkTypeRepository(db, logger)
 
-	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
-	detailsServ := detailsService.NewDetailsService(detailsRepo, timeoutContext, logger, ctx)
-	facilityServ := facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
-	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 	applicationServ := applicationService.NewApplicationService(applicationRepo, timeoutContext, logger, ctx)
+	bookingServ := bookingService.NewBookingService(bookingRepo, timeoutContext, logger, ctx)
+	detailsServ := detailsService.NewDetailsService(detailsRepo, timeoutContext, logger, ctx)
+	eventServ := eventService.NewEventService(eventRepo, detailsRepo, timeoutContext, logger, ctx)
+	facilityServ := facilityService.NewFacilityService(facilityRepo, timeoutContext, logger, ctx)
+	mugTypeServ := mugTypeService.NewMugTypeService(mugTypeRepo, timeoutContext, logger, ctx)
+	partServ := partService.NewPartService(partRepo, timeoutContext, logger, ctx)
+	registrationServ := registrationService.NewRegistrationService(registrationRepo, timeoutContext, logger, ctx)
+	teacherServ := teacherService.NewTeacherService(teacherRepo, timeoutContext, logger, ctx)
+	workTypeServ := workTypeService.NewWorkTypeService(workTypeRepo, timeoutContext, logger, ctx)
 
-	event := eventPage.NewEventPage(eventServ, logger)
-	details := detailsPage.NewDetailsPage(detailsServ, logger)
-	facility := facilityPage.NewFacilityPage(facilityServ, logger)
-	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 	application := applicationPage.NewApplicationPage(applicationServ, eventServ, facilityServ, workTypeServ, logger)
+	booking := bookingPage.NewBookingPage(bookingServ, eventServ, facilityServ, logger)
+	details := detailsPage.NewDetailsPage(detailsServ, logger)
+	event := eventPage.NewEventPage(facilityServ, bookingServ, eventServ, detailsServ, logger)
+	facility := facilityPage.NewFacilityPage(facilityServ, partServ, logger)
+	mugType := mugPage.NewMugTypePage(mugTypeServ, logger)
+	teacher := teacherPage.NewTeacherPage(teacherServ, logger)
+	registration := registrationPage.NewRegistrationPage(registrationServ, facilityServ, teacherServ, mugTypeServ, logger)
+	workType := workPage.NewWorkTypePage(workTypeServ, logger)
 
 	gui := ui.NewGUI(a, w)
-	ui.SetupUI(gui, event, details, application, facility, workType)
+	ui.SetupUI(gui, application, booking, details, event, facility, mugType, teacher, registration, workType)
 }

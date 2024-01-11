@@ -17,7 +17,6 @@ func (s ApplicationPage) ShowApplication(categoryName string, facilityId int, wo
 	applications, err := s.applicationServ.GetApplications(categoryName, facilityId, workTypeId, status)
 	if err != nil {
 		dialog.ShowError(err, window)
-		return
 	}
 
 	applicationContainer.Objects = nil
@@ -71,9 +70,9 @@ func (s ApplicationPage) createApplicationCard(application model.ApplicationWith
 	statusColorBar := canvas.NewRectangle(getColorBasedOnStatus(application.Status))
 	statusColorBar.SetMinSize(fyne.NewSize(200, 6))
 
-	card := widget.NewCard("", "", container.NewBorder(statusColorBar, buttons, nil, nil, label))
+	applicationContainer := widget.NewCard("", "", container.NewBorder(statusColorBar, buttons, nil, nil, label))
 
-	return card
+	return applicationContainer
 }
 
 func combineCards(application model.ApplicationWithDetails, categoryName string) string {

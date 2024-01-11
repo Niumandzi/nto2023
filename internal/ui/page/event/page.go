@@ -8,27 +8,34 @@ import (
 	"github.com/niumandzi/nto2023/internal/service"
 	"github.com/niumandzi/nto2023/internal/ui/component"
 	"github.com/niumandzi/nto2023/pkg/logging"
+	"time"
 )
 
 type EventPage struct {
-	eventServ service.EventService
-	logger    logging.Logger
+	facilityServ service.FacilityService
+	bookingServ  service.BookingService
+	eventServ    service.EventService
+	detailsServ  service.DetailsService
+	logger       logging.Logger
 }
 
-func NewEventPage(event service.EventService, logger logging.Logger) EventPage {
+func NewEventPage(fac service.FacilityService, book service.BookingService, event service.EventService, det service.DetailsService, logger logging.Logger) EventPage {
 	return EventPage{
-		eventServ: event,
-		logger:    logger,
+		facilityServ: fac,
+		bookingServ:  book,
+		eventServ:    event,
+		detailsServ:  det,
+		logger:       logger,
 	}
 }
 
-func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject {
+func (e EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.CanvasObject {
 	eventContainer := container.NewStack()
 	eventList := func(eventType string, id int) {
-		s.ShowEvent(categoryName, id, window, eventContainer)
+		e.ShowEvent(categoryName, id, window, eventContainer)
 	}
 
-	details, err := s.eventServ.GetDetails(categoryName)
+	details, err := e.detailsServ.GetDetails(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -45,15 +52,33 @@ func (s EventPage) IndexEvent(categoryName string, window fyne.Window) fyne.Canv
 	)
 
 	createEventButton := widget.NewButton("Создать событие", func() {
-		s.CreateEvent(categoryName, window, func() {
+		e.CreateEvent(categoryName, window, func() {
 			eventList("", 0)
 		})
 	})
-	createButtons := container.NewHBox(createEventButton)
 
-	toolbar := container.NewBorder(nil, nil, typeSelect, createButtons)
+	toolbar := container.NewBorder(nil, nil, typeSelect, createEventButton)
 	content := container.NewBorder(toolbar, nil, nil, nil, eventContainer)
 	eventList("", 0)
 
 	return content
+}
+
+func contains(slice []int, item int) bool {
+	for _, v := range slice {
+		if v == item {
+			return true
+		}
+	}
+	return false
+}
+
+func validateDate(dateStr string) bool {
+	_, err := time.Parse("2006-01-02", dateStr)
+	return err == nil
+}
+
+func validateTime(timeStr string) bool {
+	_, err := time.Parse("15:04", timeStr)
+	return err == nil
 }

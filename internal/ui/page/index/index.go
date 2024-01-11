@@ -12,7 +12,7 @@ func ShowIndex() fyne.CanvasObject {
 	greetingLabel := widget.NewLabel("Приветствуем!")
 	greetingLabel.Alignment = fyne.TextAlignCenter
 
-	descriptionLabel := widget.NewLabel("Это реализация первого задания НТО 2023, командой 'ЯМы Райн Гослинг'")
+	descriptionLabel := widget.NewLabel("Это реализация третьего задания НТО 2023, командой 'ЯМы Райн Гослинг'")
 	descriptionLabel.Alignment = fyne.TextAlignCenter
 
 	bugLabel := widget.NewLabel("Наше приложение очень удобно логирует все ошибки." + "\n" + "Если вы столкнетесь с какими-либо багами, пожалуйста уведомите нас об этом в тг." + "\n" +

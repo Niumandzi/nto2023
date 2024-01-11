@@ -68,7 +68,7 @@ func (a ApplicationRepository) Create(ctx context.Context, application model.App
 }
 
 // Get аналогично как и в events repo, делаем один метод на get по workType и status
-func (a ApplicationRepository) Get(ctx context.Context, categoryName string, facilityID int, workTypeId int, status string) ([]model.ApplicationWithDetails, error) {
+func (a ApplicationRepository) Get(ctx context.Context, categoryName string, facilityID int, workTypeID int, status string) ([]model.ApplicationWithDetails, error) {
 	args := make([]interface{}, 0, 2)
 	kwargs := make(map[string]interface{})
 	var query string
@@ -103,8 +103,8 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 	if facilityID != 0 {
 		kwargs["facility.id"] = facilityID
 	}
-	if workTypeId != 0 {
-		kwargs["work_type.id"] = workTypeId
+	if workTypeID != 0 {
+		kwargs["work_type.id"] = workTypeID
 	}
 	if status != "" {
 		kwargs["application.status"] = status
@@ -128,30 +128,6 @@ func (a ApplicationRepository) Get(ctx context.Context, categoryName string, fac
 		}
 		i++
 	}
-
-	//if (categoryName == "") && (workTypeId == 0) && (status == "") {
-	//	err := errors.New("no categoryName, workType and status provided")
-	//	a.logger.Errorf(err.Error())
-	//	return applications, err
-	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE application.status = $1;`
-	//	args = append(args, status)
-	//} else if (categoryName == "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE work_type.id = $1 AND application.status = $2;`
-	//	args = append(args, workTypeId, status)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
-	//	query = baseQuery + `WHERE details.category = $1;`
-	//	args = append(args, categoryName)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status == "") {
-	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2;`
-	//	args = append(args, categoryName, workTypeId)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE details.category = $1 AND application.status = $2;`
-	//	args = append(args, categoryName, status)
-	//} else if (categoryName != "") && (workTypeId == 0) && (status != "") {
-	//	query = baseQuery + `WHERE details.category = $1 AND work_type.id = $2 AND application.status = $3;`
-	//	args = append(args, categoryName, workTypeId, status)
-	//}
 
 	rows, err := a.db.QueryContext(ctx, query, args...)
 	if err != nil {

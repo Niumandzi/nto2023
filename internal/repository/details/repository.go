@@ -54,7 +54,7 @@ func (s DetailsRepository) Create(ctx context.Context, categoryName string, type
 func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]model.Details, error) {
 	var details []model.Details
 
-	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category FROM details WHERE details.category = $1`, categoryName)
+	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category, details.is_active FROM details WHERE details.category = $1`, categoryName)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return []model.Details{}, err
@@ -65,9 +65,12 @@ func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]mode
 	for rows.Next() {
 		var detail model.Details
 
-		err = rows.Scan(&detail.ID,
+		err = rows.Scan(
+			&detail.ID,
 			&detail.TypeName,
-			&detail.Category)
+			&detail.Category,
+			&detail.IsActive,
+		)
 		if err != nil {
 			s.logger.Errorf("error: %v", err.Error())
 			return []model.Details{}, err
@@ -79,21 +82,38 @@ func (s DetailsRepository) Get(ctx context.Context, categoryName string) ([]mode
 	return details, nil
 }
 
-func (s DetailsRepository) GetId(ctx context.Context, categoryName string, typeName string) (int, error) {
-	var id int
+func (s DetailsRepository) GetActive(ctx context.Context, categoryName string) ([]model.Details, error) {
+	var details []model.Details
 
-	row := s.db.QueryRowContext(ctx, `SELECT details.id FROM details WHERE details.category = $1 AND details.type_name = $2`, categoryName, typeName)
-
-	err := row.Scan(&id)
+	rows, err := s.db.QueryContext(ctx, `SELECT details.id, details.type_name, details.category, details.is_active FROM details WHERE details.category = $1 and details.is_active = TRUE`, categoryName)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
-		return 0, err
+		return []model.Details{}, err
 	}
 
-	return id, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var detail model.Details
+
+		err = rows.Scan(
+			&detail.ID,
+			&detail.TypeName,
+			&detail.Category,
+			&detail.IsActive,
+		)
+		if err != nil {
+			s.logger.Errorf("error: %v", err.Error())
+			return []model.Details{}, err
+		}
+
+		details = append(details, detail)
+	}
+
+	return details, nil
 }
 
-func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, typeName string) error {
+func (s DetailsRepository) Update(ctx context.Context, detailsId int, typeName string) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Errorf("error: %v", err.Error())
@@ -130,14 +150,14 @@ func (s DetailsRepository) UpdateTypeName(ctx context.Context, detailsId int, ty
 	return nil
 }
 
-func (s DetailsRepository) DeleteType(ctx context.Context, detailsId int) error {
+func (s DetailsRepository) Delete(ctx context.Context, detailsId int, isActive bool) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err
 	}
 
-	res, err := tx.ExecContext(ctx, `DELETE FROM details WHERE details.id = $1;`, detailsId)
+	res, err := tx.ExecContext(ctx, `UPDATE details SET is_active = $1 WHERE details.id = $2;`, isActive, detailsId)
 	if err != nil {
 		s.logger.Errorf("error: %v", err.Error())
 		tx.Rollback()

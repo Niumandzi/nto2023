@@ -5,7 +5,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 
-func (s DetailsService) UpdateDetail(detailsId int, typeName string) error {
+func (s DetailsService) UpdateDetail(detailsID int, typeName string) error {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
@@ -16,7 +16,7 @@ func (s DetailsService) UpdateDetail(detailsId int, typeName string) error {
 		return err
 	}
 
-	err = s.detailsRepo.UpdateTypeName(ctx, detailsId, typeName)
+	err = s.detailsRepo.Update(ctx, detailsID, typeName)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
 		return err

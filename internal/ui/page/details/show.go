@@ -33,7 +33,7 @@ func (s DetailsPage) ShowDetails(categoryName string, window fyne.Window, eventC
 }
 
 func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, onUpdate func()) fyne.CanvasObject {
-	cardText := card(detail)
+	cardText, isActive := card(detail)
 	label := widget.NewLabel(cardText)
 	label.Wrapping = fyne.TextWrapWord
 
@@ -41,12 +41,25 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 		s.UpdateDetail(detail.ID, detail.Category, detail.TypeName, window, onUpdate)
 	})
 
-	deleteButton := widget.NewButtonWithIcon("", theme.DeleteIcon(), func() {
-		err := s.detailsServ.DeleteDetail(detail.ID)
+	var icon fyne.Resource
+	var dialogTitle, dialogMessage string
+
+	if isActive {
+		icon = theme.DeleteIcon()
+		dialogTitle = "Тип удален"
+		dialogMessage = "Тип успешно удален!"
+	} else {
+		icon = theme.ViewRefreshIcon()
+		dialogTitle = "Тип восстановлен"
+		dialogMessage = "Тип успешно восстановлен!"
+	}
+
+	deleteButton := widget.NewButtonWithIcon("", icon, func() {
+		err := s.detailsServ.DeleteRestoreType(detail.ID, !isActive)
 		if err != nil {
 			dialog.ShowError(err, window)
 		} else {
-			dialog.ShowInformation("Тип удален", "Тип успешно удален!", window)
+			dialog.ShowInformation(dialogTitle, dialogMessage, window)
 			onUpdate()
 		}
 	})
@@ -60,7 +73,7 @@ func (s DetailsPage) createDetailCard(detail model.Details, window fyne.Window, 
 	return eventContainer
 }
 
-func card(detail model.Details) string {
+func card(detail model.Details) (string, bool) {
 	var category string
 	switch detail.Category {
 	case "entertainment":
@@ -72,5 +85,5 @@ func card(detail model.Details) string {
 	}
 
 	return fmt.Sprintf("Категория: %s\nТип: %s",
-		category, detail.TypeName)
+		category, detail.TypeName), detail.IsActive
 }

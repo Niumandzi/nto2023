@@ -19,16 +19,16 @@ func (s EventService) GetEvents(categoryName string, detailsID int) ([]model.Eve
 	return events, nil
 }
 
-func (s EventService) GetDetails(categoryName string) ([]model.Details, error) {
+func (s EventService) GetActiveEvents(categoryName string) ([]model.EventWithDetails, error) {
 	ctx, cancel := context.WithTimeout(s.ctx, s.contextTimeout)
 
 	defer cancel()
 
-	types, err := s.detailsRepo.Get(ctx, categoryName)
+	events, err := s.eventRepo.GetActive(ctx, categoryName)
 	if err != nil {
 		s.logger.Error("error: %v", err.Error())
-		return []model.Details{}, err
+		return []model.EventWithDetails{}, err
 	}
 
-	return types, nil
+	return events, nil
 }

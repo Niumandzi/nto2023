@@ -13,7 +13,7 @@ import (
 func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Window, onUpdate func()) {
 	formData := model.Application{
 		Status:     "created",
-		CreateDate: time.Now().Format("02.01.2006"),
+		CreateDate: time.Now().Format("2006-01-02"),
 	}
 
 	statusLabel := widget.NewLabel("Черновик")
@@ -21,9 +21,9 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 	createDateLabel.Wrapping = fyne.TextWrapWord
 
 	descriptionEntry := component.MultiLineEntryWidget("Описание")
-	dueDateEntry := component.EntryWidget("Дата выполнения (дд.мм.гггг)")
+	dueDateEntry := component.EntryWidget("Дата выполнения (гггг-мм-дд)")
 
-	workTypes, err := s.workTypeServ.GetWorkTypes("", 0, "")
+	workTypes, err := s.workTypeServ.GetActiveWorkTypes("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -39,7 +39,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 		nil,
 	)
 
-	facilities, err := s.facilityServ.GetFacilities("", 0, "")
+	facilities, err := s.facilityServ.GetActiveFacilities("", 0, "")
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
@@ -55,7 +55,7 @@ func (s ApplicationPage) CreateApplication(categoryName string, window fyne.Wind
 		nil,
 	)
 
-	events, err := s.eventServ.GetEvents(categoryName, 0)
+	events, err := s.eventServ.GetActiveEvents(categoryName)
 	if err != nil {
 		dialog.ShowError(err, window)
 	}
